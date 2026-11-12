@@ -1,30 +1,87 @@
 'use client'
 
 import { useSyncExternalStore } from 'react'
-import { addDays, buildSessions, draftFor, nextFriday, toISODate, type RaceEvent, type RemKey } from './f1'
+import { buildSessions, type Format, type RaceEvent, type SessionDraft } from './f1'
 
 export type AppState = {
   hydrated: boolean
   onboarded: boolean
-  defaultRem: RemKey
   events: RaceEvent[]
 }
 
-const STORAGE_KEY = 'boxbox:v1'
-const SERVER_STATE: AppState = { hydrated: false, onboarded: false, defaultRem: '1h', events: [] }
+const STORAGE_KEY = 'boxbox:v4'
+const SERVER_STATE: AppState = { hydrated: false, onboarded: false, events: [] }
 
-function seed(): RaceEvent[] {
-  const f1 = nextFriday(new Date(), 2)
-  const make = (id: string, name: string, place: string, format: 'std' | 'sprint', start: Date, rem: RemKey) => {
-    const iso = toISODate(start)
-    return { id, name, place, format, start: iso, rem, sessions: buildSessions(iso, format, draftFor(format)) }
+type SeedInput = {
+  id: string
+  name: string
+  place: string
+  format: Format
+  start: string
+  image: string
+  times: SessionDraft
+}
+
+function make(input: SeedInput): RaceEvent {
+  return {
+    id: input.id,
+    name: input.name,
+    place: input.place,
+    format: input.format,
+    start: input.start,
+    image: input.image,
+    sessions: buildSessions(input.start, input.format, input.times),
   }
-  const first = make('seed-1', 'Гран-при Майами', 'Майами-Гарденс, США', 'sprint', f1, '1h')
-  first.sessions[3].on = false
+}
+
+/** Оставшиеся уикенды сезона 2026 (время МСК), на 12.11.2026 */
+function seed(): RaceEvent[] {
   return [
-    first,
-    make('seed-2', 'Гран-при Монако', 'Монте-Карло, Монако', 'std', addDays(f1, 14), '1d'),
-    make('seed-3', 'Гран-при Великобритании', 'Сильверстоун, Великобритания', 'std', addDays(f1, 42), '1h'),
+    make({
+      id: '2026-vegas',
+      name: 'Гран-при Лас-Вегаса',
+      place: 'Лас-Вегас, США',
+      format: 'std',
+      start: '2026-11-20',
+      image: '/img/Неоновый Гран-при Лас-Вегаса.png',
+      times: {
+        fp1: { time: '03:30' },
+        fp2: { time: '07:00' },
+        fp3: { time: '03:30' },
+        q: { time: '07:00' },
+        r: { time: '07:00' },
+      },
+    }),
+    make({
+      id: '2026-qatar',
+      name: 'Гран-при Катара',
+      place: 'Лусаил, Катар',
+      format: 'std',
+      start: '2026-11-27',
+      image: '/img/Победный момент на Гран-при Катара.png',
+      times: {
+        fp1: { time: '16:30' },
+        fp2: { time: '20:00' },
+        fp3: { time: '17:30' },
+        q: { time: '21:00' },
+        r: { time: '19:00' },
+      },
+    }),
+    make({
+      id: '2026-abu-dhabi',
+      name: 'Гран-при Абу-Даби',
+      place: 'Яс-Марина, ОАЭ',
+      format: 'std',
+      start: '2026-12-04',
+      image: '/img/Триумф на Гран-при Абу-Даби.png',
+      times: {
+        fp1: { time: '12:30' },
+        fp2: { time: '16:00' },
+        fp3: { time: '13:30' },
+        q: { time: '17:00' },
+        r: { time: '16:00' },
+      },
+    }),
   ]
 }
 
@@ -39,7 +96,7 @@ function load(): AppState {
       if (Array.isArray(parsed.events)) return { ...parsed, hydrated: true }
     }
   } catch {}
-  return { hydrated: true, onboarded: false, defaultRem: '1h', events: seed() }
+  return { hydrated: true, onboarded: true, events: seed() }
 }
 
 function getSnapshot() {
@@ -70,15 +127,5 @@ export const actions = {
   addEvent: (event: Omit<RaceEvent, 'id'>) =>
     setState((s) => ({ ...s, events: [...s.events, { ...event, id: crypto.randomUUID() }] })),
   removeEvent: (id: string) => setState((s) => ({ ...s, events: s.events.filter((e) => e.id !== id) })),
-  toggleSession: (eventId: string, key: string) =>
-    setState((s) => ({
-      ...s,
-      events: s.events.map((e) =>
-        e.id !== eventId
-          ? e
-          : { ...e, sessions: e.sessions.map((x) => (x.key === key ? { ...x, on: !x.on } : x)) },
-      ),
-    })),
-  setDefaultRem: (rem: RemKey) => setState((s) => ({ ...s, defaultRem: rem })),
   resetDemo: () => setState((s) => ({ ...s, events: seed() })),
 }

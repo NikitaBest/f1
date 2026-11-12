@@ -1,11 +1,9 @@
 export type Format = 'std' | 'sprint'
-export type RemKey = '15m' | '1h' | '1d'
 
 export type Session = {
   key: string
   label: string
   at: string
-  on: boolean
 }
 
 export type RaceEvent = {
@@ -14,8 +12,8 @@ export type RaceEvent = {
   place: string
   format: Format
   start: string
-  rem: RemKey
   sessions: Session[]
+  image?: string
 }
 
 export type SessionTemplate = {
@@ -41,12 +39,6 @@ export const FORMATS: Record<Format, SessionTemplate[]> = {
     { key: 'q', label: 'Квалификация', day: 1, time: '16:00', hint: 'Борьба за поул' },
     { key: 'r', label: 'Гонка', day: 2, time: '15:00', hint: 'Главное событие уикенда' },
   ],
-}
-
-export const REM: Record<RemKey, { label: string; ms: number }> = {
-  '15m': { label: '15 мин', ms: 15 * 60_000 },
-  '1h': { label: '1 час', ms: 3_600_000 },
-  '1d': { label: '1 день', ms: 86_400_000 },
 }
 
 export const DAY_SHORT = ['Пт', 'Сб', 'Вс'] as const
@@ -75,20 +67,20 @@ export function nextFriday(from: Date, minAhead = 0) {
   return d
 }
 
-export type SessionDraft = Record<string, { on: boolean; time: string }>
+export type SessionDraft = Record<string, { time: string }>
 
 export function draftFor(format: Format): SessionDraft {
-  return Object.fromEntries(FORMATS[format].map((s) => [s.key, { on: true, time: s.time }]))
+  return Object.fromEntries(FORMATS[format].map((s) => [s.key, { time: s.time }]))
 }
 
 export function buildSessions(start: string, format: Format, draft: SessionDraft = draftFor(format)): Session[] {
   const base = parseISODate(start)
   return FORMATS[format].map((tpl) => {
-    const cfg = draft[tpl.key] ?? { on: true, time: tpl.time }
+    const cfg = draft[tpl.key] ?? { time: tpl.time }
     const [h, m] = cfg.time.split(':').map(Number)
     const at = addDays(base, tpl.day)
     at.setHours(h, m, 0, 0)
-    return { key: tpl.key, label: tpl.label, at: at.toISOString(), on: cfg.on }
+    return { key: tpl.key, label: tpl.label, at: at.toISOString() }
   })
 }
 
@@ -112,20 +104,6 @@ export const daysUntil = (startISO: string, now: number) => {
   const today = new Date(now)
   today.setHours(0, 0, 0, 0)
   return Math.ceil((parseISODate(startISO).getTime() - today.getTime()) / 86_400_000)
-}
-
-export type Alert = { at: number; session: Session; event: RaceEvent }
-
-export function scheduledAlerts(events: RaceEvent[], now: number): Alert[] {
-  const out: Alert[] = []
-  for (const event of events) {
-    for (const session of event.sessions) {
-      if (!session.on) continue
-      const at = new Date(session.at).getTime() - REM[event.rem].ms
-      if (at > now) out.push({ at, session, event })
-    }
-  }
-  return out.sort((a, b) => a.at - b.at)
 }
 
 const fmtDay = new Intl.DateTimeFormat('ru', { weekday: 'short' })

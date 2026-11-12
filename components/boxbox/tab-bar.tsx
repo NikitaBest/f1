@@ -1,13 +1,12 @@
 'use client'
 
-import { Bell, CalendarDays, Flag, Plus, UserRound } from 'lucide-react'
+import { CalendarDays, Flag, Plus, UserRound } from 'lucide-react'
 
-export type Tab = 'home' | 'calendar' | 'create' | 'alerts' | 'paddock'
+export type Tab = 'home' | 'calendar' | 'create' | 'paddock'
 
 const TABS: { id: Tab; label: string; Icon: typeof Flag }[] = [
   { id: 'home', label: 'Уикенд', Icon: Flag },
   { id: 'calendar', label: 'Календарь', Icon: CalendarDays },
-  { id: 'alerts', label: 'Алерты', Icon: Bell },
   { id: 'paddock', label: 'Паддок', Icon: UserRound },
 ]
 

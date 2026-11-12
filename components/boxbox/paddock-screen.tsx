@@ -1,23 +1,14 @@
 'use client'
 
-import { useState } from 'react'
 import { actions } from '@/lib/store'
-import { REM, scheduledAlerts, type RaceEvent, type RemKey } from '@/lib/f1'
+import { type RaceEvent } from '@/lib/f1'
+import { useInstallPrompt } from '@/components/pwa-register'
 import { GiantWord, PosterCard, Signature, Brand } from './poster'
 
-const REM_ORDER: RemKey[] = ['15m', '1h', '1d']
-
-export function PaddockScreen({ events, defaultRem }: { events: RaceEvent[]; defaultRem: RemKey }) {
-  const [permission, setPermission] = useState(() =>
-    typeof Notification === 'undefined' ? 'unsupported' : Notification.permission,
-  )
+export function PaddockScreen({ events }: { events: RaceEvent[] }) {
+  const { canInstall, installed, install } = useInstallPrompt()
   const sprints = events.filter((e) => e.format === 'sprint').length
-  const alerts = scheduledAlerts(events, Date.now()).length
   const tz = Intl.DateTimeFormat().resolvedOptions().timeZone
-
-  const nextRem = REM_ORDER[(REM_ORDER.indexOf(defaultRem) + 1) % REM_ORDER.length]
-  const permissionLabel =
-    permission === 'granted' ? 'Включены' : permission === 'denied' ? 'Запрещены в браузере' : permission === 'unsupported' ? 'Недоступны' : 'Включить'
 
   return (
     <div className="bb-screen">
@@ -49,7 +40,6 @@ export function PaddockScreen({ events, defaultRem }: { events: RaceEvent[]; def
         {[
           [events.length, 'Этапов'],
           [sprints, 'Спринтов'],
-          [alerts, 'Алертов'],
         ].map(([v, l]) => (
           <div key={l}>
             <b className="display block text-[40px] font-black leading-[0.9]">{v}</b>
@@ -58,26 +48,25 @@ export function PaddockScreen({ events, defaultRem }: { events: RaceEvent[]; def
         ))}
       </div>
 
-      <button type="button" className="setting" onClick={() => actions.setDefaultRem(nextRem)}>
-        Напоминать по умолчанию<span>за {REM[defaultRem].label}</span>
-      </button>
-      <button
-        type="button"
-        className="setting"
-        disabled={permission !== 'default'}
-        onClick={async () => setPermission(await Notification.requestPermission())}
-      >
-        Push-уведомления<span>{permissionLabel}</span>
-      </button>
+      {canInstall && (
+        <button type="button" className="setting" onClick={() => void install()}>
+          Установить на устройство<span>PWA</span>
+        </button>
+      )}
+      {installed && (
+        <div className="setting">
+          Приложение<span>Установлено</span>
+        </div>
+      )}
       <div className="setting">
         Часовой пояс<span>{tz}</span>
       </div>
       <button
         type="button"
         className="setting"
-        onClick={() => confirm('Заменить календарь демо-этапами?') && actions.resetDemo()}
+        onClick={() => confirm('Заменить календарь оставшимися этапами сезона 2026?') && actions.resetDemo()}
       >
-        Демо-календарь<span>Сбросить</span>
+        Календарь 2026<span>Сбросить</span>
       </button>
     </div>
   )

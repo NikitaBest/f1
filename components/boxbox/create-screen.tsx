@@ -6,7 +6,6 @@ import { actions } from '@/lib/store'
 import {
   DAY_SHORT,
   FORMATS,
-  REM,
   addDays,
   buildSessions,
   draftFor,
@@ -14,18 +13,16 @@ import {
   parseISODate,
   toISODate,
   type Format,
-  type RemKey,
   type SessionDraft,
 } from '@/lib/f1'
 import { Brand } from './poster'
 
-export function CreateScreen({ defaultRem, onCreated }: { defaultRem: RemKey; onCreated: () => void }) {
+export function CreateScreen({ onCreated }: { onCreated: () => void }) {
   const [name, setName] = useState('')
   const [place, setPlace] = useState('')
   const [date, setDate] = useState(() => toISODate(addDays(nextFriday(new Date(), 2), 28)))
   const [format, setFormat] = useState<Format>('std')
   const [sessions, setSessions] = useState<SessionDraft>(() => draftFor('std'))
-  const [rem, setRem] = useState<RemKey>(defaultRem)
   const [invalid, setInvalid] = useState(false)
   const [toast, setToast] = useState(false)
   const nameRef = useRef<HTMLInputElement>(null)
@@ -51,7 +48,6 @@ export function CreateScreen({ defaultRem, onCreated }: { defaultRem: RemKey; on
       place: place.trim() || 'Место уточняется',
       format,
       start: date,
-      rem,
       sessions: buildSessions(date, format, sessions),
     })
     setName('')
@@ -112,7 +108,7 @@ export function CreateScreen({ defaultRem, onCreated }: { defaultRem: RemKey; on
           </button>
         </div>
 
-        <span className="lbl">Сессии и напоминания</span>
+        <span className="lbl">Сессии</span>
         <ul className="mb-5">
           {FORMATS[format].map((tpl) => {
             const cfg = sessions[tpl.key]
@@ -128,30 +124,13 @@ export function CreateScreen({ defaultRem, onCreated }: { defaultRem: RemKey; on
                   value={cfg.time}
                   aria-label={`Время: ${tpl.label}`}
                   onChange={(e) =>
-                    e.target.value && setSessions((s) => ({ ...s, [tpl.key]: { ...cfg, time: e.target.value } }))
+                    e.target.value && setSessions((s) => ({ ...s, [tpl.key]: { time: e.target.value } }))
                   }
-                />
-                <button
-                  type="button"
-                  role="switch"
-                  className="sw"
-                  aria-checked={cfg.on}
-                  aria-label={`Напоминание: ${tpl.label}`}
-                  onClick={() => setSessions((s) => ({ ...s, [tpl.key]: { ...cfg, on: !cfg.on } }))}
                 />
               </li>
             )
           })}
         </ul>
-
-        <span className="lbl">Напомнить за</span>
-        <div className="seg hot" role="group" aria-label="Напомнить за">
-          {(Object.keys(REM) as RemKey[]).map((k) => (
-            <button key={k} type="button" aria-pressed={rem === k} onClick={() => setRem(k)}>
-              {REM[k].label}
-            </button>
-          ))}
-        </div>
 
         <button type="submit" className="cta">
           Добавить в календарь

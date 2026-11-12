@@ -2,8 +2,6 @@
 
 import { useState } from 'react'
 import { actions, useAppState } from '@/lib/store'
-import { useReminderNotifications } from '@/lib/use-reminders'
-import { AlertsScreen } from './alerts-screen'
 import { CalendarScreen } from './calendar-screen'
 import { CreateScreen } from './create-screen'
 import { EventDetailScreen, HomeScreen } from './home-screen'
@@ -15,7 +13,6 @@ export function BoxBoxApp() {
   const state = useAppState()
   const [tab, setTab] = useState<Tab>('home')
   const [openId, setOpenId] = useState<string | null>(null)
-  useReminderNotifications(state.events)
 
   if (!state.hydrated) return <div className="bb-app" aria-busy="true" />
 
@@ -42,11 +39,9 @@ export function BoxBoxApp() {
   } else if (tab === 'calendar') {
     screen = <CalendarScreen events={state.events} onOpen={setOpenId} />
   } else if (tab === 'create') {
-    screen = <CreateScreen defaultRem={state.defaultRem} onCreated={() => go('calendar')} />
-  } else if (tab === 'alerts') {
-    screen = <AlertsScreen events={state.events} />
+    screen = <CreateScreen onCreated={() => go('calendar')} />
   } else {
-    screen = <PaddockScreen events={state.events} defaultRem={state.defaultRem} />
+    screen = <PaddockScreen events={state.events} />
   }
 
   return (

@@ -1,8 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import { Bell, MapPin } from 'lucide-react'
-import { actions } from '@/lib/store'
+import { MapPin } from 'lucide-react'
 import { useNow } from '@/lib/use-now'
 import { addDays, hhmm, hintFor, mon, pad, parseISODate, shortName, weekday, type RaceEvent } from '@/lib/f1'
 import { GiantWord, PosterCard, Signature } from './poster'
@@ -68,13 +67,14 @@ export function WeekendView({ event, round, season }: { event: RaceEvent; round:
           </span>
           <span className="display shrink-0 text-lg font-black leading-none tracking-wide">{dates}</span>
         </div>
-        <div className="relative h-32 overflow-hidden bg-ink">
+        <div className="relative h-40 overflow-hidden bg-ink">
           <Image
-            src="/img/car.jpg"
-            alt="Болид Oracle Red Bull Racing"
+            src={event.image ?? '/img/car.jpg'}
+            alt={event.name}
             fill
             sizes="400px"
-            className="object-cover object-[58%_50%]"
+            className="object-cover object-center"
+            priority
           />
           <span className={`tag absolute left-2 top-2 ${sprint ? '' : 'red'}`}>
             {sprint ? 'Спринт-уикенд' : 'Обычный уикенд'}
@@ -114,15 +114,6 @@ export function WeekendView({ event, round, season }: { event: RaceEvent; round:
                   {hintFor(s.key)}
                 </small>
               </div>
-              <button
-                type="button"
-                className="bell"
-                aria-pressed={s.on}
-                aria-label={`Напоминание: ${s.label}`}
-                onClick={() => actions.toggleSession(event.id, s.key)}
-              >
-                <Bell size={16} fill={s.on ? 'currentColor' : 'none'} aria-hidden="true" />
-              </button>
             </li>
           )
         })}

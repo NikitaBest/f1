@@ -33,7 +33,7 @@ export function SplashScreen({ onStart }: { onStart: () => void }) {
           <span className="yel">под твоим контролем</span>
         </h1>
         <p className="mute mb-5 mt-2 max-w-72 text-[13px] leading-relaxed text-pretty">
-          Создавай свой календарь Формулы 1, добавляй сессии и получай напоминание до старта.
+          Создавай свой календарь Формулы 1: этапы, даты, места и расписание сессий уикенда.
         </p>
         <button type="button" className="cta paper mt-0" onClick={onStart}>
           Начать сезон
