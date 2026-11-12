@@ -75,6 +75,7 @@
   body {
     height: 100%;
     width: 100%;
+    background: #070a24;
   }
   body {
     @apply bg-background text-foreground font-sans;
@@ -106,7 +107,7 @@
   --bg: var(--ink);
   --mute: rgba(238, 231, 212, 0.6);
   --hair: rgba(238, 231, 212, 0.14);
-  --tabbar-pad: calc(56px + env(safe-area-inset-bottom, 0px));
+  --tabbar-pad: 56px;
   position: relative;
   width: 100%;
   max-width: 440px;
@@ -181,10 +182,10 @@
     left: auto;
     right: auto;
     bottom: auto;
+    max-width: none;
+    margin: 0;
     padding-bottom: 14px;
-  }
-  .tabbar::after {
-    display: none;
+    box-shadow: none;
   }
 }
 .bb-screen {
@@ -269,32 +270,37 @@
 }
 
 /* ---------- tabbar ----------
-   На мобиле/PWA — всегда прибит к низу шелла (absolute bottom:0).
-   Контент не перекрывается за счёт padding-bottom у .bb-main.
+   fixed к viewport — не зависит от высоты шелла и не режется overflow.
+   На iOS PWA под баром часто остаётся «чёрная» safe-area: заливаем её тем же цветом.
 */
 .tabbar {
-  position: absolute;
+  position: fixed;
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 30;
+  z-index: 100;
   display: flex;
   align-items: center;
   width: 100%;
-  padding: 8px 8px max(8px, env(safe-area-inset-bottom, 0px));
+  max-width: 440px;
+  margin: 0 auto;
+  /* фон тянем в safe-area; иконки чуть выше home indicator */
+  padding: 8px 8px calc(8px + env(safe-area-inset-bottom, 0px));
   background: #070a24;
   color: var(--cream);
   border-top: 1px solid rgba(238, 231, 212, 0.14);
+  /* страховка: заливаем чёрную полосу под баром тем же цветом */
+  box-shadow: 0 100px 0 0 #070a24;
 }
-.tabbar::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 100%;
-  height: 64px;
-  background: #070a24;
-  pointer-events: none;
+
+/* На PWA не дублируем safe-area (viewport часто уже без неё) */
+@media (display-mode: standalone) {
+  .tabbar {
+    padding-bottom: 8px;
+  }
+}
+html.bb-pwa .tabbar {
+  padding-bottom: 8px;
 }
 .tab {
   flex: 1;

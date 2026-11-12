@@ -50,6 +50,13 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="ru" className={`${condensed.variable} ${inter.variable} bg-background`}>
+      <head>
+        {/* Явно для iOS PWA: контент до физического низа экрана */}
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="theme-color" content="#070A24" />
+      </head>
       <body className="font-sans antialiased">
         {children}
         <PwaRegister />
