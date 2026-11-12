@@ -137,15 +137,20 @@
     padding: 32px 0;
     height: auto;
     min-height: 100dvh;
+    max-height: none;
   }
   .bb-app {
     height: min(880px, calc(100dvh - 64px));
+    max-height: none;
     border-radius: 40px;
     box-shadow:
       0 0 0 1px rgba(238, 231, 212, 0.2),
       0 0 0 8px #000,
       0 0 0 9px rgba(238, 231, 212, 0.14),
       0 40px 80px -24px rgba(0, 0, 0, 0.9);
+  }
+  .tabbar {
+    padding-bottom: 14px;
   }
 }
 .bb-screen {
@@ -235,6 +240,33 @@
   background: var(--ink);
   color: var(--cream);
   border-top: 1px solid rgba(238, 231, 212, 0.14);
+}
+
+/*
+  iOS PWA (standalone): viewport уже учитывает home indicator,
+  повторный env(safe-area-inset-bottom) поднимает меню вверх.
+*/
+@media (max-width: 639px) {
+  html.bb-pwa .bb-stage,
+  html.bb-pwa .bb-app {
+    height: 100%;
+    height: 100svh;
+    max-height: 100svh;
+  }
+  html.bb-pwa .tabbar {
+    padding-bottom: 8px;
+  }
+}
+@media (display-mode: standalone) and (max-width: 639px) {
+  .bb-stage,
+  .bb-app {
+    height: 100%;
+    height: 100svh;
+    max-height: 100svh;
+  }
+  .tabbar {
+    padding-bottom: 8px;
+  }
 }
 .tab {
   flex: 1;

@@ -13,8 +13,18 @@ declare global {
   }
 }
 
+function isStandalone() {
+  return (
+    window.matchMedia('(display-mode: standalone)').matches ||
+    window.matchMedia('(display-mode: fullscreen)').matches ||
+    ('standalone' in navigator && Boolean((navigator as Navigator & { standalone?: boolean }).standalone))
+  )
+}
+
 export function PwaRegister() {
   useEffect(() => {
+    if (isStandalone()) document.documentElement.classList.add('bb-pwa')
+
     if (!('serviceWorker' in navigator)) return
     const register = () => {
       navigator.serviceWorker.register('/sw.js', { scope: '/', updateViaCache: 'none' }).catch(() => {})
