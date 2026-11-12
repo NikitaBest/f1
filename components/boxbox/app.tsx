@@ -19,7 +19,9 @@ export function BoxBoxApp() {
   if (!state.onboarded) {
     return (
       <div className="bb-app">
-        <SplashScreen onStart={actions.finishOnboarding} />
+        <div className="bb-main">
+          <SplashScreen onStart={actions.finishOnboarding} />
+        </div>
       </div>
     )
   }
@@ -46,7 +48,7 @@ export function BoxBoxApp() {
 
   return (
     <div className="bb-app" data-tone={light ? 'light' : undefined}>
-      <div key={`${tab}-${openId ?? ''}`} className="relative z-[2] flex min-h-0 flex-1 flex-col">
+      <div key={`${tab}-${openId ?? ''}`} className="bb-main">
         {screen}
       </div>
       <TabBar active={tab} onChange={go} />
