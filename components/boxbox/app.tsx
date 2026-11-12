@@ -47,7 +47,7 @@ export function BoxBoxApp() {
   }
 
   return (
-    <div className="bb-app" data-tone={light ? 'light' : undefined}>
+    <div className="bb-app" data-nav data-tone={light ? 'light' : undefined}>
       <div key={`${tab}-${openId ?? ''}`} className="bb-main">
         {screen}
       </div>

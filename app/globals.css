@@ -106,6 +106,7 @@
   --bg: var(--ink);
   --mute: rgba(238, 231, 212, 0.6);
   --hair: rgba(238, 231, 212, 0.14);
+  --tabbar-pad: calc(56px + env(safe-area-inset-bottom, 0px));
   position: relative;
   width: 100%;
   max-width: 440px;
@@ -125,6 +126,9 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+}
+.bb-app[data-nav] .bb-main {
+  padding-bottom: var(--tabbar-pad);
 }
 .bb-app[data-tone='light'] {
   --fg: var(--ink);
@@ -169,8 +173,18 @@
       0 0 0 9px rgba(238, 231, 212, 0.14),
       0 40px 80px -24px rgba(0, 0, 0, 0.9);
   }
+  .bb-main {
+    padding-bottom: 0;
+  }
   .tabbar {
+    position: relative;
+    left: auto;
+    right: auto;
+    bottom: auto;
     padding-bottom: 14px;
+  }
+  .tabbar::after {
+    display: none;
   }
 }
 .bb-screen {
@@ -254,18 +268,33 @@
   text-align: center;
 }
 
-/* ---------- tabbar ---------- */
+/* ---------- tabbar ----------
+   На мобиле/PWA — всегда прибит к низу шелла (absolute bottom:0).
+   Контент не перекрывается за счёт padding-bottom у .bb-main.
+*/
 .tabbar {
-  position: relative;
-  z-index: 5;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 30;
   display: flex;
   align-items: center;
-  flex: 0 0 auto;
   width: 100%;
   padding: 8px 8px max(8px, env(safe-area-inset-bottom, 0px));
   background: #070a24;
   color: var(--cream);
   border-top: 1px solid rgba(238, 231, 212, 0.14);
+}
+.tabbar::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  height: 64px;
+  background: #070a24;
+  pointer-events: none;
 }
 .tab {
   flex: 1;
