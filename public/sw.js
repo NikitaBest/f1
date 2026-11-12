@@ -1,4 +1,4 @@
-const CACHE = 'boxbox-v3'
+const CACHE = 'boxbox-v4'
 
 self.addEventListener('install', (event) => {
   event.waitUntil(self.skipWaiting())

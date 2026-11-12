@@ -242,30 +242,46 @@
   border-top: 1px solid rgba(238, 231, 212, 0.14);
 }
 
-/*
-  iOS PWA (standalone): viewport уже учитывает home indicator,
-  повторный env(safe-area-inset-bottom) поднимает меню вверх.
-*/
+/* Mobile / PWA: меню к реальному низу экрана (fixed), фон уходит под home indicator */
 @media (max-width: 639px) {
-  html.bb-pwa .bb-stage,
-  html.bb-pwa .bb-app {
-    height: 100%;
-    height: 100svh;
-    max-height: 100svh;
+  html {
+    height: -webkit-fill-available;
   }
-  html.bb-pwa .tabbar {
-    padding-bottom: 8px;
+  body {
+    min-height: 100%;
+    min-height: 100dvh;
+    min-height: -webkit-fill-available;
+    background: #070a24;
   }
-}
-@media (display-mode: standalone) and (max-width: 639px) {
   .bb-stage,
   .bb-app {
-    height: 100%;
-    height: 100svh;
-    max-height: 100svh;
+    min-height: 100%;
+    min-height: 100dvh;
+    min-height: -webkit-fill-available;
+    height: auto;
+    max-height: none;
+  }
+  .bb-app {
+    padding-bottom: calc(62px + env(safe-area-inset-bottom, 0px));
   }
   .tabbar {
-    padding-bottom: 8px;
+    position: fixed;
+    left: 50%;
+    bottom: 0;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 440px;
+    padding: 8px 8px max(8px, env(safe-area-inset-bottom, 0px));
+  }
+  .tabbar::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    height: 80px;
+    background: #070a24;
+    pointer-events: none;
   }
 }
 .tab {
