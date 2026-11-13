@@ -12,7 +12,6 @@ export const CROPS = {
   face: { ...POSTER_MAX, cx: 190, cy: 490, cw: 400, ch: 400 },
   car: { ...RB_CAR, cx: 8, cy: 330, cw: 624, ch: 160 },
   sig: { ...POSTER_CAR, cx: 295, cy: 848, cw: 140, ch: 55 },
-  bulls: { ...POSTER_CAR, cx: 333, cy: 36, cw: 72, ch: 34 },
 } satisfies Record<string, CropSpec>
 
 export function Crop({
@@ -84,7 +83,6 @@ export function TopBar({ right }: { right?: ReactNode }) {
   return (
     <div className="topbar">
       <span className="logo">
-        <Crop spec={CROPS.bulls} className="bulls" />
         Box<i />Box
       </span>
       {right}

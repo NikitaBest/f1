@@ -213,11 +213,6 @@ label:focus-within {
   background: var(--red);
   display: block;
 }
-.logo .bulls {
-  width: 46px;
-  mix-blend-mode: multiply;
-  flex: none;
-}
 .chip {
   display: inline-flex;
   align-items: center;
