@@ -1,93 +1,43 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { Ticker } from './art'
 
-const LIGHTS = 5
-const STATUS = [
-  'Выезжаем из боксов',
-  'Загружаем календарь',
-  'Подключаем телеметрию',
-  'Греем шины',
-  'Огни погасли — поехали!',
+const STROKES = [
+  { d: 'M42 150C52 110 62 78 74 56C78 100 84 118 92 132C100 100 112 70 126 50C126 90 128 116 134 140', delay: 0.15, dur: 0.6 },
+  { d: 'M134 140C150 112 160 92 176 70C180 96 186 118 194 132C206 100 214 72 226 44C250 22 276 34 268 62C262 84 232 98 210 102', delay: 0.7, dur: 0.65 },
+  { d: 'M18 168C6 188 90 192 170 150C235 116 290 70 300 38C306 16 270 8 248 30C232 46 226 78 236 100', delay: 1.3, dur: 0.7 },
 ]
 
-const ease = (x: number) => (x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2)
-
 export function SplashScreen({ onDone }: { onDone: () => void }) {
-  const season = new Date().getFullYear()
-  const [pct, setPct] = useState(0)
   const [leaving, setLeaving] = useState(false)
   const doneRef = useRef(onDone)
   doneRef.current = onDone
 
   useEffect(() => {
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    const total = reduce ? 1200 : 3800
-    const start = Date.now()
-    const timers: ReturnType<typeof setTimeout>[] = []
-
-    const interval = setInterval(() => {
-      const next = Math.min(100, Math.floor(ease(Math.min(1, (Date.now() - start) / total)) * 100))
-      setPct(next)
-      if (next < 100) return
-      clearInterval(interval)
-      timers.push(setTimeout(() => setLeaving(true), reduce ? 200 : 800))
-      timers.push(setTimeout(() => doneRef.current(), reduce ? 400 : 1250))
-    }, 40)
+    const leave = setTimeout(() => setLeaving(true), reduce ? 300 : 2300)
+    const done = setTimeout(() => doneRef.current(), reduce ? 500 : 2650)
     return () => {
-      clearInterval(interval)
-      timers.forEach(clearTimeout)
+      clearTimeout(leave)
+      clearTimeout(done)
     }
   }, [])
 
-  const go = pct >= 100
-  const lit = go ? 0 : Math.min(LIGHTS, Math.floor(pct / 16))
-  const status = STATUS[go ? 4 : Math.min(3, Math.floor(pct / 25))]
-
   return (
-    <div className={`splash${go ? ' is-go' : ''}${leaving ? ' is-leaving' : ''}`} aria-busy={!go}>
-      <div className="splash-img" role="img" aria-label="Шлем Макса Ферстаппена с номером 3 и красным львом" />
-      <div className="splash-flash" aria-hidden="true" />
-      <span className="splash-vert disp" aria-hidden="true">
-        Verstappen
-      </span>
-      <div className="splash-fade" />
-      <div className="splash-top">
-        <span className="chip">Сезон {season}</span>
-        <span className="eyebrow" style={{ color: 'var(--sun)' }}>
-          Red Bull Racing
-        </span>
-      </div>
-      <div className="splash-body">
-        <div className="gantry" aria-hidden="true">
-          {Array.from({ length: LIGHTS }, (_, i) => (
-            <span key={i} className={`pod${i < lit ? ' on' : ''}`}>
-              <i />
-            </span>
-          ))}
-        </div>
-        <Ticker className="splash-tick" words={['Box box', 'Oracle Red Bull Racing', 'Max Verstappen', `Сезон ${season}`]} />
-        <h1 className="disp">
-          Box<span>·</span>Box
-        </h1>
-        <div className="load">
-          <div className="load-row">
-            <span className="load-status" role="status">
-              {status}
-            </span>
-            <b className="disp load-pct" aria-hidden="true">
-              {pct}
-              <small>%</small>
-            </b>
-          </div>
-          <div className="track" aria-hidden="true">
-            <span className="fill" style={{ transform: `scaleX(${pct / 100})` }} />
-            <span className="car" style={{ left: `${pct}%` }} />
-            <span className="flag" />
-          </div>
-        </div>
-      </div>
+    <div className={`splash${leaving ? ' is-leaving' : ''}`} role="status" aria-label="Загрузка">
+      <svg className="sign" viewBox="0 0 340 200" fill="none" aria-hidden="true">
+        {STROKES.map((s, i) => (
+          <path
+            key={i}
+            d={s.d}
+            pathLength={1}
+            style={{ animationDelay: `${s.delay}s`, animationDuration: `${s.dur}s` }}
+          />
+        ))}
+      </svg>
+      <h1 className="splash-word disp">
+        Box<span>·</span>Box
+      </h1>
     </div>
   )
 }
