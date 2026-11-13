@@ -8,18 +8,39 @@ const STROKES = [
   { d: 'M18 168C6 188 90 192 170 150C235 116 290 70 300 38C306 16 270 8 248 30C232 46 226 78 236 100', delay: 1.3, dur: 0.7 },
 ]
 
+const WORD = 'simply lovely'
+
 export function SplashScreen({ onDone }: { onDone: () => void }) {
   const [leaving, setLeaving] = useState(false)
+  const [typed, setTyped] = useState('')
   const doneRef = useRef(onDone)
   doneRef.current = onDone
 
   useEffect(() => {
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    const leave = setTimeout(() => setLeaving(true), reduce ? 300 : 2300)
-    const done = setTimeout(() => doneRef.current(), reduce ? 500 : 2650)
+    if (reduce) {
+      setTyped(WORD)
+      const leave = setTimeout(() => setLeaving(true), 300)
+      const done = setTimeout(() => doneRef.current(), 500)
+      return () => {
+        clearTimeout(leave)
+        clearTimeout(done)
+      }
+    }
+
+    let i = 0
+    const typeTimer = setInterval(() => {
+      i += 1
+      setTyped(WORD.slice(0, i))
+      if (i >= WORD.length) clearInterval(typeTimer)
+    }, 70)
+
+    const leave = setTimeout(() => setLeaving(true), 2800)
+    const done = setTimeout(() => doneRef.current(), 3150)
     return () => {
       clearTimeout(leave)
       clearTimeout(done)
+      clearInterval(typeTimer)
     }
   }, [])
 
@@ -35,7 +56,9 @@ export function SplashScreen({ onDone }: { onDone: () => void }) {
           />
         ))}
       </svg>
-      <h1 className="splash-word disp">simply lovely</h1>
+      <h1 className="splash-word disp" aria-label={WORD}>
+        {typed}
+      </h1>
     </div>
   )
 }

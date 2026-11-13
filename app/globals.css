@@ -1191,15 +1191,15 @@ label:focus-within {
   }
 }
 .splash-word {
-  font-size: 20px;
-  letter-spacing: 0.22em;
-  text-transform: lowercase;
-  color: var(--wh-60);
-  animation: rise 0.45s 1.7s ease-out both;
+  min-height: 1.1em;
+  font-size: clamp(36px, 9vw, 52px);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--white);
+  text-align: center;
 }
 @media (prefers-reduced-motion: reduce) {
-  .sign path,
-  .splash-word {
+  .sign path {
     animation: none;
     stroke-dashoffset: 0;
   }
