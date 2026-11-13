@@ -3,10 +3,11 @@ import type { CSSProperties, ReactNode } from 'react'
 type CropSpec = { img: string; iw: number; ih: number; cx: number; cy: number; cw: number; ch: number }
 
 const POSTER_MAX = { img: '/img/poster-max.jpeg', iw: 736, ih: 1308 }
+const MAX_PORTRAIT = { img: '/img/max-portrait.jpeg', iw: 736, ih: 1307 }
 const POSTER_CAR = { img: '/img/poster-car.jpeg', iw: 736, ih: 1106 }
 
 export const CROPS = {
-  maxRed: { ...POSTER_MAX, cx: 100, cy: 490, cw: 548, ch: 730 },
+  maxRed: { ...MAX_PORTRAIT, cx: 40, cy: 40, cw: 656, ch: 820 },
   face: { ...POSTER_MAX, cx: 190, cy: 490, cw: 400, ch: 400 },
   car: { ...POSTER_CAR, cx: 15, cy: 505, cw: 690, ch: 245 },
   sig: { ...POSTER_CAR, cx: 295, cy: 848, cw: 140, ch: 55 },

@@ -15,7 +15,7 @@ export function DuoCard({ live }: { live: F1LiveState }) {
     <section className="duo" aria-label="Любимый гонщик и команда">
       <div className="duo-grid">
         <div className="duo-d">
-          <Crop spec={CROPS.maxRed} label="Макс Ферстаппен в шлеме Red Bull на красном фоне" />
+          <Crop spec={CROPS.maxRed} label="Макс Ферстаппен" />
           <span className="flag-nl" aria-hidden="true" />
           <span className="no disp">{d?.Driver.permanentNumber ?? '3'}</span>
           <div className="cap">
