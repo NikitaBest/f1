@@ -67,8 +67,11 @@ body {
   line-height: 1.5;
   overscroll-behavior: none;
 }
-body.is-booting {
-  background: #000;
+html.is-booting,
+html.is-booting body,
+body.is-booting,
+html.is-booting .bb-stage {
+  background: #000 !important;
 }
 button {
   font: inherit;
@@ -1160,8 +1163,11 @@ label:focus-within {
   top: 0;
   left: 0;
   right: 0;
-  z-index: 200;
+  bottom: 0;
+  z-index: 9999;
   width: 100%;
+  width: 100vw;
+  height: 100%;
   height: 100lvh;
   min-height: 100dvh;
   min-height: -webkit-fill-available;
@@ -1173,8 +1179,11 @@ label:focus-within {
   padding: 18% 28px 0;
   overflow: hidden;
   background: #000 url('/img/helmet.jpeg') center bottom / cover no-repeat;
+  background-color: #000;
   color: var(--white);
   transition: opacity 0.35s ease;
+  touch-action: none;
+  overscroll-behavior: none;
 }
 .splash.is-leaving {
   opacity: 0;
