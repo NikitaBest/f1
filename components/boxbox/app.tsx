@@ -23,9 +23,7 @@ export function BoxBoxApp() {
   if (!state.onboarded) {
     return (
       <div className="bb-app">
-        <div className="bb-main">
-          <SplashScreen onStart={actions.finishOnboarding} />
-        </div>
+        <SplashScreen onStart={actions.finishOnboarding} />
       </div>
     )
   }
@@ -36,7 +34,7 @@ export function BoxBoxApp() {
     setCreating(false)
     setTab(t)
   }
-  const light = tab === 'paddock' || creating
+  const create = () => setCreating(true)
 
   let screen: React.ReactNode
   if (creating) {
@@ -52,24 +50,18 @@ export function BoxBoxApp() {
   } else if (opened && tab === 'calendar') {
     screen = <EventDetailScreen event={opened} events={state.events} onBack={() => setOpenId(null)} />
   } else if (tab === 'home') {
-    screen = <HomeScreen events={state.events} onCreate={() => setCreating(true)} syncing={live.syncing} />
+    screen = <HomeScreen events={state.events} live={live} onCreate={create} />
   } else if (tab === 'calendar') {
-    screen = <CalendarScreen events={state.events} onOpen={setOpenId} />
+    screen = <CalendarScreen events={state.events} onOpen={setOpenId} onCreate={create} />
   } else if (tab === 'season') {
     screen = <SeasonScreen live={live} />
   } else {
-    screen = (
-      <PaddockScreen
-        events={state.events}
-        live={live}
-        onCreate={() => setCreating(true)}
-      />
-    )
+    screen = <PaddockScreen events={state.events} live={live} onCreate={create} />
   }
 
   return (
-    <div className="bb-app" data-nav data-tone={light ? 'light' : undefined}>
-      <div key={`${tab}-${openId ?? ''}-${creating}`} className="bb-main">
+    <div className="bb-app">
+      <div key={`${tab}-${openId ?? ''}-${creating}`} className="contents">
         {screen}
       </div>
       {!creating && <TabBar active={tab} onChange={go} />}

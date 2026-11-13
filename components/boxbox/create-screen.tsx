@@ -1,7 +1,7 @@
 'use client'
 
 import { useRef, useState } from 'react'
-import { ArrowRight } from 'lucide-react'
+import { ArrowLeft, ArrowRight } from 'lucide-react'
 import { actions } from '@/lib/store'
 import {
   DAY_SHORT,
@@ -15,7 +15,7 @@ import {
   type Format,
   type SessionDraft,
 } from '@/lib/f1'
-import { Brand } from './poster'
+import { Hero } from './art'
 
 export function CreateScreen({ onCreated, onCancel }: { onCreated: () => void; onCancel?: () => void }) {
   const [name, setName] = useState('')
@@ -50,31 +50,30 @@ export function CreateScreen({ onCreated, onCancel }: { onCreated: () => void; o
       start: date,
       sessions: buildSessions(date, format, sessions),
     })
-    setName('')
-    setPlace('')
     setInvalid(false)
     setToast(true)
     setTimeout(() => {
       setToast(false)
       onCreated()
-    }, 1400)
+    }, 1200)
   }
 
   return (
     <>
-      <form className="bb-screen" onSubmit={submit} noValidate>
-        <Brand sub="Новое событие" />
+      <form className="scroll solo" onSubmit={submit} noValidate>
+        <Hero image="/img/lights.jpg" pos="40%" eyebrow="Свой уикенд" title="Новый этап" />
         {onCancel && (
-          <button type="button" className="micro mute mb-3" onClick={onCancel}>
-            ← Назад
+          <button type="button" className="back" onClick={onCancel} style={{ marginBottom: 12 }}>
+            <ArrowLeft size={18} aria-hidden="true" />
+            Назад
           </button>
         )}
-        <h1 className="h1 mb-5">Новый этап</h1>
 
-        <label className="fld">
-          <span className="lbl">Гран-при</span>
+        <label className="field">
+          <span>Гран-при</span>
           <input
             ref={nameRef}
+            className="inp"
             value={name}
             onChange={(e) => {
               setName(e.target.value)
@@ -86,64 +85,59 @@ export function CreateScreen({ onCreated, onCancel }: { onCreated: () => void; o
             autoComplete="off"
           />
           {invalid && (
-            <span id="name-error" className="mt-1.5 block text-xs font-semibold text-bull">
+            <span id="name-error" className="errmsg">
               Укажи название Гран-при
             </span>
           )}
         </label>
-        <label className="fld">
-          <span className="lbl">Место</span>
-          <input value={place} onChange={(e) => setPlace(e.target.value)} placeholder="Сузука, Япония" autoComplete="off" />
+        <label className="field">
+          <span>Место</span>
+          <input className="inp" value={place} onChange={(e) => setPlace(e.target.value)} placeholder="Сузука, Япония" autoComplete="off" />
         </label>
-        <label className="fld">
-          <span className="lbl">Пятница уикенда</span>
-          <input type="date" value={date} onChange={(e) => e.target.value && setDate(e.target.value)} className="text-[22px]" />
-          {fridayWarning && (
-            <span className="mute mt-1.5 block text-xs">Выбранный день не пятница — сессии начнутся с этой даты.</span>
-          )}
+        <label className="field">
+          <span>Пятница уикенда</span>
+          <input type="date" className="inp" value={date} onChange={(e) => e.target.value && setDate(e.target.value)} />
+          {fridayWarning && <span className="hint">Выбранный день не пятница — сессии начнутся с этой даты.</span>}
         </label>
 
-        <span className="lbl">Формат</span>
-        <div className="seg" role="group" aria-label="Формат уикенда">
-          <button type="button" aria-pressed={format === 'std'} onClick={() => changeFormat('std')}>
-            Обычный
-          </button>
-          <button type="button" aria-pressed={format === 'sprint'} onClick={() => changeFormat('sprint')}>
-            Со спринтом
-          </button>
+        <div className="field">
+          <span>Формат</span>
+          <div className="seg" role="group" aria-label="Формат уикенда">
+            <button type="button" aria-pressed={format === 'std'} onClick={() => changeFormat('std')}>
+              Обычный
+            </button>
+            <button type="button" aria-pressed={format === 'sprint'} onClick={() => changeFormat('sprint')}>
+              Со спринтом
+            </button>
+          </div>
         </div>
 
-        <span className="lbl">Сессии</span>
-        <ul className="mb-5">
-          {FORMATS[format].map((tpl) => {
-            const cfg = sessions[tpl.key]
-            return (
-              <li key={tpl.key} className="flex items-center gap-3 border-b border-[var(--hair)] py-2.5">
-                <span className="display flex-1 text-[18px] font-extrabold leading-none">
-                  {tpl.label}
-                  <small className="mute ml-2 font-sans text-[11px] font-medium normal-case">{DAY_SHORT[tpl.day]}</small>
-                </span>
+        <div className="field">
+          <span>Сессии</span>
+          <ul>
+            {FORMATS[format].map((tpl) => (
+              <li key={tpl.key} className="sesrow">
+                <span>{tpl.label}</span>
+                <span className="dd">{DAY_SHORT[tpl.day]}</span>
                 <input
                   type="time"
-                  className="time-in"
-                  value={cfg.time}
+                  className="inp"
+                  value={sessions[tpl.key].time}
                   aria-label={`Время: ${tpl.label}`}
-                  onChange={(e) =>
-                    e.target.value && setSessions((s) => ({ ...s, [tpl.key]: { time: e.target.value } }))
-                  }
+                  onChange={(e) => e.target.value && setSessions((s) => ({ ...s, [tpl.key]: { time: e.target.value } }))}
                 />
               </li>
-            )
-          })}
-        </ul>
+            ))}
+          </ul>
+        </div>
 
-        <button type="submit" className="cta">
+        <button type="submit" className="btn">
           Добавить в календарь
-          <ArrowRight size={22} strokeWidth={2.6} aria-hidden="true" />
+          <ArrowRight size={20} strokeWidth={2.6} aria-hidden="true" />
         </button>
       </form>
       {toast && (
-        <div className="toast" role="status">
+        <div className="toast" role="status" style={{ bottom: 'calc(24px + var(--bottom))' }}>
           Уикенд добавлен в календарь
         </div>
       )}

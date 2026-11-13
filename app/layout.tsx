@@ -1,12 +1,12 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
-import { Fira_Sans_Extra_Condensed, Inter } from 'next/font/google'
+import { Inter, Oswald } from 'next/font/google'
 import { PwaRegister } from '@/components/pwa-register'
 import './globals.css'
 
-const condensed = Fira_Sans_Extra_Condensed({
+const condensed = Oswald({
   subsets: ['latin', 'cyrillic'],
-  weight: ['500', '600', '700', '800', '900'],
+  weight: ['500', '600', '700'],
   variable: '--font-condensed',
 })
 const inter = Inter({ subsets: ['latin', 'cyrillic'], variable: '--font-body' })

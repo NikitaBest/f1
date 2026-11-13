@@ -3,42 +3,61 @@
 import { ArrowLeft, Trash2 } from 'lucide-react'
 import { actions } from '@/lib/store'
 import { useNow } from '@/lib/use-now'
+import type { F1LiveState } from '@/lib/use-f1-live'
 import { parseISODate, sortEvents, upcomingEvents, pad, type RaceEvent } from '@/lib/f1'
-import { Brand } from './poster'
-import { WeekendView } from './weekend-view'
+import { Ticker, TopBar } from './art'
+import { DuoCard } from './duo-card'
+import { WeekendCard } from './weekend-view'
+
+const roundOf = (event: RaceEvent, events: RaceEvent[]) =>
+  event.round ?? sortEvents(events).findIndex((e) => e.id === event.id) + 1
 
 export function HomeScreen({
   events,
+  live,
   onCreate,
-  syncing,
 }: {
   events: RaceEvent[]
+  live: F1LiveState
   onCreate: () => void
-  syncing?: boolean
 }) {
   const now = useNow(60_000)
   const event = upcomingEvents(events, now)[0]
-  if (!event) {
-    return (
-      <div className="bb-screen">
-        <Brand sub={`Сезон ${new Date(now).getFullYear()}`} />
-        <h1 className="h1 mt-6">Пит-лейн пуст</h1>
-        <p className="empty text-left">
-          {syncing
-            ? 'Подтягиваем официальный календарь F1…'
-            : 'Нет предстоящих этапов. Синхронизируй календарь в Паддоке или добавь свой.'}
-        </p>
-        <button type="button" className="cta" onClick={onCreate}>
-          Новый этап
-        </button>
-      </div>
-    )
-  }
-  const round = event.round ?? sortEvents(events).findIndex((e) => e.id === event.id) + 1
+  const season = event?.season ?? new Date(now).getFullYear()
+
   return (
-    <div className="bb-screen">
-      <Brand sub={`Раунд ${pad(round)}`} />
-      <WeekendView event={event} round={round} season={event.season ?? parseISODate(event.start).getFullYear()} />
+    <div className="scroll home">
+      <TopBar right={<span className="chip">Сезон {season}</span>} />
+      <Ticker words={['Box box', 'Oracle Red Bull Racing', 'Max Verstappen', `Сезон ${season}`]} />
+
+      {event ? (
+        <WeekendCard event={event} round={roundOf(event, events)} season={season} />
+      ) : (
+        <div className="empty">
+          <h2 className="disp">Пит-лейн пуст</h2>
+          <p>
+            {live.syncing
+              ? 'Подтягиваем официальный календарь F1…'
+              : 'Нет предстоящих этапов. Синхронизируй календарь в Паддоке или добавь свой.'}
+          </p>
+          <button type="button" className="btn sm" onClick={onCreate} style={{ marginTop: 8, alignSelf: 'flex-start' }}>
+            Новый этап
+          </button>
+        </div>
+      )}
+
+      <div className="sec-title">
+        <h2 className="disp">Мои люди</h2>
+        <span className="eyebrow">Гонщик · Команда</span>
+      </div>
+      <DuoCard live={live} />
+
+      <figure className="quote">
+        <blockquote className="disp q">
+          Тебе не нужно быть идеальным. Нужно быть лучшим в этот день.
+        </blockquote>
+        <figcaption className="by">Макс Ферстаппен</figcaption>
+      </figure>
     </div>
   )
 }
@@ -52,21 +71,22 @@ export function EventDetailScreen({
   events: RaceEvent[]
   onBack: () => void
 }) {
-  const round = event.round ?? sortEvents(events).findIndex((e) => e.id === event.id) + 1
+  const round = roundOf(event, events)
   return (
-    <div className="bb-screen">
-      <header className="brand">
-        <button type="button" onClick={onBack} className="micro flex items-center gap-2" aria-label="Назад к календарю">
-          <ArrowLeft size={16} aria-hidden="true" />
+    <div className="scroll">
+      <div className="topbar">
+        <button type="button" className="back" onClick={onBack}>
+          <ArrowLeft size={18} aria-hidden="true" />
           Календарь
         </button>
-        <span className="micro mute">Раунд {pad(round)}</span>
-      </header>
-      <WeekendView event={event} round={round} season={event.season ?? parseISODate(event.start).getFullYear()} />
+        <span className="eyebrow">Раунд {pad(round)}</span>
+      </div>
+      <WeekendCard event={event} round={round} season={event.season ?? parseISODate(event.start).getFullYear()} />
       {event.source !== 'f1' && (
         <button
           type="button"
-          className="cta ghost"
+          className="btn ghost"
+          style={{ marginTop: 16 }}
           onClick={() => {
             if (confirm(`Удалить «${event.name}» из календаря?`)) {
               actions.removeEvent(event.id)
@@ -74,8 +94,8 @@ export function EventDetailScreen({
             }
           }}
         >
-          Удалить этап
           <Trash2 size={18} aria-hidden="true" />
+          Удалить этап
         </button>
       )}
     </div>

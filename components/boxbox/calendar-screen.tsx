@@ -1,42 +1,67 @@
 'use client'
 
-import { Fragment, useState } from 'react'
+import { Fragment, useState, type CSSProperties } from 'react'
+import { Plus } from 'lucide-react'
 import { useNow } from '@/lib/use-now'
-import { daysUntil, eventEnd, mon, monthYear, pad, parseISODate, shortName, sortEvents, type Format, type RaceEvent } from '@/lib/f1'
-import { Brand } from './poster'
+import { daysUntil, eventEnd, mon, monthYear, parseISODate, shortName, sortEvents, type Format, type RaceEvent } from '@/lib/f1'
+import { Hero } from './art'
+import { eventImage } from './weekend-view'
 
 type Filter = 'all' | Format
 
 const FILTERS: [Filter, string][] = [
   ['all', 'Все'],
-  ['sprint', 'Со спринтом'],
+  ['sprint', 'Спринт'],
   ['std', 'Обычные'],
 ]
 
-export function CalendarScreen({ events, onOpen }: { events: RaceEvent[]; onOpen: (id: string) => void }) {
+const plural = (n: number) => (n % 10 === 1 && n % 100 !== 11 ? 'этап' : [2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100) ? 'этапа' : 'этапов')
+
+export function CalendarScreen({
+  events,
+  onOpen,
+  onCreate,
+}: {
+  events: RaceEvent[]
+  onOpen: (id: string) => void
+  onCreate: () => void
+}) {
   const [filter, setFilter] = useState<Filter>('all')
   const now = useNow(60_000)
   const list = sortEvents(events).filter((e) => filter === 'all' || e.format === filter)
   const hotId = list.find((e) => eventEnd(e) > now)?.id
+  const season = events[0]?.season ?? new Date(now).getFullYear()
   let lastMonth = ''
 
   return (
-    <div className="bb-screen">
-      <Brand sub="Сезон F1" />
-      <div className="micro yel">
-        {events.length} {events.length === 1 ? 'этап' : events.length < 5 && events.length > 0 ? 'этапа' : 'этапов'} · официальный календарь
-      </div>
-      <h1 className="h1 mt-1.5">Календарь</h1>
+    <div className="scroll">
+      <Hero
+        image="/img/night-city.jpg"
+        pos="50%"
+        eyebrow={`Сезон ${season}`}
+        title="Календарь"
+        sub={`${events.length} ${plural(events.length)} · официальный и свои`}
+      />
 
-      <div className="chips" role="group" aria-label="Фильтр этапов">
-        {FILTERS.map(([k, l]) => (
-          <button key={k} type="button" className="chip" aria-pressed={filter === k} onClick={() => setFilter(k)}>
-            {l}
-          </button>
-        ))}
+      <div className="topbar" style={{ marginBottom: 4 }}>
+        <div className="seg" role="group" aria-label="Фильтр этапов" style={{ flex: 1 }}>
+          {FILTERS.map(([k, l]) => (
+            <button key={k} type="button" aria-pressed={filter === k} onClick={() => setFilter(k)}>
+              {l}
+            </button>
+          ))}
+        </div>
+        <button type="button" className="btn sm" onClick={onCreate} style={{ marginLeft: 8 }} aria-label="Добавить этап">
+          <Plus size={18} aria-hidden="true" />
+        </button>
       </div>
 
-      {list.length === 0 && <p className="empty">Пока пусто. Нажми «+», чтобы добавить этап.</p>}
+      {list.length === 0 && (
+        <div className="empty" style={{ marginTop: 16 }}>
+          <h2 className="disp">Пусто</h2>
+          <p>Нажми «+», чтобы добавить этап.</p>
+        </div>
+      )}
 
       {list.map((e) => {
         const start = parseISODate(e.start)
@@ -48,30 +73,27 @@ export function CalendarScreen({ events, onOpen }: { events: RaceEvent[]; onOpen
         const hot = e.id === hotId
         return (
           <Fragment key={e.id}>
-            {showMonth && <div className="micro yel mb-1 mt-5">{month}</div>}
+            {showMonth && <h2 className="month">{month}</h2>}
             <button
               type="button"
-              className={`ev ${hot ? 'hot grain' : ''} ${past ? 'opacity-45' : ''}`}
+              className={`ev ${hot ? 'hot' : ''} ${past ? 'past' : ''}`}
+              style={hot ? ({ '--bg': `url("${eventImage(e)}")` } as CSSProperties) : undefined}
               onClick={() => onOpen(e.id)}
             >
-              <div className="w-[54px] shrink-0">
-                <b className="display block text-[48px] font-black leading-[0.82]">{pad(start.getDate())}</b>
-                <small className="micro mute mt-1.5 block">{mon(start)}</small>
-              </div>
-              <div className="min-w-0 flex-1">
-                <small className="micro mute block text-[8px]">Гран-при</small>
-                <b className="display mb-1 mt-0.5 block truncate text-[24px] font-extrabold leading-none">
-                  {shortName(e.name)}
-                </b>
-                <span className="mute mb-2 block truncate text-xs">{e.place}</span>
-                <span className={`tag ${e.format === 'sprint' ? '' : 'red'}`}>
+              <span className="day">
+                {start.getDate()}
+                <small>{mon(start)}</small>
+              </span>
+              <span style={{ minWidth: 0 }}>
+                <span className="nm">{shortName(e.name)}</span>
+                <span className="pl">{e.place}</span>
+              </span>
+              <span className="rt">
+                <span className={`tag ${e.format === 'sprint' ? 'sp' : ''}`}>
                   {e.format === 'sprint' ? 'Спринт' : 'Обычный'}
                 </span>
-              </div>
-              <div className="shrink-0 text-right">
-                <b className="display block text-[36px] font-black leading-[0.85]">{past ? '—' : Math.max(0, dd)}</b>
-                <small className="micro mute text-[8px]">{past ? 'прошёл' : 'дн.'}</small>
-              </div>
+                <span className="in num">{past ? 'Прошёл' : dd <= 0 ? 'Сейчас' : `через ${dd} дн`}</span>
+              </span>
             </button>
           </Fragment>
         )

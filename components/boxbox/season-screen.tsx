@@ -4,119 +4,142 @@ import { useState } from 'react'
 import { RefreshCw } from 'lucide-react'
 import { pad } from '@/lib/f1'
 import type { F1LiveState } from '@/lib/use-f1-live'
-import { Brand } from './poster'
+import { CROPS, Crop, Hero } from './art'
+import { isFavDriver, isFavTeam } from './duo-card'
 
 type Board = 'drivers' | 'constructors' | 'results'
+
+const codeOf = (d: { code?: string; familyName: string }) => d.code ?? d.familyName.slice(0, 3).toUpperCase()
+
+function Avatar({ fav }: { fav: boolean }) {
+  if (!fav) return null
+  return (
+    <span className="av">
+      <Crop spec={CROPS.face} />
+    </span>
+  )
+}
 
 export function SeasonScreen({ live }: { live: F1LiveState }) {
   const [board, setBoard] = useState<Board>('drivers')
   const busy = live.loading || live.syncing
 
   return (
-    <div className="bb-screen">
-      <Brand sub={`Сезон ${live.season}`} />
-      <div className="micro yel">Официальные данные Jolpica · F1</div>
-      <div className="mb-4 mt-1.5 flex items-end justify-between gap-3">
-        <h1 className="h1">Сезон</h1>
+    <div className="scroll">
+      <Hero image="/img/podium.jpg" pos="35%" eyebrow={`Сезон ${live.season}`} title="Чемпионат" sub="Официальные данные F1" />
+
+      <div className="topbar" style={{ marginBottom: 14 }}>
+        <div className="seg" role="group" aria-label="Раздел сезона" style={{ flex: 1 }}>
+          {(
+            [
+              ['drivers', 'Пилоты'],
+              ['constructors', 'Команды'],
+              ['results', 'Финиш'],
+            ] as const
+          ).map(([k, l]) => (
+            <button key={k} type="button" aria-pressed={board === k} onClick={() => setBoard(k)}>
+              {l}
+            </button>
+          ))}
+        </div>
         <button
           type="button"
-          className="micro flex items-center gap-1.5 opacity-80"
+          className="btn sm ghost"
+          style={{ marginLeft: 8 }}
           disabled={busy}
           onClick={() => void live.refreshLive()}
           aria-label="Обновить данные"
         >
-          <RefreshCw size={14} className={busy ? 'animate-spin' : undefined} aria-hidden="true" />
-          Обновить
+          <RefreshCw size={16} className={busy ? 'animate-spin' : undefined} aria-hidden="true" />
         </button>
       </div>
 
-      {live.error && <p className="empty text-left text-bull">{live.error}</p>}
-
-      <div className="chips" role="group" aria-label="Раздел сезона">
-        {(
-          [
-            ['drivers', 'Пилоты'],
-            ['constructors', 'Кубки'],
-            ['results', 'Финиш'],
-          ] as const
-        ).map(([k, l]) => (
-          <button key={k} type="button" className="chip" aria-pressed={board === k} onClick={() => setBoard(k)}>
-            {l}
-          </button>
-        ))}
-      </div>
+      {live.error && <p className="err-note">{live.error}</p>}
 
       {busy && !live.drivers.length && !live.lastRace ? (
-        <p className="empty">Загружаем чемпионат…</p>
+        <p className="sub">Загружаем чемпионат…</p>
       ) : board === 'drivers' ? (
-        <ol className="standings">
-          {live.drivers.map((row) => (
-            <li key={row.Driver.familyName + row.position} className="stand-row">
-              <span className="stand-pos">{pad(Number(row.position))}</span>
-              <div className="min-w-0 flex-1">
-                <b className="display block truncate text-[22px] font-extrabold leading-none">
-                  {row.Driver.code ?? row.Driver.familyName.slice(0, 3).toUpperCase()}
-                </b>
-                <span className="mute mt-1 block truncate text-xs">
-                  {row.Driver.givenName} {row.Driver.familyName} · {row.Constructors[0]?.name}
+        <ol>
+          {live.drivers.map((row) => {
+            const fav = isFavDriver(row.Driver.code, row.Driver.familyName)
+            return (
+              <li key={row.Driver.familyName + row.position} className={`srow ${fav ? 'fav' : ''} ${row.position === '1' ? 'lead' : ''}`}>
+                <span className="p num">{pad(Number(row.position))}</span>
+                <span className="who">
+                  <Avatar fav={fav} />
+                  <span style={{ minWidth: 0 }}>
+                    <span className="nm">
+                      <span className="code">{codeOf(row.Driver)}</span>
+                      {row.Driver.familyName}
+                    </span>
+                    <span className="tm">{row.Constructors[0]?.name}</span>
+                  </span>
                 </span>
-              </div>
-              <div className="shrink-0 text-right">
-                <b className="display block text-[28px] font-black leading-none tabular-nums">{row.points}</b>
-                <small className="micro mute text-[8px]">{row.wins} побед</small>
-              </div>
-            </li>
-          ))}
+                <span className="pts">
+                  <b className="num">{row.points}</b>
+                  <span>{row.wins} поб.</span>
+                </span>
+              </li>
+            )
+          })}
         </ol>
       ) : board === 'constructors' ? (
-        <ol className="standings">
+        <ol>
           {live.constructors.map((row) => (
-            <li key={row.Constructor.name} className="stand-row">
-              <span className="stand-pos">{pad(Number(row.position))}</span>
-              <div className="min-w-0 flex-1">
-                <b className="display block truncate text-[22px] font-extrabold leading-none">{row.Constructor.name}</b>
-                <span className="mute mt-1 block truncate text-xs">{row.Constructor.nationality}</span>
-              </div>
-              <div className="shrink-0 text-right">
-                <b className="display block text-[28px] font-black leading-none tabular-nums">{row.points}</b>
-                <small className="micro mute text-[8px]">{row.wins} побед</small>
-              </div>
+            <li
+              key={row.Constructor.name}
+              className={`srow ${isFavTeam(row.Constructor.name) ? 'fav' : ''} ${row.position === '1' ? 'lead' : ''}`}
+            >
+              <span className="p num">{pad(Number(row.position))}</span>
+              <span style={{ minWidth: 0 }}>
+                <span className="nm">{row.Constructor.name}</span>
+                <span className="tm">{row.Constructor.nationality}</span>
+              </span>
+              <span className="pts">
+                <b className="num">{row.points}</b>
+                <span>{row.wins} поб.</span>
+              </span>
             </li>
           ))}
         </ol>
       ) : live.lastRace ? (
-        <div>
-          <div className="micro mute mb-1">
-            Раунд {pad(Number(live.lastRace.round))} · {live.lastRace.date}
+        <>
+          <div className="lastrace">
+            <span className="eyebrow" style={{ color: 'var(--sun)' }}>
+              Раунд {pad(Number(live.lastRace.round))} · {live.lastRace.date}
+            </span>
+            <h2 className="disp">{live.lastRace.raceName}</h2>
+            <span style={{ fontSize: 14, opacity: 0.8 }}>
+              {live.lastRace.circuit} · {live.lastRace.place}
+            </span>
           </div>
-          <h2 className="display mb-1 text-[28px] font-black leading-none">{live.lastRace.raceName}</h2>
-          <p className="mute mb-4 text-xs">
-            {live.lastRace.circuit} · {live.lastRace.place}
-          </p>
-          <ol className="standings">
-            {live.lastRace.results.map((row) => (
-              <li key={row.position + row.Driver.familyName} className="stand-row">
-                <span className="stand-pos">{pad(Number(row.position))}</span>
-                <div className="min-w-0 flex-1">
-                  <b className="display block truncate text-[22px] font-extrabold leading-none">
-                    {row.Driver.code ?? row.Driver.familyName.slice(0, 3).toUpperCase()}
-                  </b>
-                  <span className="mute mt-1 block truncate text-xs">
-                    {row.Driver.givenName} {row.Driver.familyName} · {row.Constructor.name}
+          <ol>
+            {live.lastRace.results.map((row) => {
+              const fav = isFavDriver(row.Driver.code, row.Driver.familyName)
+              return (
+                <li key={row.position + row.Driver.familyName} className={`srow ${fav ? 'fav' : ''} ${row.position === '1' ? 'lead' : ''}`}>
+                  <span className="p num">{pad(Number(row.position))}</span>
+                  <span className="who">
+                    <Avatar fav={fav} />
+                    <span style={{ minWidth: 0 }}>
+                      <span className="nm">
+                        <span className="code">{codeOf(row.Driver)}</span>
+                        {row.Driver.familyName}
+                      </span>
+                      <span className="tm">{row.Constructor.name}</span>
+                    </span>
                   </span>
-                </div>
-                <div className="shrink-0 text-right">
-                  <b className="display block text-[22px] font-black leading-none tabular-nums">
-                    {row.Time?.time ?? row.status ?? '—'}
-                  </b>
-                  <small className="micro mute text-[8px]">{row.points} очк.</small>
-                </div>
-              </li>
-            ))}
+                  <span className="pts">
+                    <b className="num time">{row.Time?.time ?? row.status ?? '—'}</b>
+                    <span>{row.points} очк.</span>
+                  </span>
+                </li>
+              )
+            })}
           </ol>
-        </div>
+        </>
       ) : (
-        <p className="empty">Результатов пока нет</p>
+        <p className="sub">Результатов пока нет</p>
       )}
     </div>
   )

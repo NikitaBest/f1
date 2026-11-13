@@ -1,43 +1,32 @@
 'use client'
 
-import Image from 'next/image'
 import { ArrowRight } from 'lucide-react'
-import { GiantWord, Signature } from './poster'
+import { Ticker } from './art'
 
 export function SplashScreen({ onStart }: { onStart: () => void }) {
+  const season = new Date().getFullYear()
   return (
-    <div className="bb-screen flex flex-col">
-      <div className="mb-4 mt-2 flex justify-between">
-        <span className="micro mute">Oracle Red Bull Racing</span>
-        <span className="micro mute">Сезон {new Date().getFullYear()}</span>
+    <div className="splash">
+      <div className="splash-img" role="img" aria-label="Шлем Макса Ферстаппена с номером 3 и красным львом" />
+      <span className="splash-vert disp" aria-hidden="true">
+        Verstappen
+      </span>
+      <div className="splash-fade" />
+      <Ticker className="splash-tick" words={['Box box', 'Oracle Red Bull Racing', 'Max Verstappen', `Сезон ${season}`]} />
+      <div className="splash-top">
+        <span className="chip">Сезон {season}</span>
+        <span className="eyebrow" style={{ color: 'var(--sun)' }}>
+          Red Bull Racing
+        </span>
       </div>
-      <div className="words rise">
-        <GiantWord text="Box" width={302} color="var(--cream)" max={220} />
-        <GiantWord text="Box" width={302} color="var(--red)" max={220} />
-        <Signature className="top-[30%] h-[60%]" />
-      </div>
-      <div className="rise relative -mx-[18px] mt-4 h-44" style={{ animationDelay: '120ms' }}>
-        <Image
-          src="/img/car.jpg"
-          alt="Болид Oracle Red Bull Racing в кобальтовой ливрее"
-          fill
-          priority
-          sizes="440px"
-          className="car-fade object-cover object-[62%_50%]"
-        />
-      </div>
-      <div className="rise mt-auto pt-4" style={{ animationDelay: '220ms' }}>
-        <h1 className="display text-[30px] font-extrabold leading-none text-balance">
-          Каждый уикенд
-          <br />
-          <span className="yel">под твоим контролем</span>
+      <div className="splash-body">
+        <h1 className="disp">
+          Box<span>·</span>Box
         </h1>
-        <p className="mute mb-5 mt-2 max-w-72 text-[13px] leading-relaxed text-pretty">
-          Создавай свой календарь Формулы 1: этапы, даты, места и расписание сессий уикенда.
-        </p>
-        <button type="button" className="cta paper mt-0" onClick={onStart}>
+        <p>Каждый уикенд под твоим контролем. Макс и Red Bull — рядом с календарём.</p>
+        <button type="button" className="btn" onClick={onStart}>
           Начать сезон
-          <ArrowRight size={22} strokeWidth={2.6} aria-hidden="true" />
+          <ArrowRight size={20} strokeWidth={2.6} aria-hidden="true" />
         </button>
       </div>
     </div>
