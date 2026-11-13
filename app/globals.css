@@ -1172,12 +1172,9 @@ label:focus-within {
   align-items: center;
 }
 .splash-tick {
-  position: absolute;
-  left: -30px;
-  right: -30px;
+  position: relative;
   width: auto;
-  margin: 0;
-  top: 105cqw;
+  margin: 26px -40px 24px;
   transform: rotate(-5deg);
   z-index: 2;
 }
@@ -1188,18 +1185,186 @@ label:focus-within {
   animation: rise 0.5s 0.1s ease-out both;
 }
 .splash-body h1 {
-  font-size: 96px;
+  font-size: min(96px, 20cqw);
   line-height: 0.9;
 }
 .splash-body h1 span {
   color: var(--red);
 }
-.splash-body p {
-  font-size: 17px;
+.splash {
+  transition:
+    opacity 0.45s ease,
+    transform 0.45s ease;
+}
+.splash.is-leaving {
+  opacity: 0;
+  transform: scale(1.04);
+}
+.splash-img {
+  animation: splash-zoom 4.6s ease-out both;
+  transform-origin: 50% 30%;
+}
+@keyframes splash-zoom {
+  from {
+    transform: scale(1.22);
+    opacity: 0.3;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+.splash-flash {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 38%, color-mix(in srgb, var(--red) 70%, #fff) 0%, transparent 62%);
+  opacity: 0;
+  pointer-events: none;
+}
+.splash.is-go .splash-flash {
+  animation: splash-flash 0.9s ease-out both;
+}
+@keyframes splash-flash {
+  0% {
+    opacity: 0.85;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+.gantry {
+  display: flex;
+  gap: 2.4cqw;
+  width: fit-content;
+  padding: 2.6cqw 3.4cqw;
+  margin-bottom: 20px;
+  background: color-mix(in srgb, #000 45%, transparent);
+  border: 1px solid var(--wh-14);
+  border-radius: 18px;
+  backdrop-filter: blur(6px);
+}
+.pod {
+  display: grid;
+  place-items: center;
+  width: min(10.5cqw, 52px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #04061a;
+  border: 1px solid var(--wh-14);
+}
+.pod i {
+  width: 74%;
+  height: 74%;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--red) 16%, #04061a);
+  transition: background 0.1s;
+}
+.pod.on i {
+  background: var(--red);
+  box-shadow:
+    0 0 14px 3px color-mix(in srgb, var(--red) 80%, transparent),
+    0 0 40px 8px color-mix(in srgb, var(--red) 40%, transparent);
+  animation: pod-pop 0.28s ease-out;
+}
+@keyframes pod-pop {
+  0% {
+    transform: scale(0.6);
+  }
+  60% {
+    transform: scale(1.12);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+.splash.is-go .splash-body h1 span {
+  color: var(--sun);
+}
+.splash.is-go .splash-body h1 {
+  animation: go-pulse 0.5s ease-out;
+}
+@keyframes go-pulse {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+.load {
+  margin-top: 22px;
+}
+.load-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.load-status {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
   color: var(--wh-60);
-  margin: 16px 0 22px;
-  max-width: 30ch;
-  text-wrap: pretty;
+  padding-bottom: 6px;
+}
+.splash.is-go .load-status {
+  color: var(--sun);
+}
+.load-pct {
+  font-size: 56px;
+  line-height: 0.85;
+  font-variant-numeric: tabular-nums;
+}
+.load-pct small {
+  font-size: 0.45em;
+  color: var(--red);
+  margin-left: 2px;
+}
+.track {
+  position: relative;
+  height: 6px;
+  border-radius: 99px;
+  background: var(--wh-14);
+  margin-right: 22px;
+}
+.track .fill {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--red) 40%, transparent), var(--red));
+  transform-origin: left;
+}
+.track .car {
+  position: absolute;
+  top: 50%;
+  width: 26px;
+  height: 12px;
+  transform: translate(-100%, -50%) skewX(-24deg);
+  background: var(--sun);
+  border-radius: 2px;
+  box-shadow: -14px 0 18px color-mix(in srgb, var(--sun) 55%, transparent);
+}
+.track .flag {
+  position: absolute;
+  right: -22px;
+  top: 50%;
+  width: 18px;
+  height: 18px;
+  transform: translateY(-50%);
+  border-radius: 2px;
+  background: repeating-conic-gradient(#fff 0 25%, var(--navy) 0 50%) 0 0 / 9px 9px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .splash-img,
+  .pod.on i,
+  .splash.is-go .splash-body h1 {
+    animation: none;
+  }
 }
 
 /* ---------- form ---------- */

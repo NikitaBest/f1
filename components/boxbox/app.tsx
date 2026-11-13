@@ -17,13 +17,12 @@ export function BoxBoxApp() {
   const [tab, setTab] = useState<Tab>('home')
   const [openId, setOpenId] = useState<string | null>(null)
   const [creating, setCreating] = useState(false)
+  const [booted, setBooted] = useState(false)
 
-  if (!state.hydrated) return <div className="bb-app" aria-busy="true" />
-
-  if (!state.onboarded) {
+  if (!booted || !state.hydrated) {
     return (
       <div className="bb-app">
-        <SplashScreen onStart={actions.finishOnboarding} />
+        <SplashScreen onDone={() => setBooted(true)} />
       </div>
     )
   }
