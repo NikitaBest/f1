@@ -5,11 +5,12 @@ type CropSpec = { img: string; iw: number; ih: number; cx: number; cy: number; c
 const POSTER_MAX = { img: '/img/poster-max.jpeg', iw: 736, ih: 1308 }
 const MAX_PORTRAIT = { img: '/img/max-portrait.jpeg', iw: 736, ih: 1307 }
 const POSTER_CAR = { img: '/img/poster-car.jpeg', iw: 736, ih: 1106 }
+const RB_CAR = { img: '/img/rb-car.jpeg', iw: 640, ih: 800 }
 
 export const CROPS = {
   maxRed: { ...MAX_PORTRAIT, cx: 40, cy: 40, cw: 656, ch: 820 },
   face: { ...POSTER_MAX, cx: 190, cy: 490, cw: 400, ch: 400 },
-  car: { ...POSTER_CAR, cx: 15, cy: 505, cw: 690, ch: 245 },
+  car: { ...RB_CAR, cx: 8, cy: 330, cw: 624, ch: 160 },
   sig: { ...POSTER_CAR, cx: 295, cy: 848, cw: 140, ch: 55 },
   bulls: { ...POSTER_CAR, cx: 333, cy: 36, cw: 72, ch: 34 },
 } satisfies Record<string, CropSpec>
