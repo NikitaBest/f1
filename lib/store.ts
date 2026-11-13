@@ -39,8 +39,8 @@ function seed(): RaceEvent[] {
   return [
     make({
       id: '2026-vegas',
-      name: 'Гран-при Лас-Вегаса',
-      place: 'Лас-Вегас, США',
+      name: 'Las Vegas Grand Prix',
+      place: 'Las Vegas, USA',
       format: 'std',
       start: '2026-11-20',
       image: '/img/Неоновый Гран-при Лас-Вегаса.png',
@@ -54,8 +54,8 @@ function seed(): RaceEvent[] {
     }),
     make({
       id: '2026-qatar',
-      name: 'Гран-при Катара',
-      place: 'Лусаил, Катар',
+      name: 'Qatar Grand Prix',
+      place: 'Lusail, Qatar',
       format: 'std',
       start: '2026-11-27',
       image: '/img/Победный момент на Гран-при Катара.png',
@@ -69,8 +69,8 @@ function seed(): RaceEvent[] {
     }),
     make({
       id: '2026-abu-dhabi',
-      name: 'Гран-при Абу-Даби',
-      place: 'Яс-Марина, ОАЭ',
+      name: 'Abu Dhabi Grand Prix',
+      place: 'Yas Marina, UAE',
       format: 'std',
       start: '2026-12-04',
       image: '/img/Триумф на Гран-при Абу-Даби.png',

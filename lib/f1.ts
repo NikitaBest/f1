@@ -91,7 +91,40 @@ export function buildSessions(start: string, format: Format, draft: SessionDraft
 export const hintFor = (key: string) =>
   [...FORMATS.std, ...FORMATS.sprint].find((s) => s.key === key)?.hint ?? ''
 
-export const shortName = (n: string) => n.replace(/^Гран-при\s+/i, '')
+/** Short title on cards: English place / GP name, nominative. */
+const SHORT_EN: Record<string, string> = {
+  Австралии: 'Australia',
+  Китая: 'China',
+  Японии: 'Japan',
+  Бахрейна: 'Bahrain',
+  'Саудовской Аравии': 'Saudi Arabia',
+  Майами: 'Miami',
+  'Эмилии-Романьи': 'Emilia-Romagna',
+  Монако: 'Monaco',
+  Испании: 'Spain',
+  Канады: 'Canada',
+  Австрии: 'Austria',
+  Великобритании: 'Great Britain',
+  Бельгии: 'Belgium',
+  Венгрии: 'Hungary',
+  Нидерландов: 'Netherlands',
+  Италии: 'Italy',
+  Азербайджана: 'Azerbaijan',
+  Сингапура: 'Singapore',
+  США: 'United States',
+  Мехико: 'Mexico City',
+  'Сан-Паулу': 'São Paulo',
+  Бразилии: 'Brazil',
+  'Лас-Вегаса': 'Las Vegas',
+  Катара: 'Qatar',
+  'Абу-Даби': 'Abu Dhabi',
+  Барселоны: 'Barcelona',
+}
+
+export const shortName = (n: string) => {
+  const stripped = n.replace(/^Гран-при\s+/i, '').replace(/\s+Grand Prix$/i, '').trim()
+  return SHORT_EN[stripped] ?? stripped
+}
 
 export const sortEvents = (events: RaceEvent[]) =>
   [...events].sort((a, b) => a.start.localeCompare(b.start))

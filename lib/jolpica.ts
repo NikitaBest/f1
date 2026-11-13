@@ -165,7 +165,7 @@ export function mapRaceToEvent(race: JolpicaRace): RaceEvent {
   const start = weekendStart(race)
   return {
     id: `f1-${race.season}-r${race.round}`,
-    name: raceNameRu(race.raceName),
+    name: race.raceName,
     place: placeOf(race),
     format,
     start,
