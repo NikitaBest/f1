@@ -17,6 +17,11 @@ export function SplashScreen({ onDone }: { onDone: () => void }) {
   doneRef.current = onDone
 
   useEffect(() => {
+    const meta = document.querySelector('meta[name="theme-color"]')
+    const prevTheme = meta?.getAttribute('content')
+    meta?.setAttribute('content', '#000000')
+    document.body.classList.add('is-booting')
+
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     if (reduce) {
       setTyped(WORD)
@@ -25,6 +30,8 @@ export function SplashScreen({ onDone }: { onDone: () => void }) {
       return () => {
         clearTimeout(leave)
         clearTimeout(done)
+        meta?.setAttribute('content', prevTheme ?? '#0a1033')
+        document.body.classList.remove('is-booting')
       }
     }
 
@@ -41,6 +48,8 @@ export function SplashScreen({ onDone }: { onDone: () => void }) {
       clearTimeout(leave)
       clearTimeout(done)
       clearInterval(typeTimer)
+      meta?.setAttribute('content', prevTheme ?? '#0a1033')
+      document.body.classList.remove('is-booting')
     }
   }, [])
 
