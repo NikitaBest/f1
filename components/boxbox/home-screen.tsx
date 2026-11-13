@@ -47,8 +47,8 @@ export function HomeScreen({
       )}
 
       <div className="sec-title">
-        <h2 className="disp">Мои люди</h2>
-        <span className="eyebrow">Гонщик · Команда</span>
+        <h2 className="disp">Garage</h2>
+        <span className="eyebrow">Driver · Team</span>
       </div>
       <DuoCard live={live} />
 

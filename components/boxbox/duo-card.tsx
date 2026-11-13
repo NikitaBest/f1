@@ -17,7 +17,9 @@ export function DuoCard({ live }: { live: F1LiveState }) {
         <div className="duo-d">
           <Crop spec={CROPS.maxRed} label="Макс Ферстаппен" />
           <span className="flag-nl" aria-hidden="true" />
-          <span className="no disp">{d?.Driver.permanentNumber ?? '3'}</span>
+          <span className="no disp" aria-hidden="true">
+            3
+          </span>
           <div className="cap">
             <span className="eyebrow">Гонщик</span>
             <b className="disp">
@@ -28,18 +30,23 @@ export function DuoCard({ live }: { live: F1LiveState }) {
           </div>
         </div>
         <div className="duo-t">
-          <span className="eyebrow">Команда</span>
-          <b className="disp nm">Oracle Red Bull Racing</b>
-          <div className="helm">
-            <img src="/img/rb-logo.jpeg" alt="Логотип Red Bull Racing" />
-          </div>
-          <div className="tst">
-            <span>
-              <b className="num">{t ? `P${t.position}` : dash}</b>Кубок
-            </span>
-            <span>
-              <b className="num">{t?.points ?? dash}</b>Очки
-            </span>
+          <img className="duo-t-bg" src="/img/rb-logo.jpeg" alt="" aria-hidden="true" />
+          <div className="duo-t-veil" aria-hidden="true" />
+          <div className="cap">
+            <span className="eyebrow">Команда</span>
+            <b className="disp">
+              Red Bull
+              <br />
+              Racing
+            </b>
+            <div className="tst">
+              <span>
+                <b className="num">{t ? `P${t.position}` : dash}</b>Кубок
+              </span>
+              <span>
+                <b className="num">{t?.points ?? dash}</b>Очки
+              </span>
+            </div>
           </div>
         </div>
       </div>
