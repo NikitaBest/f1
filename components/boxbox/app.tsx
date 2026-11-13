@@ -1,8 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { actions, useAppState } from '@/lib/store'
+import { useAppState } from '@/lib/store'
 import { useF1Live } from '@/lib/use-f1-live'
+import { useViewportLock } from '@/lib/use-viewport-lock'
 import { CalendarScreen } from './calendar-screen'
 import { CreateScreen } from './create-screen'
 import { EventDetailScreen, HomeScreen } from './home-screen'
@@ -12,6 +13,7 @@ import { SplashScreen } from './splash-screen'
 import { TabBar, type Tab } from './tab-bar'
 
 export function BoxBoxApp() {
+  useViewportLock()
   const state = useAppState()
   const live = useF1Live(true)
   const [tab, setTab] = useState<Tab>('home')

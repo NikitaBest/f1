@@ -51,21 +51,22 @@
 }
 html {
   height: 100%;
-  background: #000;
+  background: var(--navy);
 }
 html,
 body {
-  min-height: 100%;
-  min-height: 100dvh;
-  min-height: 100lvh;
-  min-height: -webkit-fill-available;
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
 }
 body {
   background: var(--navy);
   color: var(--navy);
   -webkit-font-smoothing: antialiased;
   line-height: 1.5;
-  overscroll-behavior: none;
+  position: fixed;
+  inset: 0;
+  width: 100%;
 }
 html.is-booting,
 html.is-booting body,
@@ -111,20 +112,21 @@ label:focus-within {
 
 /* ---------- app shell ---------- */
 .bb-stage {
-  min-height: 100dvh;
-  min-height: 100lvh;
-  min-height: -webkit-fill-available;
+  position: fixed;
+  top: var(--vv-top, 0px);
+  left: var(--vv-left, 0px);
+  width: 100%;
+  height: var(--vv-height, 100%);
   display: flex;
   justify-content: center;
   background: var(--navy);
+  overflow: hidden;
 }
 .bb-app {
   position: relative;
   width: 100%;
   max-width: 440px;
-  height: 100dvh;
-  min-height: 100svh;
-  min-height: -webkit-fill-available;
+  height: 100%;
   overflow: hidden;
   background: var(--paper);
 }
@@ -487,6 +489,7 @@ label:focus-within {
   padding-top: 80px;
   position: relative;
   overflow-wrap: anywhere;
+  font-size: 64px;
 }
 .wk-meta {
   display: flex;
@@ -625,6 +628,45 @@ label:focus-within {
 .ses.race.next .st {
   background: var(--white);
   color: var(--red);
+}
+.wk.compact .wk-head {
+  min-height: 188px;
+  padding: 14px 16px 12px;
+}
+.wk.compact .wk-name {
+  padding-top: 28px;
+  margin-bottom: 8px;
+  font-size: 42px;
+}
+.wk.compact .cd {
+  margin: 0 16px 12px;
+  padding-top: 12px;
+}
+.wk.compact .cd-cell {
+  padding: 8px 0 6px;
+  border-radius: 12px;
+}
+.wk.compact .cd-cell .disp {
+  font-size: 32px;
+}
+.wk.compact .ses {
+  padding: 12px 16px;
+}
+.wk-more {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 12px 16px;
+  border-top: 1px solid var(--ink-12);
+  background: var(--white);
+  color: var(--navy);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
 }
 
 /* ---------- duo: driver + team ---------- */
@@ -1160,17 +1202,11 @@ label:focus-within {
 /* ---------- splash ---------- */
 .splash {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  top: var(--vv-top, 0px);
+  left: var(--vv-left, 0px);
   z-index: 9999;
   width: 100%;
-  width: 100vw;
-  height: 100%;
-  height: 100lvh;
-  min-height: 100dvh;
-  min-height: -webkit-fill-available;
+  height: var(--vv-height, 100%);
   display: flex;
   flex-direction: column;
   align-items: center;

@@ -31,7 +31,7 @@ export function HomeScreen({
       <Ticker words={['Box box', 'Oracle Red Bull Racing', 'Max Verstappen', `Сезон ${season}`]} />
 
       {event ? (
-        <WeekendCard event={event} round={roundOf(event, events)} season={season} />
+        <WeekendCard event={event} round={roundOf(event, events)} season={season} compact />
       ) : (
         <div className="empty">
           <h2 className="disp">Пит-лейн пуст</h2>

@@ -56,6 +56,11 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="theme-color" content="#0a1033" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){function s(){var vv=window.visualViewport;var h=Math.round((vv&&vv.height)||window.innerHeight);var t=Math.round((vv&&vv.offsetTop)||0);var l=Math.round((vv&&vv.offsetLeft)||0);var r=document.documentElement.style;r.setProperty('--vv-height',h+'px');r.setProperty('--vv-top',t+'px');r.setProperty('--vv-left',l+'px');}s();if(window.visualViewport){window.visualViewport.addEventListener('resize',s);window.visualViewport.addEventListener('scroll',s);}window.addEventListener('resize',s);})();`,
+          }}
+        />
       </head>
       <body className="font-sans antialiased">
         {children}

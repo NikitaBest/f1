@@ -11,33 +11,21 @@ const STROKES = [
 
 const WORD = 'simply lovely'
 
-function coverHeight() {
-  const vv = window.visualViewport?.height ?? 0
-  return Math.ceil(Math.max(window.innerHeight, vv, window.screen.height, document.documentElement.clientHeight) + 80)
-}
-
 export function SplashScreen({ onDone }: { onDone: () => void }) {
   const [leaving, setLeaving] = useState(false)
   const [typed, setTyped] = useState('')
   const [mounted, setMounted] = useState(false)
-  const [h, setH] = useState(0)
   const doneRef = useRef(onDone)
   doneRef.current = onDone
 
   useEffect(() => {
     setMounted(true)
-    const apply = () => setH(coverHeight())
-    apply()
 
     const meta = document.querySelector('meta[name="theme-color"]')
     const prevTheme = meta?.getAttribute('content')
     meta?.setAttribute('content', '#000000')
     document.documentElement.classList.add('is-booting')
     document.body.classList.add('is-booting')
-
-    window.visualViewport?.addEventListener('resize', apply)
-    window.addEventListener('resize', apply)
-    window.addEventListener('orientationchange', apply)
 
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     if (reduce) {
@@ -47,9 +35,6 @@ export function SplashScreen({ onDone }: { onDone: () => void }) {
       return () => {
         clearTimeout(leave)
         clearTimeout(done)
-        window.visualViewport?.removeEventListener('resize', apply)
-        window.removeEventListener('resize', apply)
-        window.removeEventListener('orientationchange', apply)
         meta?.setAttribute('content', prevTheme ?? '#0a1033')
         document.documentElement.classList.remove('is-booting')
         document.body.classList.remove('is-booting')
@@ -69,9 +54,6 @@ export function SplashScreen({ onDone }: { onDone: () => void }) {
       clearTimeout(leave)
       clearTimeout(done)
       clearInterval(typeTimer)
-      window.visualViewport?.removeEventListener('resize', apply)
-      window.removeEventListener('resize', apply)
-      window.removeEventListener('orientationchange', apply)
       meta?.setAttribute('content', prevTheme ?? '#0a1033')
       document.documentElement.classList.remove('is-booting')
       document.body.classList.remove('is-booting')
@@ -79,12 +61,7 @@ export function SplashScreen({ onDone }: { onDone: () => void }) {
   }, [])
 
   const node = (
-    <div
-      className={`splash${leaving ? ' is-leaving' : ''}`}
-      style={h ? { height: h } : undefined}
-      role="status"
-      aria-label="Загрузка"
-    >
+    <div className={`splash${leaving ? ' is-leaving' : ''}`} role="status" aria-label="Загрузка">
       <svg className="sign" viewBox="0 0 340 200" fill="none" aria-hidden="true">
         {STROKES.map((s, i) => (
           <path
