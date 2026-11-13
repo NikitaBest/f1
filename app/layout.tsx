@@ -58,7 +58,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <meta name="theme-color" content="#0a1033" />
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){function s(){var vv=window.visualViewport;var h=Math.round((vv&&vv.height)||window.innerHeight);var t=Math.round((vv&&vv.offsetTop)||0);var l=Math.round((vv&&vv.offsetLeft)||0);var r=document.documentElement.style;r.setProperty('--vv-height',h+'px');r.setProperty('--vv-top',t+'px');r.setProperty('--vv-left',l+'px');}s();if(window.visualViewport){window.visualViewport.addEventListener('resize',s);window.visualViewport.addEventListener('scroll',s);}window.addEventListener('resize',s);})();`,
+            // iOS PWA: visualViewport/dvh exclude bottom safe-area; 100vh includes it.
+            __html: `(function(){function iosPwa(){var n=window.navigator;var s=window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches||n.standalone===true;var ios=/iPad|iPhone|iPod/.test(n.userAgent)||(n.platform==='MacIntel'&&n.maxTouchPoints>1);return s&&ios;}function measure(){if(iosPwa()){var p=document.createElement('div');p.style.cssText='position:fixed;top:0;left:0;height:100vh;width:0;visibility:hidden;pointer-events:none';document.documentElement.appendChild(p);var h=p.offsetHeight;p.remove();return Math.round(h);}var vv=window.visualViewport;return Math.round((vv&&vv.height)||window.innerHeight);}function sync(){document.documentElement.style.setProperty('--app-height',measure()+'px');}sync();setTimeout(sync,50);setTimeout(sync,300);if(window.visualViewport){window.visualViewport.addEventListener('resize',sync);window.visualViewport.addEventListener('scroll',sync);}window.addEventListener('resize',sync);window.addEventListener('pageshow',sync);})();`,
           }}
         />
       </head>

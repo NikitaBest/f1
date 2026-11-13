@@ -51,13 +51,22 @@
 }
 html {
   height: 100%;
+  height: 100dvh;
   background: var(--navy);
 }
 html,
 body {
   height: 100%;
+  height: 100dvh;
   overflow: hidden;
   overscroll-behavior: none;
+}
+/* iOS installed PWA: 100vh includes bottom safe-area; dvh/svh do not */
+@media (display-mode: standalone) {
+  html,
+  body {
+    height: 100vh;
+  }
 }
 body {
   background: var(--navy);
@@ -67,6 +76,12 @@ body {
   position: fixed;
   inset: 0;
   width: 100%;
+  min-height: var(--app-height, 100dvh);
+}
+@media (display-mode: standalone) {
+  body {
+    min-height: var(--app-height, 100vh);
+  }
 }
 html.is-booting,
 html.is-booting body,
@@ -113,14 +128,18 @@ label:focus-within {
 /* ---------- app shell ---------- */
 .bb-stage {
   position: fixed;
-  top: var(--vv-top, 0px);
-  left: var(--vv-left, 0px);
+  inset: 0;
   width: 100%;
-  height: var(--vv-height, 100%);
+  height: var(--app-height, 100dvh);
   display: flex;
   justify-content: center;
   background: var(--navy);
   overflow: hidden;
+}
+@media (display-mode: standalone) {
+  .bb-stage {
+    height: var(--app-height, 100vh);
+  }
 }
 .bb-app {
   position: relative;
@@ -1202,11 +1221,10 @@ label:focus-within {
 /* ---------- splash ---------- */
 .splash {
   position: fixed;
-  top: var(--vv-top, 0px);
-  left: var(--vv-left, 0px);
+  inset: 0;
   z-index: 9999;
   width: 100%;
-  height: var(--vv-height, 100%);
+  height: var(--app-height, 100dvh);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1220,6 +1238,11 @@ label:focus-within {
   transition: opacity 0.35s ease;
   touch-action: none;
   overscroll-behavior: none;
+}
+@media (display-mode: standalone) {
+  .splash {
+    height: var(--app-height, 100vh);
+  }
 }
 .splash.is-leaving {
   opacity: 0;

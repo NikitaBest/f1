@@ -2,23 +2,46 @@
 
 import { useEffect } from 'react'
 
-/** Pins --vv-* to the real visible viewport (fixes iOS PWA bottom gap). */
+/**
+ * iOS standalone PWA + viewport-fit=cover under-reports height via
+ * visualViewport / dvh / svh (excludes safe-area-inset-bottom).
+ * 100vh still includes that inset — use it for the app shell.
+ */
+function isIosStandalone() {
+  const nav = window.navigator as Navigator & { standalone?: boolean }
+  const standalone =
+    window.matchMedia('(display-mode: standalone)').matches || nav.standalone === true
+  const ios =
+    /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+  return Boolean(standalone && ios)
+}
+
+function measureVh() {
+  const probe = document.createElement('div')
+  probe.style.cssText =
+    'position:fixed;top:0;left:0;height:100vh;width:0;visibility:hidden;pointer-events:none'
+  document.documentElement.appendChild(probe)
+  const height = probe.offsetHeight
+  probe.remove()
+  return height
+}
+
 export function useViewportLock() {
   useEffect(() => {
     const root = document.documentElement
 
     const sync = () => {
+      if (isIosStandalone()) {
+        root.style.setProperty('--app-height', `${Math.round(measureVh())}px`)
+        return
+      }
       const vv = window.visualViewport
       const height = Math.round(vv?.height ?? window.innerHeight)
-      const top = Math.round(vv?.offsetTop ?? 0)
-      const left = Math.round(vv?.offsetLeft ?? 0)
-      root.style.setProperty('--vv-height', `${height}px`)
-      root.style.setProperty('--vv-top', `${top}px`)
-      root.style.setProperty('--vv-left', `${left}px`)
+      root.style.setProperty('--app-height', `${height}px`)
     }
 
     sync()
-    // iOS often reports a wrong first height until after paint / gesture
     const t1 = window.setTimeout(sync, 50)
     const t2 = window.setTimeout(sync, 300)
     const t3 = window.setTimeout(sync, 1000)
