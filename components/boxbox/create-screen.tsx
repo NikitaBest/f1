@@ -17,7 +17,7 @@ import {
 } from '@/lib/f1'
 import { Brand } from './poster'
 
-export function CreateScreen({ onCreated }: { onCreated: () => void }) {
+export function CreateScreen({ onCreated, onCancel }: { onCreated: () => void; onCancel?: () => void }) {
   const [name, setName] = useState('')
   const [place, setPlace] = useState('')
   const [date, setDate] = useState(() => toISODate(addDays(nextFriday(new Date(), 2), 28)))
@@ -64,6 +64,11 @@ export function CreateScreen({ onCreated }: { onCreated: () => void }) {
     <>
       <form className="bb-screen" onSubmit={submit} noValidate>
         <Brand sub="Новое событие" />
+        {onCancel && (
+          <button type="button" className="micro mute mb-3" onClick={onCancel}>
+            ← Назад
+          </button>
+        )}
         <h1 className="h1 mb-5">Новый этап</h1>
 
         <label className="fld">

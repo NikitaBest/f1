@@ -9,7 +9,7 @@ export type AppState = {
   events: RaceEvent[]
 }
 
-const STORAGE_KEY = 'boxbox:v4'
+const STORAGE_KEY = 'boxbox:v5'
 const SERVER_STATE: AppState = { hydrated: false, onboarded: false, events: [] }
 
 type SeedInput = {
@@ -127,5 +127,6 @@ export const actions = {
   addEvent: (event: Omit<RaceEvent, 'id'>) =>
     setState((s) => ({ ...s, events: [...s.events, { ...event, id: crypto.randomUUID() }] })),
   removeEvent: (id: string) => setState((s) => ({ ...s, events: s.events.filter((e) => e.id !== id) })),
+  setEvents: (events: RaceEvent[]) => setState((s) => ({ ...s, events })),
   resetDemo: () => setState((s) => ({ ...s, events: seed() })),
 }

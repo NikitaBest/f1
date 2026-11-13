@@ -22,9 +22,9 @@ export function CalendarScreen({ events, onOpen }: { events: RaceEvent[]; onOpen
 
   return (
     <div className="bb-screen">
-      <Brand sub="Мои этапы" />
+      <Brand sub="Сезон F1" />
       <div className="micro yel">
-        {events.length} {events.length === 1 ? 'этап' : events.length < 5 && events.length > 0 ? 'этапа' : 'этапов'} в сезоне
+        {events.length} {events.length === 1 ? 'этап' : events.length < 5 && events.length > 0 ? 'этапа' : 'этапов'} · официальный календарь
       </div>
       <h1 className="h1 mt-1.5">Календарь</h1>
 

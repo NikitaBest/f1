@@ -2,13 +2,23 @@
 
 import { actions } from '@/lib/store'
 import { type RaceEvent } from '@/lib/f1'
+import type { F1LiveState } from '@/lib/use-f1-live'
 import { useInstallPrompt } from '@/components/pwa-register'
 import { GiantWord, PosterCard, Signature, Brand } from './poster'
 
-export function PaddockScreen({ events }: { events: RaceEvent[] }) {
+export function PaddockScreen({
+  events,
+  live,
+  onCreate,
+}: {
+  events: RaceEvent[]
+  live: F1LiveState
+  onCreate: () => void
+}) {
   const { canInstall, installed, install } = useInstallPrompt()
   const sprints = events.filter((e) => e.format === 'sprint').length
   const tz = Intl.DateTimeFormat().resolvedOptions().timeZone
+  const leader = live.drivers[0]
 
   return (
     <div className="bb-screen">
@@ -40,6 +50,7 @@ export function PaddockScreen({ events }: { events: RaceEvent[] }) {
         {[
           [events.length, 'Этапов'],
           [sprints, 'Спринтов'],
+          [live.season, 'Сезон'],
         ].map(([v, l]) => (
           <div key={l}>
             <b className="display block text-[40px] font-black leading-[0.9]">{v}</b>
@@ -47,6 +58,27 @@ export function PaddockScreen({ events }: { events: RaceEvent[] }) {
           </div>
         ))}
       </div>
+
+      {leader && (
+        <div className="setting">
+          Лидер чемпионата
+          <span>
+            {leader.Driver.code ?? leader.Driver.familyName} · {leader.points}
+          </span>
+        </div>
+      )}
+
+      <button type="button" className="setting" disabled={live.syncing} onClick={() => void live.syncCalendar()}>
+        Календарь F1
+        <span>{live.syncing ? 'Обновляем…' : 'Синхронизировать'}</span>
+      </button>
+      <button type="button" className="setting" disabled={live.loading} onClick={() => void live.refreshLive()}>
+        Чемпионат и финиш
+        <span>{live.loading ? 'Загрузка…' : 'Обновить'}</span>
+      </button>
+      <button type="button" className="setting" onClick={onCreate}>
+        Свой этап<span>Добавить</span>
+      </button>
 
       {canInstall && (
         <button type="button" className="setting" onClick={() => void install()}>
@@ -64,10 +96,11 @@ export function PaddockScreen({ events }: { events: RaceEvent[] }) {
       <button
         type="button"
         className="setting"
-        onClick={() => confirm('Заменить календарь оставшимися этапами сезона 2026?') && actions.resetDemo()}
+        onClick={() => confirm('Вернуть локальный демо-календарь?') && actions.resetDemo()}
       >
-        Календарь 2026<span>Сбросить</span>
+        Демо-календарь<span>Сбросить</span>
       </button>
+      {live.error && <p className="mute mt-3 text-xs text-bull">{live.error}</p>}
     </div>
   )
 }

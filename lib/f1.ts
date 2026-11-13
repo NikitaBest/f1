@@ -14,6 +14,10 @@ export type RaceEvent = {
   start: string
   sessions: Session[]
   image?: string
+  round?: number
+  season?: number
+  circuitId?: string
+  source?: 'f1' | 'local'
 }
 
 export type SessionTemplate = {
