@@ -21,7 +21,7 @@ export function BoxBoxApp() {
 
   if (!booted || !state.hydrated) {
     return (
-      <div className="bb-app">
+      <div className="bb-app is-booting">
         <SplashScreen onDone={() => setBooted(true)} />
       </div>
     )

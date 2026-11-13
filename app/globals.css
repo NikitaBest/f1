@@ -52,6 +52,8 @@
 html,
 body {
   background: var(--navy);
+  min-height: 100dvh;
+  min-height: 100svh;
 }
 body {
   color: var(--navy);
@@ -107,8 +109,15 @@ label:focus-within {
   width: 100%;
   max-width: 440px;
   height: 100dvh;
+  min-height: 100svh;
   overflow: hidden;
   background: var(--paper);
+}
+.bb-app.is-booting {
+  background: #000;
+}
+.bb-app.is-booting::after {
+  display: none;
 }
 .bb-app::after {
   content: '';
@@ -1135,8 +1144,9 @@ label:focus-within {
 
 /* ---------- splash ---------- */
 .splash {
-  position: absolute;
+  position: fixed;
   inset: 0;
+  z-index: 200;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1144,7 +1154,7 @@ label:focus-within {
   gap: 28px;
   padding: 18% 28px 0;
   overflow: hidden;
-  background: #000 url('/img/helmet.jpeg') center 62% / cover no-repeat;
+  background: #000 url('/img/helmet.jpeg') center bottom / cover no-repeat;
   color: var(--white);
   transition: opacity 0.35s ease;
 }

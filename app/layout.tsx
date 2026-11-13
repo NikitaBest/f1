@@ -41,7 +41,7 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   colorScheme: 'dark',
-  themeColor: '#070A24',
+  themeColor: '#0a1033',
   width: 'device-width',
   initialScale: 1,
   viewportFit: 'cover',
@@ -55,7 +55,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <meta name="theme-color" content="#070A24" />
+        <meta name="theme-color" content="#0a1033" />
       </head>
       <body className="font-sans antialiased">
         {children}
