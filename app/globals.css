@@ -812,6 +812,35 @@ label:focus-within {
 }
 
 /* ---------- calendar ---------- */
+.past-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin: 18px 0 4px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1.5px solid var(--ink-12);
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.past-toggle span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.past-toggle b {
+  font-family: var(--display);
+  font-size: 18px;
+  letter-spacing: 0;
+  color: var(--ink-60);
+}
 .month {
   display: flex;
   align-items: center;

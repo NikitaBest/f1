@@ -1,7 +1,7 @@
 'use client'
 
 import { Fragment, useState, type CSSProperties } from 'react'
-import { Plus } from 'lucide-react'
+import { ChevronDown, ChevronUp, Plus } from 'lucide-react'
 import { useNow } from '@/lib/use-now'
 import { daysUntil, eventEnd, mon, monthYear, parseISODate, shortName, sortEvents, type Format, type RaceEvent } from '@/lib/f1'
 import { Hero } from './art'
@@ -17,53 +17,21 @@ const FILTERS: [Filter, string][] = [
 
 const plural = (n: number) => (n % 10 === 1 && n % 100 !== 11 ? 'этап' : [2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100) ? 'этапа' : 'этапов')
 
-export function CalendarScreen({
+function EventList({
   events,
+  now,
+  hotId,
   onOpen,
-  onCreate,
 }: {
   events: RaceEvent[]
+  now: number
+  hotId?: string
   onOpen: (id: string) => void
-  onCreate: () => void
 }) {
-  const [filter, setFilter] = useState<Filter>('all')
-  const now = useNow(60_000)
-  const list = sortEvents(events).filter((e) => filter === 'all' || e.format === filter)
-  const hotId = list.find((e) => eventEnd(e) > now)?.id
-  const season = events[0]?.season ?? new Date(now).getFullYear()
   let lastMonth = ''
-
   return (
-    <div className="scroll">
-      <Hero
-        image="/img/night-city.jpg"
-        pos="50%"
-        eyebrow={`Сезон ${season}`}
-        title="Календарь"
-        sub={`${events.length} ${plural(events.length)} · официальный и свои`}
-      />
-
-      <div className="topbar" style={{ marginBottom: 4 }}>
-        <div className="seg" role="group" aria-label="Фильтр этапов" style={{ flex: 1 }}>
-          {FILTERS.map(([k, l]) => (
-            <button key={k} type="button" aria-pressed={filter === k} onClick={() => setFilter(k)}>
-              {l}
-            </button>
-          ))}
-        </div>
-        <button type="button" className="btn sm" onClick={onCreate} style={{ marginLeft: 8 }} aria-label="Добавить этап">
-          <Plus size={18} aria-hidden="true" />
-        </button>
-      </div>
-
-      {list.length === 0 && (
-        <div className="empty" style={{ marginTop: 16 }}>
-          <h2 className="disp">Пусто</h2>
-          <p>Нажми «+», чтобы добавить этап.</p>
-        </div>
-      )}
-
-      {list.map((e) => {
+    <>
+      {events.map((e) => {
         const start = parseISODate(e.start)
         const month = monthYear(start)
         const showMonth = month !== lastMonth
@@ -98,6 +66,88 @@ export function CalendarScreen({
           </Fragment>
         )
       })}
+    </>
+  )
+}
+
+export function CalendarScreen({
+  events,
+  onOpen,
+  onCreate,
+}: {
+  events: RaceEvent[]
+  onOpen: (id: string) => void
+  onCreate: () => void
+}) {
+  const [filter, setFilter] = useState<Filter>('all')
+  const [showPast, setShowPast] = useState(false)
+  const now = useNow(60_000)
+  const list = sortEvents(events).filter((e) => filter === 'all' || e.format === filter)
+  const past = list.filter((e) => eventEnd(e) < now)
+  const upcoming = list.filter((e) => eventEnd(e) >= now)
+  const hotId = upcoming[0]?.id
+  const season = events[0]?.season ?? new Date(now).getFullYear()
+
+  return (
+    <div className="scroll">
+      <Hero
+        image="/img/night-city.jpg"
+        pos="50%"
+        eyebrow={`Сезон ${season}`}
+        title="Календарь"
+        sub={`${events.length} ${plural(events.length)} · официальный и свои`}
+      />
+
+      <div className="topbar" style={{ marginBottom: 4 }}>
+        <div className="seg" role="group" aria-label="Фильтр этапов" style={{ flex: 1 }}>
+          {FILTERS.map(([k, l]) => (
+            <button key={k} type="button" aria-pressed={filter === k} onClick={() => setFilter(k)}>
+              {l}
+            </button>
+          ))}
+        </div>
+        <button type="button" className="btn sm" onClick={onCreate} style={{ marginLeft: 8 }} aria-label="Добавить этап">
+          <Plus size={18} aria-hidden="true" />
+        </button>
+      </div>
+
+      {list.length === 0 && (
+        <div className="empty" style={{ marginTop: 16 }}>
+          <h2 className="disp">Пусто</h2>
+          <p>Нажми «+», чтобы добавить этап.</p>
+        </div>
+      )}
+
+      {past.length > 0 && (
+        <button
+          type="button"
+          className="past-toggle"
+          aria-expanded={showPast}
+          onClick={() => setShowPast((v) => !v)}
+        >
+          <span>
+            {showPast ? 'Скрыть прошедшие' : 'Прошедшие'}
+            <b>{past.length}</b>
+          </span>
+          {showPast ? <ChevronUp size={18} aria-hidden="true" /> : <ChevronDown size={18} aria-hidden="true" />}
+        </button>
+      )}
+
+      {showPast && past.length > 0 && (
+        <EventList events={past} now={now} onOpen={onOpen} />
+      )}
+
+      {upcoming.length > 0 ? (
+        <EventList events={upcoming} now={now} hotId={hotId} onOpen={onOpen} />
+      ) : (
+        list.length > 0 &&
+        !showPast && (
+          <div className="empty" style={{ marginTop: 16 }}>
+            <h2 className="disp">Сезон позади</h2>
+            <p>Раскрой прошедшие этапы выше или добавь свой.</p>
+          </div>
+        )
+      )}
     </div>
   )
 }
