@@ -78,7 +78,6 @@ function Countdown({ target }: { target: number }) {
 export function WeekendCard({ event, round, season }: { event: RaceEvent; round: number; season: number }) {
   const now = useNow(30_000)
   const { photo, save, clear } = useWeekendPhoto(event.id)
-  const sprint = event.format === 'sprint'
   const nextIdx = event.sessions.findIndex((s) => new Date(s.at).getTime() > now)
   const next = event.sessions[nextIdx]
   const start = parseISODate(event.start)
@@ -92,15 +91,11 @@ export function WeekendCard({ event, round, season }: { event: RaceEvent; round:
   return (
     <article className="wk" aria-label={`Ближайший уикенд: ${event.name}`}>
       <div className="wk-head" style={{ '--bg': `url("${photo ?? eventImage(event)}")` } as CSSProperties}>
-        <span className="wk-ghost disp" aria-hidden="true">
-          R{pad(round)}
-        </span>
         <div className="wk-top">
           <span className="eyebrow" style={{ color: 'var(--sun)' }}>
             Раунд {pad(round)} · {season}
           </span>
           <div className="wk-tools">
-            <span className={`chip ${sprint ? 'fill' : ''}`}>{sprint ? 'Спринт' : 'Обычный'}</span>
             <label className="wk-up" title="Своё фото уикенда">
               <ImagePlus size={16} aria-hidden="true" />
               <span className="sr-only">Загрузить своё фото уикенда</span>

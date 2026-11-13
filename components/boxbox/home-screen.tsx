@@ -27,7 +27,7 @@ export function HomeScreen({
 
   return (
     <div className="scroll home">
-      <TopBar right={<span className="chip">Сезон {season}</span>} />
+      <TopBar />
       <Ticker words={['Box box', 'Oracle Red Bull Racing', 'Max Verstappen', `Сезон ${season}`]} />
 
       {event ? (

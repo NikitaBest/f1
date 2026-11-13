@@ -446,16 +446,6 @@ label:focus-within {
     linear-gradient(to top, var(--navy) 4%, color-mix(in srgb, var(--navy) 28%, transparent) 66%),
     var(--bg) center 55% / cover;
 }
-.wk-ghost {
-  position: absolute;
-  right: 14px;
-  top: 50px;
-  font-size: 128px;
-  line-height: 0.8;
-  color: transparent;
-  -webkit-text-stroke: 1.5px color-mix(in srgb, #fff 60%, transparent);
-  pointer-events: none;
-}
 .wk-top {
   display: flex;
   justify-content: space-between;
