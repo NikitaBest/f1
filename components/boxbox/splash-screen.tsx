@@ -35,9 +35,7 @@ export function SplashScreen({ onDone }: { onDone: () => void }) {
           />
         ))}
       </svg>
-      <h1 className="splash-word disp">
-        Box<span>·</span>Box
-      </h1>
+      <h1 className="splash-word disp">simply lovely</h1>
     </div>
   )
 }
