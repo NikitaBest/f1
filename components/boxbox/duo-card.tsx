@@ -31,7 +31,7 @@ export function DuoCard({ live }: { live: F1LiveState }) {
           <span className="eyebrow">Команда</span>
           <b className="disp nm">Oracle Red Bull Racing</b>
           <div className="helm">
-            <img src="/img/helmet.jpeg" alt="Шлем Ферстаппена с красным львом" />
+            <img src="/img/rb-logo.jpeg" alt="Логотип Red Bull Racing" />
           </div>
           <div className="tst">
             <span>
