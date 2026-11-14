@@ -6,6 +6,7 @@ import { shortName } from '@/lib/f1'
 import { fetchTeamSeason, type TeamRaceResult, type TeamSeason } from '@/lib/jolpica'
 import type { F1LiveState } from '@/lib/use-f1-live'
 import { isFavTeam } from './duo-card'
+import { WeekendDebriefScreen } from './weekend-debrief'
 
 function formClass(row: TeamRaceResult) {
   if (row.hasWin) return 'win'
@@ -44,6 +45,7 @@ export function TeamScreen({ live, onBack }: { live: F1LiveState; onBack: () => 
   const [data, setData] = useState<TeamSeason | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [openRound, setOpenRound] = useState<string | null>(null)
 
   useEffect(() => {
     let cancelled = false
@@ -66,9 +68,17 @@ export function TeamScreen({ live, onBack }: { live: F1LiveState; onBack: () => 
 
   const chronological = data?.results ?? []
   const results = [...chronological].reverse()
+  const sprints = [...(data?.sprints ?? [])].reverse()
+  const sprintRounds = new Set((data?.sprints ?? []).map((s) => s.round))
   const quali = qualiStats(data?.qualifying ?? [])
   const season = data?.season ?? live.season
   const lineUp = data?.lineUp ?? []
+
+  if (openRound && data) {
+    return (
+      <WeekendDebriefScreen season={data.season} round={openRound} mode="team" onBack={() => setOpenRound(null)} />
+    )
+  }
 
   return (
     <div className="scroll team">
@@ -152,27 +162,67 @@ export function TeamScreen({ live, onBack }: { live: F1LiveState; onBack: () => 
             ))}
           </div>
 
+          {sprints.length > 0 && (
+            <>
+              <div className="sec-title">
+                <h2 className="disp">Sprints</h2>
+                <span className="eyebrow">{sprints.length} weekends</span>
+              </div>
+              <ol className="drv-list">
+                {sprints.map((row) => (
+                  <li key={`spr-${row.round}`}>
+                    <button
+                      type="button"
+                      className={`drv-row-btn${row.hasWin ? ' win' : ''}${row.allOut ? ' dnf' : ''}`}
+                      onClick={() => setOpenRound(row.round)}
+                    >
+                      <b className="pos num">{row.hasWin ? 'P1' : row.allOut ? 'DNF' : `+${row.teamPoints}`}</b>
+                      <span className="meta">
+                        <span className="nm">
+                          {shortName(row.raceName)} <span className="tag">SPR</span>
+                        </span>
+                        <span className="subline">{driverLine(row)}</span>
+                      </span>
+                      <span className="tail">+{row.teamPoints}</span>
+                    </button>
+                  </li>
+                ))}
+              </ol>
+            </>
+          )}
+
           <div className="sec-title">
             <h2 className="disp">Results</h2>
-            <span className="eyebrow">Both cars</span>
+            <span className="eyebrow">Tap for debrief</span>
           </div>
           <ol className="drv-list">
             {results.map((row) => (
-              <li key={row.round} className={`drv-row${row.hasWin ? ' win' : ''}${row.allOut ? ' dnf' : ''}`}>
-                <b className="pos num">{row.hasWin ? 'P1' : row.allOut ? 'DNF' : `+${row.teamPoints}`}</b>
-                <span className="meta">
-                  <span className="nm">{shortName(row.raceName)}</span>
-                  <span className="subline">{driverLine(row)}</span>
-                </span>
-                <span className="tail">
-                  {row.hasWin ? (
-                    <span className="tag fill">Win</span>
-                  ) : row.allOut ? (
-                    <span className="tag">Ret</span>
-                  ) : (
-                    `+${row.teamPoints}`
-                  )}
-                </span>
+              <li key={row.round}>
+                <button
+                  type="button"
+                  className={`drv-row-btn${row.hasWin ? ' win' : ''}${row.allOut ? ' dnf' : ''}`}
+                  onClick={() => setOpenRound(row.round)}
+                >
+                  <b className="pos num">{row.hasWin ? 'P1' : row.allOut ? 'DNF' : `+${row.teamPoints}`}</b>
+                  <span className="meta">
+                    <span className="nm">
+                      {shortName(row.raceName)}
+                      {sprintRounds.has(row.round) ? <span className="tag">SPR</span> : null}
+                    </span>
+                    <span className="subline">
+                      {row.circuit.locality} · {driverLine(row)}
+                    </span>
+                  </span>
+                  <span className="tail">
+                    {row.hasWin ? (
+                      <span className="tag fill">Win</span>
+                    ) : row.allOut ? (
+                      <span className="tag">Ret</span>
+                    ) : (
+                      `+${row.teamPoints}`
+                    )}
+                  </span>
+                </button>
               </li>
             ))}
           </ol>

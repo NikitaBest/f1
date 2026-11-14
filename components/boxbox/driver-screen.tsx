@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { ArrowLeft } from 'lucide-react'
-import { pad, shortName } from '@/lib/f1'
+import { shortName } from '@/lib/f1'
 import {
   fetchDriverSeason,
   type DriverQualiResult,
@@ -12,6 +12,7 @@ import {
 import type { F1LiveState } from '@/lib/use-f1-live'
 import { CROPS, Crop } from './art'
 import { isFavDriver } from './duo-card'
+import { WeekendDebriefScreen } from './weekend-debrief'
 
 function isDnf(row: DriverRaceResult) {
   const t = row.positionText.toUpperCase()
@@ -52,6 +53,7 @@ export function DriverScreen({ live, onBack }: { live: F1LiveState; onBack: () =
   const [data, setData] = useState<DriverSeason | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [openRound, setOpenRound] = useState<string | null>(null)
 
   useEffect(() => {
     let cancelled = false
@@ -74,8 +76,21 @@ export function DriverScreen({ live, onBack }: { live: F1LiveState; onBack: () =
 
   const chronological = data?.results ?? []
   const results = [...chronological].reverse()
+  const sprints = [...(data?.sprints ?? [])].reverse()
+  const sprintRounds = new Set((data?.sprints ?? []).map((s) => s.round))
   const quali = qualiStats(data?.qualifying ?? [])
   const season = data?.season ?? live.season
+
+  if (openRound && data) {
+    return (
+      <WeekendDebriefScreen
+        season={data.season}
+        round={openRound}
+        mode="driver"
+        onBack={() => setOpenRound(null)}
+      />
+    )
+  }
 
   return (
     <div className="scroll drv">
@@ -135,27 +150,74 @@ export function DriverScreen({ live, onBack }: { live: F1LiveState; onBack: () =
             ))}
           </div>
 
+          {sprints.length > 0 && (
+            <>
+              <div className="sec-title">
+                <h2 className="disp">Sprints</h2>
+                <span className="eyebrow">{sprints.length} races</span>
+              </div>
+              <ol className="drv-list">
+                {sprints.map((row) => {
+                  const win = Number(row.position) === 1 && !isDnf(row)
+                  const dnf = isDnf(row)
+                  return (
+                    <li key={`spr-${row.round}`}>
+                      <button
+                        type="button"
+                        className={`drv-row-btn${win ? ' win' : ''}${dnf ? ' dnf' : ''}`}
+                        onClick={() => setOpenRound(row.round)}
+                      >
+                        <b className="pos num">{finishLabel(row)}</b>
+                        <span className="meta">
+                          <span className="nm">
+                            {shortName(row.raceName)} <span className="tag">SPR</span>
+                          </span>
+                          <span className="subline">
+                            from P{row.grid || '—'}
+                            {row.points !== '0' ? ` · +${row.points}` : ' · 0 pts'}
+                          </span>
+                        </span>
+                        <span className="tail">{win ? 'Win' : dnf ? 'Ret' : (row.time ?? row.status)}</span>
+                      </button>
+                    </li>
+                  )
+                })}
+              </ol>
+            </>
+          )}
+
           <div className="sec-title">
             <h2 className="disp">Results</h2>
-            <span className="eyebrow">Grid → finish</span>
+            <span className="eyebrow">Tap for debrief</span>
           </div>
           <ol className="drv-list">
             {results.map((row) => {
               const win = Number(row.position) === 1 && !isDnf(row)
               const dnf = isDnf(row)
               return (
-                <li key={row.round} className={`drv-row${win ? ' win' : ''}${dnf ? ' dnf' : ''}`}>
-                  <b className="pos num">{finishLabel(row)}</b>
-                  <span className="meta">
-                    <span className="nm">{shortName(row.raceName)}</span>
-                    <span className="subline">
-                      from P{row.grid || '—'}
-                      {row.points !== '0' ? ` · +${row.points}` : ' · 0 pts'}
+                <li key={row.round}>
+                  <button
+                    type="button"
+                    className={`drv-row-btn${win ? ' win' : ''}${dnf ? ' dnf' : ''}`}
+                    onClick={() => setOpenRound(row.round)}
+                  >
+                    <b className="pos num">{finishLabel(row)}</b>
+                    <span className="meta">
+                      <span className="nm">
+                        {shortName(row.raceName)}
+                        {sprintRounds.has(row.round) ? <span className="tag">SPR</span> : null}
+                      </span>
+                      <span className="subline">
+                        {row.circuit.locality}
+                        {' · '}
+                        from P{row.grid || '—'}
+                        {row.points !== '0' ? ` · +${row.points}` : ' · 0 pts'}
+                      </span>
                     </span>
-                  </span>
-                  <span className="tail">
-                    {win ? <span className="tag fill">Win</span> : dnf ? <span className="tag">Ret</span> : (row.time ?? row.status)}
-                  </span>
+                    <span className="tail">
+                      {win ? <span className="tag fill">Win</span> : dnf ? <span className="tag">Ret</span> : (row.time ?? row.status)}
+                    </span>
+                  </button>
                 </li>
               )
             })}

@@ -47,7 +47,7 @@ export type RaceResultRow = {
   points: string
   grid?: string
   status?: string
-  Driver: { code?: string; givenName: string; familyName: string }
+  Driver: { driverId?: string; code?: string; givenName: string; familyName: string }
   Constructor: { name: string }
   Time?: { time: string }
   FastestLap?: { rank?: string; lap?: string; Time?: { time: string } }
@@ -272,12 +272,29 @@ export async function fetchRaceResults(season: string | number, round: string | 
   }
 }
 
+export type CircuitInfo = {
+  circuitId: string
+  circuitName: string
+  locality: string
+  country: string
+}
+
+function circuitOf(race: JolpicaRace): CircuitInfo {
+  return {
+    circuitId: race.Circuit.circuitId,
+    circuitName: race.Circuit.circuitName,
+    locality: race.Circuit.Location.locality,
+    country: race.Circuit.Location.country,
+  }
+}
+
 export type DriverRaceResult = {
   season: string
   round: string
   raceName: string
   date: string
   place: string
+  circuit: CircuitInfo
   position: string
   positionText: string
   grid: string
@@ -286,6 +303,7 @@ export type DriverRaceResult = {
   time?: string
   fastestLap?: string
   fastestLapRank?: string
+  fastestLapNumber?: string
 }
 
 export type DriverQualiResult = {
@@ -298,6 +316,7 @@ export type DriverSeason = {
   season: string
   driverId: string
   results: DriverRaceResult[]
+  sprints: DriverRaceResult[]
   qualifying: DriverQualiResult[]
 }
 
@@ -322,36 +341,58 @@ type DriverQualiResponse = {
   }
 }
 
+type DriverSprintResponse = {
+  MRData: {
+    RaceTable: {
+      season: string
+      Races: (JolpicaRace & {
+        SprintResults: RaceResultRow[]
+      })[]
+    }
+  }
+}
+
 const FAV_DRIVER_ID = 'max_verstappen'
+
+function mapDriverRow(race: JolpicaRace, row?: RaceResultRow): DriverRaceResult {
+  return {
+    season: race.season,
+    round: race.round,
+    raceName: race.raceName,
+    date: race.date,
+    place: placeOf(race),
+    circuit: circuitOf(race),
+    position: row?.position ?? '',
+    positionText: row?.positionText ?? row?.position ?? '',
+    grid: row?.grid ?? '',
+    points: row?.points ?? '0',
+    status: row?.status ?? '',
+    time: row?.Time?.time,
+    fastestLap: row?.FastestLap?.Time?.time,
+    fastestLapRank: row?.FastestLap?.rank,
+    fastestLapNumber: row?.FastestLap?.lap,
+  }
+}
 
 export async function fetchDriverSeason(
   season: number | 'current' = 'current',
   driverId = FAV_DRIVER_ID,
 ): Promise<DriverSeason> {
-  const [resultsData, qualiData] = await Promise.all([
+  const [resultsData, qualiData, sprintData] = await Promise.all([
     f1Get<DriverResultsResponse>(`${season}/drivers/${driverId}/results.json?limit=100`),
     f1Get<DriverQualiResponse>(`${season}/drivers/${driverId}/qualifying.json?limit=100`),
+    f1Get<DriverSprintResponse>(`${season}/drivers/${driverId}/sprint.json?limit=100`).catch(
+      () => ({ MRData: { RaceTable: { season: String(season), Races: [] } } }) as DriverSprintResponse,
+    ),
   ])
 
-  const races = resultsData.MRData.RaceTable.Races ?? []
-  const results: DriverRaceResult[] = races.map((race) => {
-    const row = race.Results?.[0]
-    return {
-      season: race.season,
-      round: race.round,
-      raceName: race.raceName,
-      date: race.date,
-      place: placeOf(race),
-      position: row?.position ?? '',
-      positionText: row?.positionText ?? row?.position ?? '',
-      grid: row?.grid ?? '',
-      points: row?.points ?? '0',
-      status: row?.status ?? '',
-      time: row?.Time?.time,
-      fastestLap: row?.FastestLap?.Time?.time,
-      fastestLapRank: row?.FastestLap?.rank,
-    }
-  })
+  const results: DriverRaceResult[] = (resultsData.MRData.RaceTable.Races ?? []).map((race) =>
+    mapDriverRow(race, race.Results?.[0]),
+  )
+
+  const sprints: DriverRaceResult[] = (sprintData.MRData.RaceTable.Races ?? []).map((race) =>
+    mapDriverRow(race, race.SprintResults?.[0]),
+  )
 
   const qualifying: DriverQualiResult[] = (qualiData.MRData.RaceTable.Races ?? []).map((race) => ({
     round: race.round,
@@ -363,6 +404,7 @@ export async function fetchDriverSeason(
     season: resultsData.MRData.RaceTable.season,
     driverId,
     results,
+    sprints,
     qualifying,
   }
 }
@@ -383,6 +425,7 @@ export type TeamRaceResult = {
   raceName: string
   date: string
   place: string
+  circuit: CircuitInfo
   teamPoints: number
   bestFinish: number | null
   hasWin: boolean
@@ -410,6 +453,7 @@ export type TeamSeason = {
   season: string
   constructorId: string
   results: TeamRaceResult[]
+  sprints: TeamRaceResult[]
   qualifying: TeamQualiRound[]
   lineUp: TeamDriverSummary[]
 }
@@ -419,6 +463,15 @@ type TeamResultsResponse = {
     RaceTable: {
       season: string
       Races: (JolpicaRace & { Results: RaceResultRow[] })[]
+    }
+  }
+}
+
+type TeamSprintResponse = {
+  MRData: {
+    RaceTable: {
+      season: string
+      Races: (JolpicaRace & { SprintResults: RaceResultRow[] })[]
     }
   }
 }
@@ -448,47 +501,56 @@ function codeOf(d: { code?: string; familyName: string }) {
   return d.code ?? d.familyName.slice(0, 3).toUpperCase()
 }
 
+function mapTeamRace(race: JolpicaRace, rows: RaceResultRow[]): TeamRaceResult {
+  const drivers: TeamDriverEntry[] = rows.map((row) => ({
+    code: codeOf(row.Driver),
+    familyName: row.Driver.familyName,
+    position: row.position,
+    positionText: row.positionText ?? row.position,
+    points: row.points,
+    grid: row.grid ?? '',
+    status: row.status ?? '',
+  }))
+  const finishes = drivers
+    .filter((d) => !isOut(d.positionText, d.status))
+    .map((d) => Number(d.position))
+    .filter((n) => Number.isFinite(n) && n > 0)
+  const bestFinish = finishes.length ? Math.min(...finishes) : null
+  const teamPoints = drivers.reduce((sum, d) => sum + (Number(d.points) || 0), 0)
+  return {
+    season: race.season,
+    round: race.round,
+    raceName: race.raceName,
+    date: race.date,
+    place: placeOf(race),
+    circuit: circuitOf(race),
+    teamPoints,
+    bestFinish,
+    hasWin: bestFinish === 1,
+    hasPodium: bestFinish !== null && bestFinish <= 3,
+    allOut: drivers.length > 0 && finishes.length === 0,
+    drivers,
+  }
+}
+
 export async function fetchTeamSeason(
   season: number | 'current' = 'current',
   constructorId = FAV_CONSTRUCTOR_ID,
 ): Promise<TeamSeason> {
-  const [resultsData, qualiData] = await Promise.all([
+  const [resultsData, qualiData, sprintData] = await Promise.all([
     f1Get<TeamResultsResponse>(`${season}/constructors/${constructorId}/results.json?limit=100`),
     f1Get<TeamQualiResponse>(`${season}/constructors/${constructorId}/qualifying.json?limit=100`),
+    f1Get<TeamSprintResponse>(`${season}/constructors/${constructorId}/sprint.json?limit=100`).catch(
+      () => ({ MRData: { RaceTable: { season: String(season), Races: [] } } }) as TeamSprintResponse,
+    ),
   ])
 
-  const races = resultsData.MRData.RaceTable.Races ?? []
-  const results: TeamRaceResult[] = races.map((race) => {
-    const rows = race.Results ?? []
-    const drivers: TeamDriverEntry[] = rows.map((row) => ({
-      code: codeOf(row.Driver),
-      familyName: row.Driver.familyName,
-      position: row.position,
-      positionText: row.positionText ?? row.position,
-      points: row.points,
-      grid: row.grid ?? '',
-      status: row.status ?? '',
-    }))
-    const finishes = drivers
-      .filter((d) => !isOut(d.positionText, d.status))
-      .map((d) => Number(d.position))
-      .filter((n) => Number.isFinite(n) && n > 0)
-    const bestFinish = finishes.length ? Math.min(...finishes) : null
-    const teamPoints = drivers.reduce((sum, d) => sum + (Number(d.points) || 0), 0)
-    return {
-      season: race.season,
-      round: race.round,
-      raceName: race.raceName,
-      date: race.date,
-      place: placeOf(race),
-      teamPoints,
-      bestFinish,
-      hasWin: bestFinish === 1,
-      hasPodium: bestFinish !== null && bestFinish <= 3,
-      allOut: drivers.length > 0 && finishes.length === 0,
-      drivers,
-    }
-  })
+  const results = (resultsData.MRData.RaceTable.Races ?? []).map((race) =>
+    mapTeamRace(race, race.Results ?? []),
+  )
+  const sprints = (sprintData.MRData.RaceTable.Races ?? []).map((race) =>
+    mapTeamRace(race, race.SprintResults ?? []),
+  )
 
   const tally = new Map<string, TeamDriverSummary>()
   for (const race of results) {
@@ -522,7 +584,187 @@ export async function fetchTeamSeason(
     season: resultsData.MRData.RaceTable.season,
     constructorId,
     results,
+    sprints,
     qualifying,
     lineUp,
+  }
+}
+
+export type PitStop = {
+  driverId: string
+  code: string
+  lap: string
+  stop: string
+  duration: string
+  time: string
+}
+
+export type DebriefDriver = {
+  driverId: string
+  code: string
+  familyName: string
+  position: string
+  positionText: string
+  grid: string
+  points: string
+  status: string
+  time?: string
+  fastestLap?: string
+  fastestLapRank?: string
+  fastestLapNumber?: string
+}
+
+export type WeekendDebrief = {
+  season: string
+  round: string
+  raceName: string
+  date: string
+  circuit: CircuitInfo
+  place: string
+  raceDrivers: DebriefDriver[]
+  sprintDrivers: DebriefDriver[]
+  pitStops: PitStop[]
+  qualiBest?: string
+}
+
+type PitStopsResponse = {
+  MRData: {
+    RaceTable: {
+      Races: (JolpicaRace & {
+        PitStops: {
+          driverId: string
+          lap: string
+          stop: string
+          time: string
+          duration: string
+        }[]
+      })[]
+    }
+  }
+}
+
+const DRIVER_CODES: Record<string, string> = {
+  max_verstappen: 'VER',
+  hadjar: 'HAD',
+  lawson: 'LAW',
+  perez: 'PER',
+}
+
+function mapDebriefDriver(
+  row: RaceResultRow,
+  driverIdFallback?: string,
+): DebriefDriver {
+  const driverId =
+    (row.Driver as { driverId?: string }).driverId ?? driverIdFallback ?? row.Driver.familyName.toLowerCase()
+  return {
+    driverId,
+    code: codeOf(row.Driver),
+    familyName: row.Driver.familyName,
+    position: row.position,
+    positionText: row.positionText ?? row.position,
+    grid: row.grid ?? '',
+    points: row.points,
+    status: row.status ?? '',
+    time: row.Time?.time,
+    fastestLap: row.FastestLap?.Time?.time,
+    fastestLapRank: row.FastestLap?.rank,
+    fastestLapNumber: row.FastestLap?.lap,
+  }
+}
+
+export async function fetchWeekendDebrief(opts: {
+  season: string
+  round: string
+  mode: 'driver' | 'team'
+  driverId?: string
+  constructorId?: string
+}): Promise<WeekendDebrief> {
+  const { season, round } = opts
+  const driverId = opts.driverId ?? FAV_DRIVER_ID
+  const constructorId = opts.constructorId ?? FAV_CONSTRUCTOR_ID
+
+  if (opts.mode === 'driver') {
+    const [raceData, pitData, sprintData, qualiData] = await Promise.all([
+      f1Get<DriverResultsResponse>(`${season}/${round}/drivers/${driverId}/results.json`),
+      f1Get<PitStopsResponse>(`${season}/${round}/drivers/${driverId}/pitstops.json?limit=100`).catch(
+        () => ({ MRData: { RaceTable: { Races: [] } } }) as PitStopsResponse,
+      ),
+      f1Get<DriverSprintResponse>(`${season}/${round}/drivers/${driverId}/sprint.json`).catch(
+        () => ({ MRData: { RaceTable: { season, Races: [] } } }) as DriverSprintResponse,
+      ),
+      f1Get<DriverQualiResponse>(`${season}/${round}/drivers/${driverId}/qualifying.json`).catch(
+        () => ({ MRData: { RaceTable: { season, Races: [] } } }) as DriverQualiResponse,
+      ),
+    ])
+
+    const race = raceData.MRData.RaceTable.Races[0]
+    if (!race) throw new Error('Нет данных этапа')
+    const row = race.Results?.[0]
+    const sprintRow = sprintData.MRData.RaceTable.Races[0]?.SprintResults?.[0]
+    const qualiPos = qualiData.MRData.RaceTable.Races[0]?.QualifyingResults?.[0]?.position
+    const stops = pitData.MRData.RaceTable.Races[0]?.PitStops ?? []
+
+    return {
+      season: race.season,
+      round: race.round,
+      raceName: race.raceName,
+      date: race.date,
+      circuit: circuitOf(race),
+      place: placeOf(race),
+      raceDrivers: row ? [mapDebriefDriver(row, driverId)] : [],
+      sprintDrivers: sprintRow ? [mapDebriefDriver(sprintRow, driverId)] : [],
+      pitStops: stops.map((s) => ({
+        driverId: s.driverId,
+        code: DRIVER_CODES[s.driverId] ?? s.driverId.slice(0, 3).toUpperCase(),
+        lap: s.lap,
+        stop: s.stop,
+        duration: s.duration,
+        time: s.time,
+      })),
+      qualiBest: qualiPos,
+    }
+  }
+
+  const [raceData, pitData, sprintData] = await Promise.all([
+    f1Get<TeamResultsResponse>(`${season}/${round}/constructors/${constructorId}/results.json`),
+    f1Get<PitStopsResponse>(`${season}/${round}/pitstops.json?limit=100`).catch(
+      () => ({ MRData: { RaceTable: { Races: [] } } }) as PitStopsResponse,
+    ),
+    f1Get<TeamSprintResponse>(`${season}/${round}/constructors/${constructorId}/sprint.json`).catch(
+      () => ({ MRData: { RaceTable: { season, Races: [] } } }) as TeamSprintResponse,
+    ),
+  ])
+
+  const race = raceData.MRData.RaceTable.Races[0]
+  if (!race) throw new Error('Нет данных этапа')
+  const raceDrivers = (race.Results ?? []).map((row) => mapDebriefDriver(row))
+  const resultDriverIds = (race.Results ?? [])
+    .map((r) => (r.Driver as { driverId?: string }).driverId)
+    .filter(Boolean) as string[]
+  const allStops = pitData.MRData.RaceTable.Races[0]?.PitStops ?? []
+  const filteredStops =
+    resultDriverIds.length > 0
+      ? allStops.filter((s) => resultDriverIds.includes(s.driverId))
+      : allStops.filter((s) => s.driverId in DRIVER_CODES)
+
+  return {
+    season: race.season,
+    round: race.round,
+    raceName: race.raceName,
+    date: race.date,
+    circuit: circuitOf(race),
+    place: placeOf(race),
+    raceDrivers,
+    sprintDrivers: (sprintData.MRData.RaceTable.Races[0]?.SprintResults ?? []).map((row) =>
+      mapDebriefDriver(row),
+    ),
+    pitStops: filteredStops.map((s) => ({
+      driverId: s.driverId,
+      code: DRIVER_CODES[s.driverId] ?? s.driverId.slice(0, 3).toUpperCase(),
+      lap: s.lap,
+      stop: s.stop,
+      duration: s.duration,
+      time: s.time,
+    })),
   }
 }

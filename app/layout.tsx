@@ -49,7 +49,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="ru" className={`${condensed.variable} ${inter.variable} bg-background`}>
+    <html lang="ru" className={`${condensed.variable} ${inter.variable} bg-background`} suppressHydrationWarning>
       <head>
         {/* Явно для iOS PWA: контент до физического низа экрана */}
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
