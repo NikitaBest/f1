@@ -1,11 +1,12 @@
 'use client'
 
-import { CalendarDays, Flag, Settings2, Trophy } from 'lucide-react'
+import { CalendarDays, Flag, Newspaper, Settings2, Trophy } from 'lucide-react'
 
-export type Tab = 'home' | 'calendar' | 'season' | 'paddock'
+export type Tab = 'home' | 'news' | 'calendar' | 'season' | 'paddock'
 
 const TABS: { id: Tab; label: string; Icon: typeof Flag }[] = [
   { id: 'home', label: 'Уикенд', Icon: Flag },
+  { id: 'news', label: 'Новости', Icon: Newspaper },
   { id: 'calendar', label: 'Календарь', Icon: CalendarDays },
   { id: 'season', label: 'Сезон', Icon: Trophy },
   { id: 'paddock', label: 'Паддок', Icon: Settings2 },
@@ -22,7 +23,7 @@ export function TabBar({ active, onChange }: { active: Tab | null; onChange: (t:
           aria-current={active === id ? 'page' : undefined}
           onClick={() => onChange(id)}
         >
-          <Icon size={22} strokeWidth={2} aria-hidden="true" />
+          <Icon size={20} strokeWidth={2} aria-hidden="true" />
           {label}
         </button>
       ))}

@@ -7,6 +7,7 @@ import type { F1LiveState } from '@/lib/use-f1-live'
 import { parseISODate, sortEvents, upcomingEvents, pad, type RaceEvent } from '@/lib/f1'
 import { Ticker, TopBar } from './art'
 import { DuoCard } from './duo-card'
+import { NewsTeaser } from './news-teaser'
 import { WeekendCard } from './weekend-view'
 
 const roundOf = (event: RaceEvent, events: RaceEvent[]) =>
@@ -19,6 +20,7 @@ export function HomeScreen({
   onOpenDriver,
   onOpenTeam,
   onOpenCar,
+  onOpenNews,
 }: {
   events: RaceEvent[]
   live: F1LiveState
@@ -26,6 +28,7 @@ export function HomeScreen({
   onOpenDriver?: () => void
   onOpenTeam?: () => void
   onOpenCar?: () => void
+  onOpenNews?: () => void
 }) {
   const now = useNow(60_000)
   const event = upcomingEvents(events, now)[0]
@@ -57,6 +60,8 @@ export function HomeScreen({
         <span className="eyebrow">Driver · Team</span>
       </div>
       <DuoCard live={live} onOpenDriver={onOpenDriver} onOpenTeam={onOpenTeam} onOpenCar={onOpenCar} />
+
+      <NewsTeaser onOpenAll={onOpenNews} />
 
       <figure className="quote">
         <blockquote className="disp q">

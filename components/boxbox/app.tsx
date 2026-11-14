@@ -9,6 +9,7 @@ import { CarScreen } from './car-screen'
 import { CreateScreen } from './create-screen'
 import { DriverScreen } from './driver-screen'
 import { EventDetailScreen, HomeScreen } from './home-screen'
+import { NewsScreen } from './news-screen'
 import { PaddockScreen } from './paddock-screen'
 import { SeasonScreen } from './season-screen'
 import { SplashScreen } from './splash-screen'
@@ -87,8 +88,11 @@ export function BoxBoxApp() {
           closeGarage()
           setOpenCar(true)
         }}
+        onOpenNews={() => go('news')}
       />
     )
+  } else if (tab === 'news') {
+    screen = <NewsScreen />
   } else if (tab === 'calendar') {
     screen = <CalendarScreen events={state.events} onOpen={setOpenId} onCreate={create} />
   } else if (tab === 'season') {
