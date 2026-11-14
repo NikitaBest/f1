@@ -1110,8 +1110,17 @@ label:focus-within {
 }
 .duo-car {
   position: relative;
+  display: block;
+  width: 100%;
   padding: 6px 6px 0;
   background: var(--white);
+  border: 0;
+  cursor: pointer;
+  text-align: left;
+}
+.duo-car:focus-visible {
+  outline: 3px solid var(--sun);
+  outline-offset: -3px;
 }
 .duo-car .crop {
   mix-blend-mode: multiply;
@@ -1125,6 +1134,162 @@ label:focus-within {
   line-height: 1;
   color: transparent;
   -webkit-text-stroke: 1.4px var(--ink-12);
+}
+
+/* ---------- car / RB22 ---------- */
+.car-hero {
+  position: relative;
+  margin: 0 -16px 14px;
+  aspect-ratio: 3 / 4;
+  max-height: min(72vh, 560px);
+  overflow: hidden;
+  background: var(--navy);
+  color: var(--white);
+}
+.car-hero-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 42%;
+  transform: scale(1.06);
+  animation: car-drift 16s ease-in-out infinite alternate;
+}
+.car-hero-veil {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to top, color-mix(in srgb, var(--navy) 94%, transparent) 0%, transparent 45%),
+    linear-gradient(to bottom, color-mix(in srgb, var(--navy) 35%, transparent), transparent 28%);
+  pointer-events: none;
+}
+.car-hero-cap {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+  padding: 24px 16px 18px;
+}
+.car-hero-cap .eyebrow {
+  color: var(--sun);
+}
+.car-hero-cap h1 {
+  font-size: 72px;
+  line-height: 0.85;
+  margin: 4px 0 8px;
+}
+.car-hero-cap p {
+  margin: 0;
+  max-width: 28ch;
+  font-size: 14px;
+  line-height: 1.35;
+  color: color-mix(in srgb, #fff 78%, transparent);
+  font-family: var(--font-body), system-ui, sans-serif;
+  font-weight: 600;
+}
+.car-tagline {
+  margin: 4px 0 8px;
+}
+.car-tagline .eyebrow {
+  color: var(--red);
+}
+.car-tagline .disp {
+  font-size: 40px;
+  margin-top: 4px;
+}
+.car-specs {
+  background: var(--white);
+  border-radius: 18px;
+  padding: 4px 14px;
+  margin-bottom: 8px;
+}
+.car-specs .kv {
+  border-bottom-color: var(--ink-12);
+}
+.car-specs .kv:last-child {
+  border-bottom: 0;
+}
+.car-zones {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.car-zones li {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  gap: 12px;
+  padding: 14px;
+  border-radius: 18px;
+  background: var(--navy);
+  color: var(--white);
+}
+.car-zones .zn {
+  font-family: var(--display);
+  font-size: 28px;
+  line-height: 1;
+  color: var(--sun);
+}
+.car-zones .disp {
+  font-size: 22px;
+  display: block;
+  margin-bottom: 6px;
+}
+.car-zones p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: color-mix(in srgb, #fff 72%, transparent);
+  font-family: var(--font-body), system-ui, sans-serif;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: 0;
+}
+.car-side {
+  position: relative;
+  padding: 18px 8px 8px;
+  border-radius: 18px;
+  background: var(--white);
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+.car-side .ghost {
+  position: absolute;
+  left: 10px;
+  top: 4px;
+  font-size: 56px;
+  line-height: 1;
+  color: transparent;
+  -webkit-text-stroke: 1.4px var(--ink-12);
+}
+.car-side .crop {
+  mix-blend-mode: multiply;
+  position: relative;
+}
+.car-note {
+  margin: 0 0 8px;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--ink-60);
+  font-weight: 600;
+}
+@keyframes car-drift {
+  from {
+    transform: scale(1.06) translate3d(0, 0, 0);
+  }
+  to {
+    transform: scale(1.12) translate3d(0, -1.5%, 0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .car-hero-img {
+    animation: none;
+    transform: none;
+  }
 }
 .sig-dark {
   position: absolute;

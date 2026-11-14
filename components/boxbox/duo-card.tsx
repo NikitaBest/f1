@@ -10,10 +10,12 @@ export function DuoCard({
   live,
   onOpenDriver,
   onOpenTeam,
+  onOpenCar,
 }: {
   live: F1LiveState
   onOpenDriver?: () => void
   onOpenTeam?: () => void
+  onOpenCar?: () => void
 }) {
   const d = live.drivers.find((r) => isFavDriver(r.Driver.code, r.Driver.familyName))
   const t = live.constructors.find((r) => isFavTeam(r.Constructor.name))
@@ -58,7 +60,7 @@ export function DuoCard({
           </div>
         </button>
       </div>
-      <div className="duo-car">
+      <button type="button" className="duo-car" onClick={onOpenCar} aria-label="Открыть RB22">
         <span className="ghost disp" aria-hidden="true">
           RB
         </span>
@@ -66,7 +68,7 @@ export function DuoCard({
           <Crop spec={CROPS.sig} />
         </div>
         <Crop spec={CROPS.car} label="Болид Red Bull Racing" />
-      </div>
+      </button>
       <div className="duo-bar">
         <div className="stat">
           <b className="num">{d ? `P${d.position}` : dash}</b>

@@ -5,6 +5,7 @@ import { useAppState } from '@/lib/store'
 import { useF1Live } from '@/lib/use-f1-live'
 import { useViewportLock } from '@/lib/use-viewport-lock'
 import { CalendarScreen } from './calendar-screen'
+import { CarScreen } from './car-screen'
 import { CreateScreen } from './create-screen'
 import { DriverScreen } from './driver-screen'
 import { EventDetailScreen, HomeScreen } from './home-screen'
@@ -22,6 +23,7 @@ export function BoxBoxApp() {
   const [openId, setOpenId] = useState<string | null>(null)
   const [openDriver, setOpenDriver] = useState(false)
   const [openTeam, setOpenTeam] = useState(false)
+  const [openCar, setOpenCar] = useState(false)
   const [creating, setCreating] = useState(false)
   const [booted, setBooted] = useState(false)
 
@@ -35,10 +37,14 @@ export function BoxBoxApp() {
   }
 
   const opened = openId ? state.events.find((e) => e.id === openId) : undefined
-  const go = (t: Tab) => {
-    setOpenId(null)
+  const closeGarage = () => {
     setOpenDriver(false)
     setOpenTeam(false)
+    setOpenCar(false)
+  }
+  const go = (t: Tab) => {
+    setOpenId(null)
+    closeGarage()
     setCreating(false)
     setTab(t)
   }
@@ -59,6 +65,8 @@ export function BoxBoxApp() {
     screen = <DriverScreen live={live} onBack={() => setOpenDriver(false)} />
   } else if (openTeam && tab === 'home') {
     screen = <TeamScreen live={live} onBack={() => setOpenTeam(false)} />
+  } else if (openCar && tab === 'home') {
+    screen = <CarScreen onBack={() => setOpenCar(false)} />
   } else if (opened && tab === 'calendar') {
     screen = <EventDetailScreen event={opened} events={state.events} onBack={() => setOpenId(null)} />
   } else if (tab === 'home') {
@@ -68,12 +76,16 @@ export function BoxBoxApp() {
         live={live}
         onCreate={create}
         onOpenDriver={() => {
-          setOpenTeam(false)
+          closeGarage()
           setOpenDriver(true)
         }}
         onOpenTeam={() => {
-          setOpenDriver(false)
+          closeGarage()
           setOpenTeam(true)
+        }}
+        onOpenCar={() => {
+          closeGarage()
+          setOpenCar(true)
         }}
       />
     )
@@ -87,7 +99,7 @@ export function BoxBoxApp() {
 
   return (
     <div className="bb-app">
-      <div key={`${tab}-${openId ?? ''}-${openDriver}-${openTeam}-${creating}`} className="contents">
+      <div key={`${tab}-${openId ?? ''}-${openDriver}-${openTeam}-${openCar}-${creating}`} className="contents">
         {screen}
       </div>
       {!creating && <TabBar active={tab} onChange={go} />}
