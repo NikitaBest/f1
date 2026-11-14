@@ -77,7 +77,7 @@ export function HomeScreen({
         <blockquote className="disp q">
           Тебе не нужно быть идеальным. Нужно быть лучшим в этот день.
         </blockquote>
-        <figcaption className="by">Макс Ферстаппен</figcaption>
+        <figcaption className="by">Max Verstappen</figcaption>
       </figure>
     </div>
   )

@@ -24,18 +24,18 @@ export function DuoCard({
   return (
     <section className="duo" aria-label="Любимый гонщик и команда">
       <div className="duo-grid">
-        <button type="button" className="duo-d" onClick={onOpenDriver} aria-label="Открыть Макса Ферстаппена">
-          <Crop spec={CROPS.maxRed} label="Макс Ферстаппен" />
+        <button type="button" className="duo-d" onClick={onOpenDriver} aria-label="Open Max Verstappen">
+          <Crop spec={CROPS.maxRed} label="Max Verstappen" />
           <span className="flag-nl" aria-hidden="true" />
           <span className="no disp" aria-hidden="true">
             3
           </span>
           <div className="cap">
-            <span className="eyebrow">Гонщик</span>
+            <span className="eyebrow">Driver</span>
             <b className="disp">
-              Макс
+              Max
               <br />
-              Ферстаппен
+              Verstappen
             </b>
           </div>
         </button>
