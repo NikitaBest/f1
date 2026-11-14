@@ -104,11 +104,13 @@ export function WeekendCard({
   round,
   season,
   compact = false,
+  forceOpen = false,
 }: {
   event: RaceEvent
   round: number
   season: number
   compact?: boolean
+  forceOpen?: boolean
 }) {
   const now = useNow(30_000)
   const { photo, save, clear } = useWeekendPhoto(event.id)
@@ -124,7 +126,7 @@ export function WeekendCard({
   const title = shortName(event.name)
   const focusIdx = nextIdx >= 0 ? nextIdx : Math.max(0, event.sessions.length - 1)
   const hidden = Math.max(0, event.sessions.length - 1)
-  const showAll = !compact || open
+  const showAll = !compact || open || forceOpen
 
   return (
     <article className={`wk${compact ? ' compact' : ''}`} aria-label={`Ближайший уикенд: ${event.name}`}>
@@ -191,11 +193,11 @@ export function WeekendCard({
         <button
           type="button"
           className="wk-more"
-          aria-expanded={open}
+          aria-expanded={showAll}
           onClick={() => setOpen((v) => !v)}
         >
-          <span>{open ? 'Свернуть' : `Весь уикенд · ${event.sessions.length}`}</span>
-          {open ? <ChevronUp size={18} aria-hidden="true" /> : <ChevronDown size={18} aria-hidden="true" />}
+          <span>{showAll ? 'Свернуть' : `Весь уикенд · ${event.sessions.length}`}</span>
+          {showAll ? <ChevronUp size={18} aria-hidden="true" /> : <ChevronDown size={18} aria-hidden="true" />}
         </button>
       )}
     </article>

@@ -65,7 +65,7 @@ function fitLine(el: HTMLElement | null, ctx: CanvasRenderingContext2D | null, f
   el.style.transform = `translateY(${targetH - baselineY}px) scale(1, ${targetH / capH})`
 }
 
-export function SplashScreen({ onDone }: { onDone: () => void }) {
+export function SplashScreen({ onDone, inline = false }: { onDone: () => void; inline?: boolean }) {
   const [mounted, setMounted] = useState(false)
   const [phase, setPhase] = useState<Phase>('idle')
   const frameRef = useRef<HTMLDivElement>(null)
@@ -78,13 +78,14 @@ export function SplashScreen({ onDone }: { onDone: () => void }) {
 
   useEffect(() => {
     setMounted(true)
+    if (inline) return
     document.documentElement.classList.add('is-booting')
     document.body.classList.add('is-booting')
     return () => {
       document.documentElement.classList.remove('is-booting')
       document.body.classList.remove('is-booting')
     }
-  }, [])
+  }, [inline])
 
   useEffect(() => {
     if (!mounted) return
@@ -156,6 +157,7 @@ export function SplashScreen({ onDone }: { onDone: () => void }) {
 
   const cls = [
     'ps',
+    inline && 'ps-inline',
     phase !== 'idle' && 'ps-run',
     (phase === 'exit' || phase === 'leave') && 'ps-exit',
     phase === 'leave' && 'ps-leave',
@@ -216,5 +218,6 @@ export function SplashScreen({ onDone }: { onDone: () => void }) {
   )
 
   if (!mounted) return null
+  if (inline) return node
   return createPortal(node, document.body)
 }

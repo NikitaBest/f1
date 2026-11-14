@@ -21,6 +21,7 @@ export function HomeScreen({
   onOpenTeam,
   onOpenCar,
   onOpenNews,
+  weekendForceOpen = false,
 }: {
   events: RaceEvent[]
   live: F1LiveState
@@ -29,6 +30,7 @@ export function HomeScreen({
   onOpenTeam?: () => void
   onOpenCar?: () => void
   onOpenNews?: () => void
+  weekendForceOpen?: boolean
 }) {
   const now = useNow(60_000)
   const event = upcomingEvents(events, now)[0]
@@ -40,7 +42,13 @@ export function HomeScreen({
       <Ticker words={['Box box', 'Oracle Red Bull Racing', 'Max Verstappen', `Сезон ${season}`]} />
 
       {event ? (
-        <WeekendCard event={event} round={roundOf(event, events)} season={season} compact />
+        <WeekendCard
+          event={event}
+          round={roundOf(event, events)}
+          season={season}
+          compact
+          forceOpen={weekendForceOpen}
+        />
       ) : (
         <div className="empty">
           <h2 className="disp">Пит-лейн пуст</h2>
@@ -55,11 +63,13 @@ export function HomeScreen({
         </div>
       )}
 
-      <div className="sec-title">
-        <h2 className="disp">Garage</h2>
-        <span className="eyebrow">Driver · Team</span>
+      <div className="garage-block">
+        <div className="sec-title">
+          <h2 className="disp">Garage</h2>
+          <span className="eyebrow">Driver · Team</span>
+        </div>
+        <DuoCard live={live} onOpenDriver={onOpenDriver} onOpenTeam={onOpenTeam} onOpenCar={onOpenCar} />
       </div>
-      <DuoCard live={live} onOpenDriver={onOpenDriver} onOpenTeam={onOpenTeam} onOpenCar={onOpenCar} />
 
       <NewsTeaser onOpenAll={onOpenNews} />
 
