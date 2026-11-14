@@ -1,6 +1,6 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
-import { Inter, Oswald } from 'next/font/google'
+import { Anton, Inter, Oswald } from 'next/font/google'
 import { PwaRegister } from '@/components/pwa-register'
 import './globals.css'
 
@@ -10,6 +10,7 @@ const condensed = Oswald({
   variable: '--font-condensed',
 })
 const inter = Inter({ subsets: ['latin', 'cyrillic'], variable: '--font-body' })
+const poster = Anton({ subsets: ['latin'], weight: '400', variable: '--font-poster' })
 
 export const metadata: Metadata = {
   title: 'BOX·BOX — личный календарь Формулы 1',
@@ -49,7 +50,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="ru" className={`${condensed.variable} ${inter.variable} bg-background`} suppressHydrationWarning>
+    <html lang="ru" className={`${condensed.variable} ${inter.variable} ${poster.variable} bg-background`} suppressHydrationWarning>
       <head>
         {/* Явно для iOS PWA: контент до физического низа экрана */}
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />

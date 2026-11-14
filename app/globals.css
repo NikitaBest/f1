@@ -87,7 +87,7 @@ html.is-booting,
 html.is-booting body,
 body.is-booting,
 html.is-booting .bb-stage {
-  background: #000 !important;
+  background: #ece6d8 !important;
 }
 button {
   font: inherit;
@@ -150,7 +150,7 @@ label:focus-within {
   background: var(--paper);
 }
 .bb-app.is-booting {
-  background: #000;
+  background: #ece6d8;
 }
 .bb-app.is-booting::after {
   display: none;
@@ -1845,79 +1845,6 @@ label:focus-within {
 .kv b {
   font-weight: 700;
   text-align: right;
-}
-
-/* ---------- splash ---------- */
-.splash {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  width: 100%;
-  height: var(--app-height, 100dvh);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 28px;
-  padding: 18% 28px 0;
-  overflow: hidden;
-  background: #000 url('/img/helmet.jpeg') center bottom / cover no-repeat;
-  background-color: #000;
-  color: var(--white);
-  transition: opacity 0.35s ease;
-  touch-action: none;
-  overscroll-behavior: none;
-}
-@media (display-mode: standalone) {
-  .splash {
-    height: var(--app-height, 100vh);
-  }
-}
-.splash.is-leaving {
-  opacity: 0;
-}
-.sign {
-  width: min(78%, 360px);
-  height: auto;
-  overflow: visible;
-}
-.sign path {
-  stroke: currentColor;
-  stroke-width: 7;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-dasharray: 1 1;
-  stroke-dashoffset: 1;
-  animation-name: sign-draw;
-  animation-timing-function: cubic-bezier(0.55, 0, 0.35, 1);
-  animation-fill-mode: both;
-}
-@keyframes sign-draw {
-  0% {
-    stroke-dashoffset: 1;
-    opacity: 0;
-  }
-  1% {
-    opacity: 1;
-  }
-  100% {
-    stroke-dashoffset: 0;
-    opacity: 1;
-  }
-}
-.splash-word {
-  min-height: 1.1em;
-  font-size: clamp(36px, 9vw, 52px);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--white);
-  text-align: center;
-}
-@media (prefers-reduced-motion: reduce) {
-  .sign path {
-    animation: none;
-    stroke-dashoffset: 0;
-  }
 }
 
 /* ---------- news teaser (home) ---------- */
