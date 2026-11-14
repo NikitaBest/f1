@@ -17,11 +17,13 @@ export function HomeScreen({
   live,
   onCreate,
   onOpenDriver,
+  onOpenTeam,
 }: {
   events: RaceEvent[]
   live: F1LiveState
   onCreate: () => void
   onOpenDriver?: () => void
+  onOpenTeam?: () => void
 }) {
   const now = useNow(60_000)
   const event = upcomingEvents(events, now)[0]
@@ -52,7 +54,7 @@ export function HomeScreen({
         <h2 className="disp">Garage</h2>
         <span className="eyebrow">Driver · Team</span>
       </div>
-      <DuoCard live={live} onOpenDriver={onOpenDriver} />
+      <DuoCard live={live} onOpenDriver={onOpenDriver} onOpenTeam={onOpenTeam} />
 
       <figure className="quote">
         <blockquote className="disp q">

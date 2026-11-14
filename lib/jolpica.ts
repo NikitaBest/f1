@@ -366,3 +366,163 @@ export async function fetchDriverSeason(
     qualifying,
   }
 }
+
+export type TeamDriverEntry = {
+  code: string
+  familyName: string
+  position: string
+  positionText: string
+  points: string
+  grid: string
+  status: string
+}
+
+export type TeamRaceResult = {
+  season: string
+  round: string
+  raceName: string
+  date: string
+  place: string
+  teamPoints: number
+  bestFinish: number | null
+  hasWin: boolean
+  hasPodium: boolean
+  allOut: boolean
+  drivers: TeamDriverEntry[]
+}
+
+export type TeamDriverSummary = {
+  code: string
+  familyName: string
+  points: number
+  wins: number
+  podiums: number
+}
+
+export type TeamQualiRound = {
+  round: string
+  raceName: string
+  bestPosition: string
+  poles: number
+}
+
+export type TeamSeason = {
+  season: string
+  constructorId: string
+  results: TeamRaceResult[]
+  qualifying: TeamQualiRound[]
+  lineUp: TeamDriverSummary[]
+}
+
+type TeamResultsResponse = {
+  MRData: {
+    RaceTable: {
+      season: string
+      Races: (JolpicaRace & { Results: RaceResultRow[] })[]
+    }
+  }
+}
+
+type TeamQualiResponse = {
+  MRData: {
+    RaceTable: {
+      season: string
+      Races: (JolpicaRace & {
+        QualifyingResults: {
+          position: string
+          Driver: { code?: string; familyName: string }
+        }[]
+      })[]
+    }
+  }
+}
+
+const FAV_CONSTRUCTOR_ID = 'red_bull'
+
+function isOut(positionText: string, status: string) {
+  const t = positionText.toUpperCase()
+  return t === 'R' || t === 'DNF' || t === 'W' || t === 'E' || /retir|disqual|dns|dsq/i.test(status)
+}
+
+function codeOf(d: { code?: string; familyName: string }) {
+  return d.code ?? d.familyName.slice(0, 3).toUpperCase()
+}
+
+export async function fetchTeamSeason(
+  season: number | 'current' = 'current',
+  constructorId = FAV_CONSTRUCTOR_ID,
+): Promise<TeamSeason> {
+  const [resultsData, qualiData] = await Promise.all([
+    f1Get<TeamResultsResponse>(`${season}/constructors/${constructorId}/results.json?limit=100`),
+    f1Get<TeamQualiResponse>(`${season}/constructors/${constructorId}/qualifying.json?limit=100`),
+  ])
+
+  const races = resultsData.MRData.RaceTable.Races ?? []
+  const results: TeamRaceResult[] = races.map((race) => {
+    const rows = race.Results ?? []
+    const drivers: TeamDriverEntry[] = rows.map((row) => ({
+      code: codeOf(row.Driver),
+      familyName: row.Driver.familyName,
+      position: row.position,
+      positionText: row.positionText ?? row.position,
+      points: row.points,
+      grid: row.grid ?? '',
+      status: row.status ?? '',
+    }))
+    const finishes = drivers
+      .filter((d) => !isOut(d.positionText, d.status))
+      .map((d) => Number(d.position))
+      .filter((n) => Number.isFinite(n) && n > 0)
+    const bestFinish = finishes.length ? Math.min(...finishes) : null
+    const teamPoints = drivers.reduce((sum, d) => sum + (Number(d.points) || 0), 0)
+    return {
+      season: race.season,
+      round: race.round,
+      raceName: race.raceName,
+      date: race.date,
+      place: placeOf(race),
+      teamPoints,
+      bestFinish,
+      hasWin: bestFinish === 1,
+      hasPodium: bestFinish !== null && bestFinish <= 3,
+      allOut: drivers.length > 0 && finishes.length === 0,
+      drivers,
+    }
+  })
+
+  const tally = new Map<string, TeamDriverSummary>()
+  for (const race of results) {
+    for (const d of race.drivers) {
+      const key = d.code
+      const cur = tally.get(key) ?? { code: d.code, familyName: d.familyName, points: 0, wins: 0, podiums: 0 }
+      cur.points += Number(d.points) || 0
+      if (!isOut(d.positionText, d.status)) {
+        const p = Number(d.position)
+        if (p === 1) cur.wins += 1
+        if (p >= 1 && p <= 3) cur.podiums += 1
+      }
+      tally.set(key, cur)
+    }
+  }
+  const lineUp = [...tally.values()].sort((a, b) => b.points - a.points)
+
+  const qualifying: TeamQualiRound[] = (qualiData.MRData.RaceTable.Races ?? []).map((race) => {
+    const rows = race.QualifyingResults ?? []
+    const positions = rows.map((r) => Number(r.position)).filter((n) => Number.isFinite(n) && n > 0)
+    const best = positions.length ? Math.min(...positions) : 0
+    return {
+      round: race.round,
+      raceName: race.raceName,
+      bestPosition: best ? String(best) : '',
+      poles: positions.filter((n) => n === 1).length,
+    }
+  })
+
+  return {
+    season: resultsData.MRData.RaceTable.season,
+    constructorId,
+    results,
+    qualifying,
+    lineUp,
+  }
+}

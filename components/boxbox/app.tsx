@@ -12,6 +12,7 @@ import { PaddockScreen } from './paddock-screen'
 import { SeasonScreen } from './season-screen'
 import { SplashScreen } from './splash-screen'
 import { TabBar, type Tab } from './tab-bar'
+import { TeamScreen } from './team-screen'
 
 export function BoxBoxApp() {
   useViewportLock()
@@ -20,6 +21,7 @@ export function BoxBoxApp() {
   const [tab, setTab] = useState<Tab>('home')
   const [openId, setOpenId] = useState<string | null>(null)
   const [openDriver, setOpenDriver] = useState(false)
+  const [openTeam, setOpenTeam] = useState(false)
   const [creating, setCreating] = useState(false)
   const [booted, setBooted] = useState(false)
 
@@ -36,6 +38,7 @@ export function BoxBoxApp() {
   const go = (t: Tab) => {
     setOpenId(null)
     setOpenDriver(false)
+    setOpenTeam(false)
     setCreating(false)
     setTab(t)
   }
@@ -54,11 +57,25 @@ export function BoxBoxApp() {
     )
   } else if (openDriver && tab === 'home') {
     screen = <DriverScreen live={live} onBack={() => setOpenDriver(false)} />
+  } else if (openTeam && tab === 'home') {
+    screen = <TeamScreen live={live} onBack={() => setOpenTeam(false)} />
   } else if (opened && tab === 'calendar') {
     screen = <EventDetailScreen event={opened} events={state.events} onBack={() => setOpenId(null)} />
   } else if (tab === 'home') {
     screen = (
-      <HomeScreen events={state.events} live={live} onCreate={create} onOpenDriver={() => setOpenDriver(true)} />
+      <HomeScreen
+        events={state.events}
+        live={live}
+        onCreate={create}
+        onOpenDriver={() => {
+          setOpenTeam(false)
+          setOpenDriver(true)
+        }}
+        onOpenTeam={() => {
+          setOpenDriver(false)
+          setOpenTeam(true)
+        }}
+      />
     )
   } else if (tab === 'calendar') {
     screen = <CalendarScreen events={state.events} onOpen={setOpenId} onCreate={create} />
@@ -70,7 +87,7 @@ export function BoxBoxApp() {
 
   return (
     <div className="bb-app">
-      <div key={`${tab}-${openId ?? ''}-${openDriver}-${creating}`} className="contents">
+      <div key={`${tab}-${openId ?? ''}-${openDriver}-${openTeam}-${creating}`} className="contents">
         {screen}
       </div>
       {!creating && <TabBar active={tab} onChange={go} />}

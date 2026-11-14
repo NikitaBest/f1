@@ -6,7 +6,15 @@ import { CROPS, Crop } from './art'
 export const isFavDriver = (code?: string, family?: string) => code === 'VER' || family === 'Verstappen'
 export const isFavTeam = (name?: string) => !!name && /red bull/i.test(name) && !/racing bulls|rb f1/i.test(name)
 
-export function DuoCard({ live, onOpenDriver }: { live: F1LiveState; onOpenDriver?: () => void }) {
+export function DuoCard({
+  live,
+  onOpenDriver,
+  onOpenTeam,
+}: {
+  live: F1LiveState
+  onOpenDriver?: () => void
+  onOpenTeam?: () => void
+}) {
   const d = live.drivers.find((r) => isFavDriver(r.Driver.code, r.Driver.familyName))
   const t = live.constructors.find((r) => isFavTeam(r.Constructor.name))
   const dash = live.loading ? '…' : '—'
@@ -29,7 +37,7 @@ export function DuoCard({ live, onOpenDriver }: { live: F1LiveState; onOpenDrive
             </b>
           </div>
         </button>
-        <div className="duo-t">
+        <button type="button" className="duo-t" onClick={onOpenTeam} aria-label="Открыть Red Bull Racing">
           <img className="duo-t-bg" src="/img/rb-logo.jpeg" alt="" aria-hidden="true" />
           <div className="duo-t-veil" aria-hidden="true" />
           <div className="cap">
@@ -48,7 +56,7 @@ export function DuoCard({ live, onOpenDriver }: { live: F1LiveState; onOpenDrive
               </span>
             </div>
           </div>
-        </div>
+        </button>
       </div>
       <div className="duo-car">
         <span className="ghost disp" aria-hidden="true">
