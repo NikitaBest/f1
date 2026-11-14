@@ -91,7 +91,11 @@ export function TeamScreen({ live, onBack }: { live: F1LiveState; onBack: () => 
       </div>
 
       <header className="team-hero">
-        <img className="team-hero-bg" src="/img/rb-logo.jpeg" alt="" aria-hidden="true" />
+        <img
+          className="team-hero-bg"
+          src="/img/team-celebrate.jpeg"
+          alt="Max Verstappen celebrating with Red Bull Racing"
+        />
         <div className="team-hero-veil" aria-hidden="true" />
         <div className="cap">
           <span className="eyebrow">Oracle · Austrian</span>
