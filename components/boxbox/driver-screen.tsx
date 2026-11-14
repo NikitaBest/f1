@@ -10,7 +10,6 @@ import {
   type DriverSeason,
 } from '@/lib/jolpica'
 import type { F1LiveState } from '@/lib/use-f1-live'
-import { CROPS, Crop } from './art'
 import { isFavDriver } from './duo-card'
 import { WeekendDebriefScreen } from './weekend-debrief'
 
@@ -102,36 +101,23 @@ export function DriverScreen({ live, onBack }: { live: F1LiveState; onBack: () =
         <span className="eyebrow">Driver · {season}</span>
       </div>
 
-      <header className="drv-hero">
-        <Crop spec={CROPS.maxRed} label="Макс Ферстаппен" />
-        <span className="flag-nl" aria-hidden="true" />
-        <span className="no disp" aria-hidden="true">
-          3
-        </span>
-        <div className="cap">
-          <span className="eyebrow">VER · Dutch</span>
-          <b className="disp">
-            Max
-            <br />
-            Verstappen
-          </b>
+      <header className="drv-poster" aria-label="Max Verstappen">
+        <img src="/img/poster-max.jpeg" alt="Max Verstappen — Oracle Red Bull Racing" />
+        <div className="drv-poster-bar">
+          <div className="stat">
+            <b className="num">{standing ? `P${standing.position}` : dash}</b>
+            <span>Standings</span>
+          </div>
+          <div className="stat">
+            <b className="num">{standing?.points ?? dash}</b>
+            <span>Points</span>
+          </div>
+          <div className="stat">
+            <b className="num">{standing?.wins ?? dash}</b>
+            <span>Wins</span>
+          </div>
         </div>
       </header>
-
-      <div className="duo-bar drv-bar">
-        <div className="stat">
-          <b className="num">{standing ? `P${standing.position}` : dash}</b>
-          <span>Standings</span>
-        </div>
-        <div className="stat">
-          <b className="num">{standing?.points ?? dash}</b>
-          <span>Points</span>
-        </div>
-        <div className="stat">
-          <b className="num">{standing?.wins ?? dash}</b>
-          <span>Wins</span>
-        </div>
-      </div>
 
       {error && <p className="err-note">{error}</p>}
       {loading && !results.length && <p className="sub">Загружаем сезон…</p>}

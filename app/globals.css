@@ -689,51 +689,30 @@ label:focus-within {
 }
 
 /* ---------- driver detail ---------- */
-.drv-hero {
+.drv-poster {
   position: relative;
-  margin: 0 -16px 0;
-  min-height: 280px;
+  margin: 0 -16px 10px;
   overflow: hidden;
+  background: #e8e4dc;
   color: var(--white);
-  background: var(--navy);
 }
-.drv-hero .crop {
-  position: absolute;
-  inset: 0;
+.drv-poster img {
+  display: block;
   width: 100%;
-  height: 100%;
-  aspect-ratio: auto;
+  height: auto;
+  vertical-align: top;
 }
-.drv-hero .flag-nl {
-  z-index: 1;
+.drv-poster-bar {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px 16px;
+  background: var(--navy);
+  color: var(--white);
+  border-top: 3px solid var(--red);
 }
-.drv-hero .no {
-  position: absolute;
-  right: 14px;
-  top: 8px;
-  z-index: 1;
-  font-size: 72px;
-  color: color-mix(in srgb, var(--red) 45%, var(--sun));
-  line-height: 1;
-}
-.drv-hero .cap {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 1;
-  padding: 36px 16px 18px;
-  background: linear-gradient(to top, color-mix(in srgb, var(--navy) 92%, transparent), transparent);
-}
-.drv-hero .cap .eyebrow {
-  color: var(--sun);
-  display: block;
-}
-.drv-hero .cap b {
-  font-size: 48px;
-  line-height: 0.9;
-  display: block;
-  margin-top: 4px;
+.drv-poster-bar .stat b {
+  font-size: 28px;
 }
 .drv-bar {
   margin: 0 -16px 8px;
