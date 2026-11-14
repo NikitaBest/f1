@@ -688,6 +688,175 @@ label:focus-within {
   cursor: pointer;
 }
 
+/* ---------- driver detail ---------- */
+.drv-hero {
+  position: relative;
+  margin: 0 -16px 0;
+  min-height: 280px;
+  overflow: hidden;
+  color: var(--white);
+  background: var(--navy);
+}
+.drv-hero .crop {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+}
+.drv-hero .flag-nl {
+  z-index: 1;
+}
+.drv-hero .no {
+  position: absolute;
+  right: 14px;
+  top: 8px;
+  z-index: 1;
+  font-size: 72px;
+  color: color-mix(in srgb, var(--red) 45%, var(--sun));
+  line-height: 1;
+}
+.drv-hero .cap {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+  padding: 36px 16px 18px;
+  background: linear-gradient(to top, color-mix(in srgb, var(--navy) 92%, transparent), transparent);
+}
+.drv-hero .cap .eyebrow {
+  color: var(--sun);
+  display: block;
+}
+.drv-hero .cap b {
+  font-size: 48px;
+  line-height: 0.9;
+  display: block;
+  margin-top: 4px;
+}
+.drv-bar {
+  margin: 0 -16px 8px;
+  border-radius: 0;
+}
+.drv-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 8px;
+}
+.drv-chip {
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  display: grid;
+  place-items: center;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 13px;
+  line-height: 1;
+  background: var(--navy);
+  color: var(--white);
+}
+.drv-chip.win {
+  background: var(--red);
+}
+.drv-chip.podium {
+  background: var(--sun);
+  color: var(--navy);
+}
+.drv-chip.dnf {
+  background: var(--ink-12);
+  color: var(--ink-60);
+}
+.drv-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 14px;
+  background: var(--white);
+  border-radius: 18px;
+  overflow: hidden;
+}
+.drv-row {
+  display: grid;
+  grid-template-columns: 54px minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  padding: 12px 14px;
+  border-top: 1px solid var(--ink-12);
+}
+.drv-row:first-child {
+  border-top: 0;
+}
+.drv-row .pos {
+  font-family: var(--display);
+  font-size: 28px;
+  line-height: 1;
+}
+.drv-row .nm {
+  display: block;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 1.15;
+}
+.drv-row .subline {
+  display: block;
+  margin-top: 3px;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--ink-60);
+}
+.drv-row .tail {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink-60);
+  text-align: right;
+}
+.drv-row.win {
+  background: var(--red);
+  color: var(--white);
+}
+.drv-row.win .subline,
+.drv-row.win .tail {
+  color: color-mix(in srgb, #fff 78%, transparent);
+}
+.drv-row.dnf {
+  opacity: 0.55;
+}
+.drv-row.dnf .pos {
+  color: var(--red);
+}
+.drv-quali {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px;
+  border-radius: 18px;
+  background: var(--navy);
+  color: var(--white);
+  margin-bottom: 8px;
+}
+.drv-quali .eyebrow {
+  color: var(--sun);
+  display: block;
+  margin-bottom: 4px;
+}
+.drv-quali .disp {
+  font-size: 36px;
+  display: inline;
+}
+.drv-quali .lbl {
+  margin-left: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--wh-60);
+}
+.drv-quali .right {
+  text-align: right;
+}
+
 /* ---------- duo: driver + team ---------- */
 .duo {
   border-radius: 24px;
@@ -705,6 +874,14 @@ label:focus-within {
   color: var(--white);
   min-height: 260px;
   overflow: hidden;
+  width: 100%;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+}
+.duo-d:focus-visible {
+  outline: 3px solid var(--sun);
+  outline-offset: -3px;
 }
 .duo-d .crop {
   position: absolute;

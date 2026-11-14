@@ -43,11 +43,14 @@ export type ConstructorStanding = {
 
 export type RaceResultRow = {
   position: string
+  positionText?: string
   points: string
+  grid?: string
   status?: string
   Driver: { code?: string; givenName: string; familyName: string }
   Constructor: { name: string }
   Time?: { time: string }
+  FastestLap?: { rank?: string; lap?: string; Time?: { time: string } }
 }
 
 export type LastRaceResults = {
@@ -266,5 +269,100 @@ export async function fetchRaceResults(season: string | number, round: string | 
     circuit: race.Circuit.circuitName,
     place: placeOf(race),
     results: race.Results ?? [],
+  }
+}
+
+export type DriverRaceResult = {
+  season: string
+  round: string
+  raceName: string
+  date: string
+  place: string
+  position: string
+  positionText: string
+  grid: string
+  points: string
+  status: string
+  time?: string
+  fastestLap?: string
+  fastestLapRank?: string
+}
+
+export type DriverQualiResult = {
+  round: string
+  raceName: string
+  position: string
+}
+
+export type DriverSeason = {
+  season: string
+  driverId: string
+  results: DriverRaceResult[]
+  qualifying: DriverQualiResult[]
+}
+
+type DriverResultsResponse = {
+  MRData: {
+    RaceTable: {
+      season: string
+      driverId?: string
+      Races: (JolpicaRace & { Results: RaceResultRow[] })[]
+    }
+  }
+}
+
+type DriverQualiResponse = {
+  MRData: {
+    RaceTable: {
+      season: string
+      Races: (JolpicaRace & {
+        QualifyingResults: { position: string }[]
+      })[]
+    }
+  }
+}
+
+const FAV_DRIVER_ID = 'max_verstappen'
+
+export async function fetchDriverSeason(
+  season: number | 'current' = 'current',
+  driverId = FAV_DRIVER_ID,
+): Promise<DriverSeason> {
+  const [resultsData, qualiData] = await Promise.all([
+    f1Get<DriverResultsResponse>(`${season}/drivers/${driverId}/results.json?limit=100`),
+    f1Get<DriverQualiResponse>(`${season}/drivers/${driverId}/qualifying.json?limit=100`),
+  ])
+
+  const races = resultsData.MRData.RaceTable.Races ?? []
+  const results: DriverRaceResult[] = races.map((race) => {
+    const row = race.Results?.[0]
+    return {
+      season: race.season,
+      round: race.round,
+      raceName: race.raceName,
+      date: race.date,
+      place: placeOf(race),
+      position: row?.position ?? '',
+      positionText: row?.positionText ?? row?.position ?? '',
+      grid: row?.grid ?? '',
+      points: row?.points ?? '0',
+      status: row?.status ?? '',
+      time: row?.Time?.time,
+      fastestLap: row?.FastestLap?.Time?.time,
+      fastestLapRank: row?.FastestLap?.rank,
+    }
+  })
+
+  const qualifying: DriverQualiResult[] = (qualiData.MRData.RaceTable.Races ?? []).map((race) => ({
+    round: race.round,
+    raceName: race.raceName,
+    position: race.QualifyingResults?.[0]?.position ?? '',
+  }))
+
+  return {
+    season: resultsData.MRData.RaceTable.season,
+    driverId,
+    results,
+    qualifying,
   }
 }

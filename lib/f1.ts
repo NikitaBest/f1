@@ -119,10 +119,39 @@ const SHORT_EN: Record<string, string> = {
   Катара: 'Qatar',
   'Абу-Даби': 'Abu Dhabi',
   Барселоны: 'Barcelona',
+  Australian: 'Australia',
+  Chinese: 'China',
+  Japanese: 'Japan',
+  Bahrain: 'Bahrain',
+  'Saudi Arabian': 'Saudi Arabia',
+  Miami: 'Miami',
+  'Emilia Romagna': 'Emilia-Romagna',
+  Monaco: 'Monaco',
+  Spanish: 'Spain',
+  Canadian: 'Canada',
+  Austrian: 'Austria',
+  British: 'Great Britain',
+  Belgian: 'Belgium',
+  Hungarian: 'Hungary',
+  Dutch: 'Netherlands',
+  Italian: 'Italy',
+  Azerbaijan: 'Azerbaijan',
+  Singapore: 'Singapore',
+  'United States': 'United States',
+  'Mexico City': 'Mexico City',
+  'São Paulo': 'São Paulo',
+  Brazilian: 'Brazil',
+  'Las Vegas': 'Las Vegas',
+  Qatar: 'Qatar',
+  'Abu Dhabi': 'Abu Dhabi',
+  Barcelona: 'Barcelona',
 }
 
 export const shortName = (n: string) => {
-  const stripped = n.replace(/^Гран-при\s+/i, '').replace(/\s+Grand Prix$/i, '').trim()
+  const stripped = n
+    .replace(/^Гран-при\s+/i, '')
+    .replace(/\s+Grand Prix(?:\s+in\s+\w+)?$/i, '')
+    .trim()
   return SHORT_EN[stripped] ?? stripped
 }
 

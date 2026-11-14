@@ -6,6 +6,7 @@ import { useF1Live } from '@/lib/use-f1-live'
 import { useViewportLock } from '@/lib/use-viewport-lock'
 import { CalendarScreen } from './calendar-screen'
 import { CreateScreen } from './create-screen'
+import { DriverScreen } from './driver-screen'
 import { EventDetailScreen, HomeScreen } from './home-screen'
 import { PaddockScreen } from './paddock-screen'
 import { SeasonScreen } from './season-screen'
@@ -18,6 +19,7 @@ export function BoxBoxApp() {
   const live = useF1Live(true)
   const [tab, setTab] = useState<Tab>('home')
   const [openId, setOpenId] = useState<string | null>(null)
+  const [openDriver, setOpenDriver] = useState(false)
   const [creating, setCreating] = useState(false)
   const [booted, setBooted] = useState(false)
 
@@ -33,6 +35,7 @@ export function BoxBoxApp() {
   const opened = openId ? state.events.find((e) => e.id === openId) : undefined
   const go = (t: Tab) => {
     setOpenId(null)
+    setOpenDriver(false)
     setCreating(false)
     setTab(t)
   }
@@ -49,10 +52,14 @@ export function BoxBoxApp() {
         }}
       />
     )
+  } else if (openDriver && tab === 'home') {
+    screen = <DriverScreen live={live} onBack={() => setOpenDriver(false)} />
   } else if (opened && tab === 'calendar') {
     screen = <EventDetailScreen event={opened} events={state.events} onBack={() => setOpenId(null)} />
   } else if (tab === 'home') {
-    screen = <HomeScreen events={state.events} live={live} onCreate={create} />
+    screen = (
+      <HomeScreen events={state.events} live={live} onCreate={create} onOpenDriver={() => setOpenDriver(true)} />
+    )
   } else if (tab === 'calendar') {
     screen = <CalendarScreen events={state.events} onOpen={setOpenId} onCreate={create} />
   } else if (tab === 'season') {
@@ -63,7 +70,7 @@ export function BoxBoxApp() {
 
   return (
     <div className="bb-app">
-      <div key={`${tab}-${openId ?? ''}-${creating}`} className="contents">
+      <div key={`${tab}-${openId ?? ''}-${openDriver}-${creating}`} className="contents">
         {screen}
       </div>
       {!creating && <TabBar active={tab} onChange={go} />}
