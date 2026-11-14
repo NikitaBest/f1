@@ -197,7 +197,7 @@ export function SplashScreen({ onDone }: { onDone: () => void }) {
 
         <div className="ps-panel">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/img/max-portrait.jpeg" alt="" decoding="async" />
+          <img src="/img/Simply%20lovely%20by%20Verstappen.jpeg" alt="" decoding="async" />
         </div>
 
         <div className="ps-tiny ps-side ps-l">World champion &nbsp; 2021 2022 2023 2024</div>
