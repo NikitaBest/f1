@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
+import { useTheme } from '@/lib/store'
 import './splash-screen.css'
 
 type Phase = 'idle' | 'run' | 'exit' | 'leave'
@@ -12,7 +13,6 @@ const SIGN_PATHS = [
   'M18 168C6 188 90 192 170 150C235 116 290 70 300 38C306 16 270 8 248 30C232 46 226 78 236 100',
 ]
 
-// [секунда, доля прогресса] — красная панель заливается с «рывками», как настоящая загрузка
 const CURVE: ReadonlyArray<readonly [number, number]> = [
   [0.9, 0],
   [1.3, 0.16],
@@ -41,7 +41,6 @@ function progressAt(t: number) {
   return 1
 }
 
-// Растягиваем слово по ширине колонки и по высоте плашки, как на постере
 function fitLine(el: HTMLElement | null, ctx: CanvasRenderingContext2D | null, frameW: number, heightRatio: number) {
   if (!el || !ctx) return
   const family = getComputedStyle(el).fontFamily
@@ -66,6 +65,7 @@ function fitLine(el: HTMLElement | null, ctx: CanvasRenderingContext2D | null, f
 }
 
 export function SplashScreen({ onDone, inline = false }: { onDone: () => void; inline?: boolean }) {
+  const theme = useTheme()
   const [mounted, setMounted] = useState(false)
   const [phase, setPhase] = useState<Phase>('idle')
   const frameRef = useRef<HTMLDivElement>(null)
@@ -97,10 +97,11 @@ export function SplashScreen({ onDone, inline = false }: { onDone: () => void; i
     const timers: number[] = []
     let raf = 0
     let cancelled = false
+    const numberCap = theme.number
 
     const render = (p: number) => {
       frame.style.setProperty('--p', p.toFixed(4))
-      if (numRef.current) numRef.current.textContent = String(Math.round(p * 33)).padStart(2, '0')
+      if (numRef.current) numRef.current.textContent = String(Math.round(p * numberCap)).padStart(2, '0')
       if (pctRef.current) pctRef.current.textContent = `${String(Math.round(p * 100)).padStart(3, '0')}%`
     }
     const fit = () => {
@@ -143,7 +144,9 @@ export function SplashScreen({ onDone, inline = false }: { onDone: () => void; i
     }
 
     const family = maxRef.current ? getComputedStyle(maxRef.current).fontFamily : ''
-    const fontReady = document.fonts?.load ? document.fonts.load(`200px ${family}`, 'MAX') : Promise.resolve([])
+    const fontReady = document.fonts?.load
+      ? document.fonts.load(`200px ${family}`, theme.givenName.toUpperCase())
+      : Promise.resolve([])
     const fallback = new Promise((resolve) => window.setTimeout(resolve, 900))
     Promise.race([fontReady, fallback]).then(boot, boot)
 
@@ -153,7 +156,7 @@ export function SplashScreen({ onDone, inline = false }: { onDone: () => void; i
       timers.forEach((id) => clearTimeout(id))
       observer.disconnect()
     }
-  }, [mounted])
+  }, [mounted, theme.givenName, theme.number])
 
   const cls = [
     'ps',
@@ -166,11 +169,11 @@ export function SplashScreen({ onDone, inline = false }: { onDone: () => void; i
     .join(' ')
 
   const node = (
-    <div className={cls} role="status" aria-label="Загрузка">
+    <div className={cls} role="status" aria-label="Загрузка" data-theme={theme.id}>
       <div className="ps-grain" aria-hidden="true" />
       <div className="ps-band" aria-hidden="true" />
       <div className="ps-frame" ref={frameRef} aria-hidden="true">
-        <div className="ps-tiny ps-top">Oracle Red Bull Racing</div>
+        <div className="ps-tiny ps-top">{theme.teamShort}</div>
         <i className="ps-cross ps-c1" />
         <i className="ps-cross ps-c2" />
         <i className="ps-cross ps-c3" />
@@ -179,31 +182,33 @@ export function SplashScreen({ onDone, inline = false }: { onDone: () => void; i
         <div className="ps-line ps-max">
           <span className="ps-rise">
             <span className="ps-fit" ref={maxRef}>
-              MAX
+              {theme.givenName.toUpperCase()}
             </span>
           </span>
         </div>
         <div className="ps-line ps-ver">
           <span className="ps-rise">
             <span className="ps-fit" ref={verRef}>
-              VERSTAPPEN
+              {theme.familyName.toUpperCase()}
             </span>
           </span>
         </div>
 
-        <svg className="ps-sign" viewBox="0 0 340 200">
-          {SIGN_PATHS.map((d) => (
-            <path key={d} d={d} pathLength={1} />
-          ))}
-        </svg>
+        {theme.showSignature ? (
+          <svg className="ps-sign" viewBox="0 0 340 200">
+            {SIGN_PATHS.map((d) => (
+              <path key={d} d={d} pathLength={1} />
+            ))}
+          </svg>
+        ) : null}
 
         <div className="ps-panel">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/img/Simply%20lovely%20by%20Verstappen.jpeg" alt="" decoding="async" />
+          <img src={theme.assets.splash} alt="" decoding="async" />
         </div>
 
-        <div className="ps-tiny ps-side ps-l">World champion &nbsp; 2021 2022 2023 2024</div>
-        <div className="ps-tiny ps-side ps-r">One goal. One vision. Four time world champion.</div>
+        <div className="ps-tiny ps-side ps-l">{theme.splashSideL}</div>
+        <div className="ps-tiny ps-side ps-r">{theme.splashSideR}</div>
 
         <div className="ps-brand ps-brand-l">BOXBOX</div>
         <div className="ps-brand ps-brand-r" ref={pctRef}>

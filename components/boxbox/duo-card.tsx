@@ -1,10 +1,9 @@
 'use client'
 
+import { useTheme } from '@/lib/store'
+import { driverDisplayName, isFavDriver, isFavTeam } from '@/lib/themes'
 import type { F1LiveState } from '@/lib/use-f1-live'
-import { CROPS, Crop } from './art'
-
-export const isFavDriver = (code?: string, family?: string) => code === 'VER' || family === 'Verstappen'
-export const isFavTeam = (name?: string) => !!name && /red bull/i.test(name) && !/racing bulls|rb f1/i.test(name)
+import { Crop } from './art'
 
 export function DuoCard({
   live,
@@ -17,37 +16,39 @@ export function DuoCard({
   onOpenTeam?: () => void
   onOpenCar?: () => void
 }) {
-  const d = live.drivers.find((r) => isFavDriver(r.Driver.code, r.Driver.familyName))
-  const t = live.constructors.find((r) => isFavTeam(r.Constructor.name))
+  const theme = useTheme()
+  const d = live.drivers.find((r) => isFavDriver(theme, r.Driver.code, r.Driver.familyName))
+  const t = live.constructors.find((r) => isFavTeam(theme, r.Constructor.name))
   const dash = live.loading ? '…' : '—'
+  const name = driverDisplayName(theme)
 
   return (
     <section className="duo" aria-label="Любимый гонщик и команда">
       <div className="duo-grid">
-        <button type="button" className="duo-d" onClick={onOpenDriver} aria-label="Open Max Verstappen">
-          <Crop spec={CROPS.maxRed} label="Max Verstappen" />
-          <span className="flag-nl" aria-hidden="true" />
+        <button type="button" className="duo-d" onClick={onOpenDriver} aria-label={`Open ${name}`}>
+          <Crop spec={theme.portraitCrop} label={name} />
+          <span className={theme.flagClass} aria-hidden="true" />
           <span className="no disp" aria-hidden="true">
-            3
+            {theme.number}
           </span>
           <div className="cap">
             <span className="eyebrow">Driver</span>
             <b className="disp">
-              Max
+              {theme.givenName}
               <br />
-              Verstappen
+              {theme.familyName}
             </b>
           </div>
         </button>
-        <button type="button" className="duo-t" onClick={onOpenTeam} aria-label="Открыть Red Bull Racing">
-          <img className="duo-t-bg" src="/img/rb-logo.jpeg" alt="" aria-hidden="true" />
+        <button type="button" className="duo-t" onClick={onOpenTeam} aria-label={`Открыть ${theme.teamName}`}>
+          <img className="duo-t-bg" src={theme.assets.logo} alt="" aria-hidden="true" />
           <div className="duo-t-veil" aria-hidden="true" />
           <div className="cap">
-            <span className="eyebrow">Команда</span>
+            <span className="eyebrow">Team</span>
             <b className="disp">
-              Red Bull
+              {theme.teamTitle[0]}
               <br />
-              Racing
+              {theme.teamTitle[1]}
             </b>
             <div className="tst">
               <span>
@@ -60,14 +61,16 @@ export function DuoCard({
           </div>
         </button>
       </div>
-      <button type="button" className="duo-car" onClick={onOpenCar} aria-label="Открыть RB22">
+      <button type="button" className="duo-car" onClick={onOpenCar} aria-label={`Открыть ${theme.carCode}`}>
         <span className="ghost disp" aria-hidden="true">
-          RB
+          {theme.carGhost}
         </span>
-        <div className="sig-dark">
-          <Crop spec={CROPS.sig} />
-        </div>
-        <Crop spec={CROPS.car} label="Болид Red Bull Racing" />
+        {theme.sigCrop ? (
+          <div className="sig-dark">
+            <Crop spec={theme.sigCrop} />
+          </div>
+        ) : null}
+        <Crop spec={theme.carCrop} label={`Болид ${theme.teamShort}`} />
       </button>
       <div className="duo-bar">
         <div className="stat">

@@ -55,7 +55,10 @@
   right: 0;
   z-index: 10;
   height: env(safe-area-inset-top, 0px);
-  background: #0a1033;
+  background: var(--navy, #0a1033);
+}
+.ps[data-theme='antonelli'] {
+  --ps-sun: #c5ccd6;
 }
 .ps-frame {
   --p: 0;

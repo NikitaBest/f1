@@ -4,8 +4,9 @@ import { useState } from 'react'
 import { RefreshCw } from 'lucide-react'
 import { pad } from '@/lib/f1'
 import type { F1LiveState } from '@/lib/use-f1-live'
+import { useTheme } from '@/lib/store'
+import { isFavDriver, isFavTeam } from '@/lib/themes'
 import { Hero } from './art'
-import { isFavDriver, isFavTeam } from './duo-card'
 import { PilotAvatar } from './pilot-avatar'
 
 type Board = 'drivers' | 'constructors' | 'results'
@@ -13,6 +14,7 @@ type Board = 'drivers' | 'constructors' | 'results'
 const codeOf = (d: { code?: string; familyName: string }) => d.code ?? d.familyName.slice(0, 3).toUpperCase()
 
 export function SeasonScreen({ live }: { live: F1LiveState }) {
+  const theme = useTheme()
   const [board, setBoard] = useState<Board>('drivers')
   const busy = live.loading || live.syncing
 
@@ -53,7 +55,7 @@ export function SeasonScreen({ live }: { live: F1LiveState }) {
       ) : board === 'drivers' ? (
         <ol>
           {live.drivers.map((row) => {
-            const fav = isFavDriver(row.Driver.code, row.Driver.familyName)
+            const fav = isFavDriver(theme, row.Driver.code, row.Driver.familyName)
             return (
               <li key={row.Driver.familyName + row.position} className={`srow ${fav ? 'fav' : ''} ${row.position === '1' ? 'lead' : ''}`}>
                 <span className="p num">{pad(Number(row.position))}</span>
@@ -84,7 +86,7 @@ export function SeasonScreen({ live }: { live: F1LiveState }) {
           {live.constructors.map((row) => (
             <li
               key={row.Constructor.name}
-              className={`srow ${isFavTeam(row.Constructor.name) ? 'fav' : ''} ${row.position === '1' ? 'lead' : ''}`}
+              className={`srow ${isFavTeam(theme, row.Constructor.name) ? 'fav' : ''} ${row.position === '1' ? 'lead' : ''}`}
             >
               <span className="p num">{pad(Number(row.position))}</span>
               <span style={{ minWidth: 0 }}>
@@ -111,7 +113,7 @@ export function SeasonScreen({ live }: { live: F1LiveState }) {
           </div>
           <ol>
             {live.lastRace.results.map((row) => {
-              const fav = isFavDriver(row.Driver.code, row.Driver.familyName)
+              const fav = isFavDriver(theme, row.Driver.code, row.Driver.familyName)
               return (
                 <li key={row.position + row.Driver.familyName} className={`srow ${fav ? 'fav' : ''} ${row.position === '1' ? 'lead' : ''}`}>
                   <span className="p num">{pad(Number(row.position))}</span>

@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { useAppState } from '@/lib/store'
+import { useEffect, useRef, useState } from 'react'
+import { useAppState, useTheme } from '@/lib/store'
 import { useF1Live } from '@/lib/use-f1-live'
 import { useViewportLock } from '@/lib/use-viewport-lock'
 import { CalendarScreen } from './calendar-screen'
@@ -18,6 +18,7 @@ import { TeamScreen } from './team-screen'
 export function BoxBoxApp() {
   useViewportLock()
   const state = useAppState()
+  const theme = useTheme()
   const live = useF1Live(true)
   const [tab, setTab] = useState<Tab>('home')
   const [openId, setOpenId] = useState<string | null>(null)
@@ -25,12 +26,45 @@ export function BoxBoxApp() {
   const [openTeam, setOpenTeam] = useState(false)
   const [openCar, setOpenCar] = useState(false)
   const [booted, setBooted] = useState(false)
+  const [themeSplash, setThemeSplash] = useState(false)
+  const prevTheme = useRef<string | null>(null)
 
-  if (!booted || !state.hydrated) {
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme.id
+  }, [theme.id])
+
+  useEffect(() => {
+    if (!booted || !state.hydrated) return
+    if (prevTheme.current === null) {
+      prevTheme.current = state.favThemeId
+      return
+    }
+    if (prevTheme.current !== state.favThemeId) {
+      prevTheme.current = state.favThemeId
+      setOpenDriver(false)
+      setOpenTeam(false)
+      setOpenCar(false)
+      setOpenId(null)
+      setTab('home')
+      setThemeSplash(true)
+    }
+  }, [state.favThemeId, booted, state.hydrated])
+
+  if (!state.hydrated) {
+    return <div className="bb-app is-booting" data-theme={theme.id} aria-hidden="true" />
+  }
+
+  if (!booted || themeSplash) {
     return (
       <>
-        <div className="bb-app is-booting" aria-hidden="true" />
-        <SplashScreen onDone={() => setBooted(true)} />
+        <div className="bb-app is-booting" data-theme={theme.id} aria-hidden="true" />
+        <SplashScreen
+          key={themeSplash ? `theme-${theme.id}` : `boot-${theme.id}`}
+          onDone={() => {
+            setThemeSplash(false)
+            setBooted(true)
+          }}
+        />
       </>
     )
   }
@@ -87,8 +121,8 @@ export function BoxBoxApp() {
   }
 
   return (
-    <div className="bb-app">
-      <div key={`${tab}-${openId ?? ''}-${openDriver}-${openTeam}-${openCar}`} className="contents">
+    <div className="bb-app" data-theme={theme.id}>
+      <div key={`${tab}-${theme.id}-${openId ?? ''}-${openDriver}-${openTeam}-${openCar}`} className="contents">
         {screen}
       </div>
       <TabBar active={tab} onChange={go} />

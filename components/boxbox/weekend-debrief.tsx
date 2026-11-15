@@ -25,11 +25,15 @@ export function WeekendDebriefScreen({
   season,
   round,
   mode,
+  driverId,
+  constructorId,
   onBack,
 }: {
   season: string
   round: string
   mode: 'driver' | 'team'
+  driverId?: string
+  constructorId?: string
   onBack: () => void
 }) {
   const [data, setData] = useState<WeekendDebrief | null>(null)
@@ -42,7 +46,7 @@ export function WeekendDebriefScreen({
       setLoading(true)
       setError(null)
       try {
-        const brief = await fetchWeekendDebrief({ season, round, mode })
+        const brief = await fetchWeekendDebrief({ season, round, mode, driverId, constructorId })
         if (!cancelled) setData(brief)
       } catch (e) {
         if (!cancelled) setError(e instanceof Error ? e.message : 'Не удалось загрузить разбор')
@@ -53,7 +57,7 @@ export function WeekendDebriefScreen({
     return () => {
       cancelled = true
     }
-  }, [season, round, mode])
+  }, [season, round, mode, driverId, constructorId])
 
   return (
     <div className="scroll debrief">

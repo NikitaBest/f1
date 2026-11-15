@@ -2,15 +2,17 @@
 
 import { useSyncExternalStore } from 'react'
 import { buildSessions, type Format, type RaceEvent, type SessionDraft } from './f1'
+import { getTheme, type ThemeId } from './themes'
 
 export type AppState = {
   hydrated: boolean
   onboarded: boolean
   events: RaceEvent[]
+  favThemeId: ThemeId
 }
 
 const STORAGE_KEY = 'boxbox:v5'
-const SERVER_STATE: AppState = { hydrated: false, onboarded: false, events: [] }
+const SERVER_STATE: AppState = { hydrated: false, onboarded: false, events: [], favThemeId: 'verstappen' }
 
 type SeedInput = {
   id: string
@@ -93,10 +95,16 @@ function load(): AppState {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (raw) {
       const parsed = JSON.parse(raw) as Omit<AppState, 'hydrated'>
-      if (Array.isArray(parsed.events)) return { ...parsed, hydrated: true }
+      if (Array.isArray(parsed.events)) {
+        return {
+          ...parsed,
+          favThemeId: getTheme(parsed.favThemeId).id,
+          hydrated: true,
+        }
+      }
     }
   } catch {}
-  return { hydrated: true, onboarded: true, events: seed() }
+  return { hydrated: true, onboarded: true, events: seed(), favThemeId: 'verstappen' }
 }
 
 function getSnapshot() {
@@ -126,4 +134,10 @@ export const actions = {
   finishOnboarding: () => setState((s) => ({ ...s, onboarded: true })),
   removeEvent: (id: string) => setState((s) => ({ ...s, events: s.events.filter((e) => e.id !== id) })),
   setEvents: (events: RaceEvent[]) => setState((s) => ({ ...s, events })),
+  setFavTheme: (favThemeId: ThemeId) => setState((s) => ({ ...s, favThemeId: getTheme(favThemeId).id })),
+}
+
+export function useTheme() {
+  const state = useAppState()
+  return getTheme(state.favThemeId)
 }

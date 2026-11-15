@@ -1,6 +1,8 @@
 'use client'
 
 import { type RaceEvent } from '@/lib/f1'
+import { actions, useTheme } from '@/lib/store'
+import { THEME_LIST, driverDisplayName, type ThemeId } from '@/lib/themes'
 import type { F1LiveState } from '@/lib/use-f1-live'
 import { useInstallPrompt } from '@/components/pwa-register'
 import { Hero } from './art'
@@ -37,6 +39,7 @@ export function PaddockScreen({
   events: RaceEvent[]
   live: F1LiveState
 }) {
+  const theme = useTheme()
   const { canInstall, installed, install } = useInstallPrompt()
   const sprints = events.filter((e) => e.format === 'sprint').length
   const season = events[0]?.season ?? new Date().getFullYear()
@@ -60,6 +63,33 @@ export function PaddockScreen({
           <b className="num">{season}</b>
           <span>Сезон</span>
         </div>
+      </div>
+
+      <div className="sec-title">
+        <h2 className="disp">Любимый</h2>
+        <span className="eyebrow">Тема приложения</span>
+      </div>
+      <div className="fav-picker" role="listbox" aria-label="Любимый гонщик">
+        {THEME_LIST.map((t) => {
+          const active = t.id === theme.id
+          return (
+            <button
+              key={t.id}
+              type="button"
+              role="option"
+              aria-selected={active}
+              className={`fav-pick${active ? ' is-on' : ''}`}
+              onClick={() => actions.setFavTheme(t.id as ThemeId)}
+            >
+              <img className="fav-pick-av" src={t.assets.pilot} alt="" />
+              <span className="fav-pick-copy">
+                <b>{driverDisplayName(t)}</b>
+                <small>{t.teamShort}</small>
+              </span>
+              <span className="fav-pick-go">{active ? 'Выбран' : 'Выбрать'}</span>
+            </button>
+          )
+        })}
       </div>
 
       <Action
@@ -101,7 +131,11 @@ export function PaddockScreen({
           <b>{installed ? 'Установлено' : 'В браузере'}</b>
         </div>
       </div>
-      {live.error && <p className="err-note" style={{ marginTop: 12 }}>{live.error}</p>}
+      {live.error && (
+        <p className="err-note" style={{ marginTop: 12 }}>
+          {live.error}
+        </p>
+      )}
     </div>
   )
 }

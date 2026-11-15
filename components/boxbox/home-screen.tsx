@@ -1,7 +1,8 @@
 'use client'
 
 import { ArrowLeft, Trash2 } from 'lucide-react'
-import { actions } from '@/lib/store'
+import { actions, useTheme } from '@/lib/store'
+import { driverDisplayName } from '@/lib/themes'
 import { useNow } from '@/lib/use-now'
 import type { F1LiveState } from '@/lib/use-f1-live'
 import { parseISODate, sortEvents, upcomingEvents, pad, type RaceEvent } from '@/lib/f1'
@@ -31,6 +32,7 @@ export function HomeScreen({
   onOpenNews?: () => void
   weekendForceOpen?: boolean
 }) {
+  const theme = useTheme()
   const now = useNow(60_000)
   const event = upcomingEvents(events, now)[0]
   const season = event?.season ?? new Date(now).getFullYear()
@@ -38,7 +40,7 @@ export function HomeScreen({
   return (
     <div className="scroll home">
       <TopBar />
-      <Ticker words={['Box box', 'Oracle Red Bull Racing', 'Max Verstappen', `Сезон ${season}`]} />
+      <Ticker words={['Box box', theme.teamShort, driverDisplayName(theme), `Сезон ${season}`]} />
 
       {event ? (
         <WeekendCard

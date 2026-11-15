@@ -1,0 +1,271 @@
+export type ThemeId = 'verstappen' | 'antonelli'
+
+export type ThemeCrop = {
+  img: string
+  iw: number
+  ih: number
+  cx: number
+  cy: number
+  cw: number
+  ch: number
+}
+
+export type DriverTheme = {
+  id: ThemeId
+  driverId: string
+  constructorId: string
+  code: string
+  givenName: string
+  familyName: string
+  number: number
+  flagClass: 'flag-nl' | 'flag-it'
+  teamShort: string
+  teamName: string
+  teamEyebrow: string
+  teamTitle: [string, string]
+  carCode: string
+  carGhost: string
+  carTagline: string
+  carBlurb: string
+  carNote: string
+  powerLabel: string
+  splashSideL: string
+  splashSideR: string
+  showSignature: boolean
+  teamMatch: RegExp
+  assets: {
+    splash: string
+    poster: string
+    portrait: string
+    logo: string
+    car: string
+    carTop: string
+    team: string
+    quote: string
+    pilot: string
+  }
+  portraitCrop: ThemeCrop
+  carCrop: ThemeCrop
+  sigCrop?: ThemeCrop
+  specs: { k: string; v: string }[]
+  zones: { code: string; title: string; text: string }[]
+  quotes: string[]
+}
+
+const VER_SIG: ThemeCrop = {
+  img: '/img/poster-car.jpeg',
+  iw: 736,
+  ih: 1106,
+  cx: 295,
+  cy: 848,
+  cw: 140,
+  ch: 55,
+}
+
+export const THEMES: Record<ThemeId, DriverTheme> = {
+  verstappen: {
+    id: 'verstappen',
+    driverId: 'max_verstappen',
+    constructorId: 'red_bull',
+    code: 'VER',
+    givenName: 'Max',
+    familyName: 'Verstappen',
+    number: 33,
+    flagClass: 'flag-nl',
+    teamShort: 'Oracle Red Bull Racing',
+    teamName: 'Red Bull Racing',
+    teamEyebrow: 'Oracle · Austrian',
+    teamTitle: ['Red Bull', 'Racing'],
+    carCode: 'RB22',
+    carGhost: 'RB',
+    carTagline: 'Built to hunt.',
+    carBlurb: 'New era, new fight — болид сезона 2026 в ливрее быка.',
+    carNote:
+      'RB22 — ответ Milton Keynes на новый технический цикл Формулы 1: легче на взгляд, злее в гибриде, всё ещё с жёлтым быком на спине.',
+    powerLabel: 'RBPT × Ford',
+    splashSideL: 'World champion   2021 2022 2023 2024',
+    splashSideR: 'One goal. One vision. Four time world champion.',
+    showSignature: true,
+    teamMatch: /red bull/i,
+    assets: {
+      splash: '/themes/verstappen/splash.jpeg',
+      poster: '/themes/verstappen/poster.jpeg',
+      portrait: '/themes/verstappen/portrait.jpeg',
+      logo: '/themes/verstappen/logo.jpeg',
+      car: '/themes/verstappen/car-side.jpeg',
+      carTop: '/themes/verstappen/car.jpeg',
+      team: '/themes/verstappen/team.jpeg',
+      quote: '/themes/verstappen/quote.jpeg',
+      pilot: '/pilots/Max%20Verstappen.jpeg',
+    },
+    portraitCrop: {
+      img: '/themes/verstappen/portrait.jpeg',
+      iw: 736,
+      ih: 1104,
+      cx: 40,
+      cy: 40,
+      cw: 656,
+      ch: 820,
+    },
+    carCrop: {
+      img: '/themes/verstappen/car-side.jpeg',
+      iw: 640,
+      ih: 800,
+      cx: 8,
+      cy: 330,
+      cw: 624,
+      ch: 160,
+    },
+    sigCrop: VER_SIG,
+    specs: [
+      { k: 'Chassis', v: 'RB22' },
+      { k: 'Team', v: 'Oracle Red Bull Racing' },
+      { k: 'Era', v: '2026 regulations' },
+      { k: 'Power', v: 'RBPT × Ford' },
+      { k: 'Tyres', v: 'Pirelli' },
+      { k: 'Focus', v: 'New era · new fight' },
+    ],
+    zones: [
+      {
+        code: '01',
+        title: 'Nose & front wing',
+        text: 'Узкий нос и переднее крыло задают поток воздуха на весь болид. В регламенте 2026 активная аэродинамика помогает и в квалифае, и в гонке.',
+      },
+      {
+        code: '02',
+        title: 'Cockpit',
+        text: 'Кабина вокруг Max и его напарника: halo, руль с десятками настроек и телеметрия команды.',
+      },
+      {
+        code: '03',
+        title: 'Power unit',
+        text: 'Силовая установка новой эры: больше электричества и союз Red Bull Powertrains с Ford.',
+      },
+      {
+        code: '04',
+        title: 'Rear wing & DRS',
+        text: 'Заднее крыло и активные элементы закрывают картину — классический Red Bull баланс атаки.',
+      },
+    ],
+    quotes: [
+      'Тебе не нужно быть идеальным. Нужно быть лучшим в этот день.',
+      'Единственное место, которое имеет значение — первое.',
+      'Именно когда ты вне зоны комфорта, ты действительно растёшь.',
+      'Если бы у моей мамы были яйца, она была бы моим папой.',
+      'Simply lovely.',
+    ],
+  },
+  antonelli: {
+    id: 'antonelli',
+    driverId: 'antonelli',
+    constructorId: 'mercedes',
+    code: 'ANT',
+    givenName: 'Kimi',
+    familyName: 'Antonelli',
+    number: 12,
+    flagClass: 'flag-it',
+    teamShort: 'Mercedes-AMG Petronas',
+    teamName: 'Mercedes',
+    teamEyebrow: 'Petronas · German',
+    teamTitle: ['Mercedes', 'AMG'],
+    carCode: 'W16',
+    carGhost: 'W16',
+    carTagline: 'Silver arrows.',
+    carBlurb: 'Новая эра Mercedes — серебро, чёрный и бирюза Petronas.',
+    carNote:
+      'W16 — стрела Brackley: гибрид новой формулы, ливрея Silver Arrows и бирюзовый акцент Petronas на каждом круге.',
+    powerLabel: 'Mercedes PU',
+    splashSideL: 'Mercedes junior. Italian fire.',
+    splashSideR: 'One seat. One chance. Silver Arrows.',
+    showSignature: false,
+    teamMatch: /mercedes/i,
+    assets: {
+      splash: '/themes/antonelli/splash.jpeg',
+      poster: '/themes/antonelli/poster.jpeg',
+      portrait: '/themes/antonelli/portrait.jpeg',
+      logo: '/themes/antonelli/logo.jpeg',
+      car: '/themes/antonelli/car-side.jpeg',
+      carTop: '/themes/antonelli/car.jpeg',
+      team: '/themes/antonelli/team.jpeg',
+      quote: '/themes/antonelli/quote.jpeg',
+      pilot: '/pilots/Kimi%20Antonelli.jpeg',
+    },
+    portraitCrop: {
+      img: '/themes/antonelli/portrait.jpeg',
+      iw: 736,
+      ih: 940,
+      cx: 60,
+      cy: 40,
+      cw: 620,
+      ch: 780,
+    },
+    carCrop: {
+      img: '/themes/antonelli/car-side.jpeg',
+      iw: 736,
+      ih: 981,
+      cx: 16,
+      cy: 360,
+      cw: 704,
+      ch: 240,
+    },
+    specs: [
+      { k: 'Chassis', v: 'W16' },
+      { k: 'Team', v: 'Mercedes-AMG Petronas' },
+      { k: 'Era', v: '2026 regulations' },
+      { k: 'Power', v: 'Mercedes PU' },
+      { k: 'Tyres', v: 'Pirelli' },
+      { k: 'Focus', v: 'Silver Arrows · new era' },
+    ],
+    zones: [
+      {
+        code: '01',
+        title: 'Nose & front wing',
+        text: 'Нос и переднее крыло Silver Arrows задают поток на весь болид — чистая геометрия Brackley под регламент 2026.',
+      },
+      {
+        code: '02',
+        title: 'Cockpit',
+        text: 'Кабина Kimi и George: halo, руль Mercedes и телеметрия Petronas-команды на каждом круге.',
+      },
+      {
+        code: '03',
+        title: 'Power unit',
+        text: 'Собственная силовая установка Mercedes: больше электричества, знакомый гибридный удар на выходе из медленных зон.',
+      },
+      {
+        code: '04',
+        title: 'Rear wing & DRS',
+        text: 'Заднее крыло с бирюзовым акцентом Petronas — на прямой W16 раскрывается, в связке снова прижимается к асфальту.',
+      },
+    ],
+    quotes: [
+      'Каждый круг — шанс стать быстрее.',
+      'Давление делает тебя сильнее.',
+      'Мечтать мало — нужно работать.',
+      'Серебряные стрелы не ждут.',
+    ],
+  },
+}
+
+export const THEME_LIST = Object.values(THEMES)
+
+export function getTheme(id?: string | null): DriverTheme {
+  if (id && id in THEMES) return THEMES[id as ThemeId]
+  return THEMES.verstappen
+}
+
+export function isFavDriver(theme: DriverTheme, code?: string, family?: string) {
+  return code === theme.code || family === theme.familyName
+}
+
+export function isFavTeam(theme: DriverTheme, name?: string) {
+  if (!name) return false
+  if (theme.id === 'verstappen') {
+    return theme.teamMatch.test(name) && !/racing bulls|rb f1/i.test(name)
+  }
+  return theme.teamMatch.test(name)
+}
+
+export function driverDisplayName(theme: DriverTheme) {
+  return `${theme.givenName} ${theme.familyName}`
+}

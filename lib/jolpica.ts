@@ -352,7 +352,7 @@ type DriverSprintResponse = {
   }
 }
 
-const FAV_DRIVER_ID = 'max_verstappen'
+const DEFAULT_DRIVER_ID = 'max_verstappen'
 
 function mapDriverRow(race: JolpicaRace, row?: RaceResultRow): DriverRaceResult {
   return {
@@ -376,7 +376,7 @@ function mapDriverRow(race: JolpicaRace, row?: RaceResultRow): DriverRaceResult 
 
 export async function fetchDriverSeason(
   season: number | 'current' = 'current',
-  driverId = FAV_DRIVER_ID,
+  driverId = DEFAULT_DRIVER_ID,
 ): Promise<DriverSeason> {
   const [resultsData, qualiData, sprintData] = await Promise.all([
     f1Get<DriverResultsResponse>(`${season}/drivers/${driverId}/results.json?limit=100`),
@@ -490,7 +490,7 @@ type TeamQualiResponse = {
   }
 }
 
-const FAV_CONSTRUCTOR_ID = 'red_bull'
+const DEFAULT_CONSTRUCTOR_ID = 'red_bull'
 
 function isOut(positionText: string, status: string) {
   const t = positionText.toUpperCase()
@@ -535,7 +535,7 @@ function mapTeamRace(race: JolpicaRace, rows: RaceResultRow[]): TeamRaceResult {
 
 export async function fetchTeamSeason(
   season: number | 'current' = 'current',
-  constructorId = FAV_CONSTRUCTOR_ID,
+  constructorId = DEFAULT_CONSTRUCTOR_ID,
 ): Promise<TeamSeason> {
   const [resultsData, qualiData, sprintData] = await Promise.all([
     f1Get<TeamResultsResponse>(`${season}/constructors/${constructorId}/results.json?limit=100`),
@@ -645,6 +645,8 @@ type PitStopsResponse = {
 
 const DRIVER_CODES: Record<string, string> = {
   max_verstappen: 'VER',
+  antonelli: 'ANT',
+  russell: 'RUS',
   hadjar: 'HAD',
   lawson: 'LAW',
   perez: 'PER',
@@ -680,8 +682,8 @@ export async function fetchWeekendDebrief(opts: {
   constructorId?: string
 }): Promise<WeekendDebrief> {
   const { season, round } = opts
-  const driverId = opts.driverId ?? FAV_DRIVER_ID
-  const constructorId = opts.constructorId ?? FAV_CONSTRUCTOR_ID
+  const driverId = opts.driverId ?? DEFAULT_DRIVER_ID
+  const constructorId = opts.constructorId ?? DEFAULT_CONSTRUCTOR_ID
 
   if (opts.mode === 'driver') {
     const [raceData, pitData, sprintData, qualiData] = await Promise.all([

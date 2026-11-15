@@ -1,25 +1,12 @@
 import type { CSSProperties, ReactNode } from 'react'
-
-type CropSpec = { img: string; iw: number; ih: number; cx: number; cy: number; cw: number; ch: number }
-
-const POSTER_MAX = { img: '/img/poster-max.jpeg', iw: 736, ih: 1308 }
-const MAX_PORTRAIT = { img: '/img/max-portrait.jpeg', iw: 736, ih: 1307 }
-const POSTER_CAR = { img: '/img/poster-car.jpeg', iw: 736, ih: 1106 }
-const RB_CAR = { img: '/img/rb-car.jpeg', iw: 640, ih: 800 }
-
-export const CROPS = {
-  maxRed: { ...MAX_PORTRAIT, cx: 40, cy: 40, cw: 656, ch: 820 },
-  face: { ...POSTER_MAX, cx: 190, cy: 490, cw: 400, ch: 400 },
-  car: { ...RB_CAR, cx: 8, cy: 330, cw: 624, ch: 160 },
-  sig: { ...POSTER_CAR, cx: 295, cy: 848, cw: 140, ch: 55 },
-} satisfies Record<string, CropSpec>
+import type { ThemeCrop } from '@/lib/themes'
 
 export function Crop({
   spec,
   label,
   className,
 }: {
-  spec: CropSpec
+  spec: ThemeCrop
   label?: string
   className?: string
 }) {

@@ -5,7 +5,8 @@ import { ArrowLeft } from 'lucide-react'
 import { shortName } from '@/lib/f1'
 import { fetchTeamSeason, type TeamRaceResult, type TeamSeason } from '@/lib/jolpica'
 import type { F1LiveState } from '@/lib/use-f1-live'
-import { isFavTeam } from './duo-card'
+import { useTheme } from '@/lib/store'
+import { isFavTeam } from '@/lib/themes'
 import { PilotAvatar } from './pilot-avatar'
 import { WeekendDebriefScreen } from './weekend-debrief'
 
@@ -41,7 +42,8 @@ function qualiStats(rounds: TeamSeason['qualifying']) {
 }
 
 export function TeamScreen({ live, onBack }: { live: F1LiveState; onBack: () => void }) {
-  const standing = live.constructors.find((r) => isFavTeam(r.Constructor.name))
+  const theme = useTheme()
+  const standing = live.constructors.find((r) => isFavTeam(theme, r.Constructor.name))
   const dash = live.loading ? '…' : '—'
   const [data, setData] = useState<TeamSeason | null>(null)
   const [loading, setLoading] = useState(true)
@@ -54,7 +56,7 @@ export function TeamScreen({ live, onBack }: { live: F1LiveState; onBack: () => 
       setLoading(true)
       setError(null)
       try {
-        const season = await fetchTeamSeason('current')
+        const season = await fetchTeamSeason('current', theme.constructorId)
         if (!cancelled) setData(season)
       } catch (e) {
         if (!cancelled) setError(e instanceof Error ? e.message : 'Не удалось загрузить сезон команды')
@@ -65,7 +67,7 @@ export function TeamScreen({ live, onBack }: { live: F1LiveState; onBack: () => 
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [theme.constructorId])
 
   const chronological = data?.results ?? []
   const results = [...chronological].reverse()
@@ -77,7 +79,14 @@ export function TeamScreen({ live, onBack }: { live: F1LiveState; onBack: () => 
 
   if (openRound && data) {
     return (
-      <WeekendDebriefScreen season={data.season} round={openRound} mode="team" onBack={() => setOpenRound(null)} />
+      <WeekendDebriefScreen
+        season={data.season}
+        round={openRound}
+        mode="team"
+        driverId={theme.driverId}
+        constructorId={theme.constructorId}
+        onBack={() => setOpenRound(null)}
+      />
     )
   }
 
@@ -92,18 +101,14 @@ export function TeamScreen({ live, onBack }: { live: F1LiveState; onBack: () => 
       </div>
 
       <header className="team-hero">
-        <img
-          className="team-hero-bg"
-          src="/img/team-celebrate.jpeg"
-          alt="Max Verstappen celebrating with Red Bull Racing"
-        />
+        <img className="team-hero-bg" src={theme.assets.team} alt={theme.teamShort} />
         <div className="team-hero-veil" aria-hidden="true" />
         <div className="cap">
-          <span className="eyebrow">Oracle · Austrian</span>
+          <span className="eyebrow">{theme.teamEyebrow}</span>
           <b className="disp">
-            Red Bull
+            {theme.teamTitle[0]}
             <br />
-            Racing
+            {theme.teamTitle[1]}
           </b>
         </div>
       </header>

@@ -9,8 +9,9 @@ import {
   type DriverRaceResult,
   type DriverSeason,
 } from '@/lib/jolpica'
+import { useTheme } from '@/lib/store'
+import { driverDisplayName, isFavDriver } from '@/lib/themes'
 import type { F1LiveState } from '@/lib/use-f1-live'
-import { isFavDriver } from './duo-card'
 import { WeekendDebriefScreen } from './weekend-debrief'
 
 function isDnf(row: DriverRaceResult) {
@@ -47,7 +48,8 @@ function qualiStats(qualifying: DriverQualiResult[]) {
 }
 
 export function DriverScreen({ live, onBack }: { live: F1LiveState; onBack: () => void }) {
-  const standing = live.drivers.find((r) => isFavDriver(r.Driver.code, r.Driver.familyName))
+  const theme = useTheme()
+  const standing = live.drivers.find((r) => isFavDriver(theme, r.Driver.code, r.Driver.familyName))
   const dash = live.loading ? '…' : '—'
   const [data, setData] = useState<DriverSeason | null>(null)
   const [loading, setLoading] = useState(true)
@@ -60,7 +62,7 @@ export function DriverScreen({ live, onBack }: { live: F1LiveState; onBack: () =
       setLoading(true)
       setError(null)
       try {
-        const season = await fetchDriverSeason('current')
+        const season = await fetchDriverSeason('current', theme.driverId)
         if (!cancelled) setData(season)
       } catch (e) {
         if (!cancelled) setError(e instanceof Error ? e.message : 'Не удалось загрузить сезон пилота')
@@ -71,7 +73,7 @@ export function DriverScreen({ live, onBack }: { live: F1LiveState; onBack: () =
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [theme.driverId])
 
   const chronological = data?.results ?? []
   const results = [...chronological].reverse()
@@ -86,6 +88,8 @@ export function DriverScreen({ live, onBack }: { live: F1LiveState; onBack: () =
         season={data.season}
         round={openRound}
         mode="driver"
+        driverId={theme.driverId}
+        constructorId={theme.constructorId}
         onBack={() => setOpenRound(null)}
       />
     )
@@ -101,8 +105,8 @@ export function DriverScreen({ live, onBack }: { live: F1LiveState; onBack: () =
         <span className="eyebrow">Driver · {season}</span>
       </div>
 
-      <header className="drv-poster" aria-label="Max Verstappen">
-        <img src="/img/poster-max.jpeg" alt="Max Verstappen — Oracle Red Bull Racing" />
+      <header className="drv-poster" aria-label={driverDisplayName(theme)}>
+        <img src={theme.assets.poster} alt={`${driverDisplayName(theme)} — ${theme.teamShort}`} />
         <div className="drv-poster-bar">
           <div className="stat">
             <b className="num">{standing ? `P${standing.position}` : dash}</b>
