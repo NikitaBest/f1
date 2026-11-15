@@ -4,11 +4,21 @@ import { useEffect, useState } from 'react'
 import { ArrowLeft } from 'lucide-react'
 import { shortName } from '@/lib/f1'
 import { fetchWeekendDebrief, type DebriefDriver, type WeekendDebrief } from '@/lib/jolpica'
+import { PilotAvatar } from './pilot-avatar'
 
 function finishOf(d: DebriefDriver) {
   const t = d.positionText.toUpperCase()
   if (t === 'R' || t === 'W' || t === 'E' || /retir|disqual|dns|dsq/i.test(d.status)) return 'DNF'
   return `P${d.position}`
+}
+
+function DriverMark({ d }: { d: Pick<DebriefDriver, 'code' | 'familyName'> }) {
+  return (
+    <span className="debrief-mark">
+      <PilotAvatar familyName={d.familyName} code={d.code} />
+      <span className="code">{d.code}</span>
+    </span>
+  )
 }
 
 export function WeekendDebriefScreen({
@@ -96,7 +106,7 @@ export function WeekendDebriefScreen({
               <ul className="debrief-drivers">
                 {data.sprintDrivers.map((d) => (
                   <li key={`s-${d.code}`}>
-                    <span className="code">{d.code}</span>
+                    <DriverMark d={d} />
                     <span className="meta">
                       <b>{finishOf(d)}</b>
                       <span>
@@ -117,7 +127,7 @@ export function WeekendDebriefScreen({
           <ul className="debrief-drivers">
             {data.raceDrivers.map((d) => (
               <li key={`r-${d.code}`} className={d.position === '1' ? 'win' : ''}>
-                <span className="code">{d.code}</span>
+                <DriverMark d={d} />
                 <span className="meta">
                   <b>{finishOf(d)}</b>
                   <span>
@@ -136,7 +146,7 @@ export function WeekendDebriefScreen({
           <ul className="debrief-fl">
             {data.raceDrivers.map((d) => (
               <li key={`fl-${d.code}`}>
-                <span className="code">{d.code}</span>
+                <DriverMark d={d} />
                 <span className="meta">
                   <b className="num">{d.fastestLap ?? '—'}</b>
                   <span>
@@ -158,7 +168,10 @@ export function WeekendDebriefScreen({
             <ol className="debrief-pits">
               {data.pitStops.map((p) => (
                 <li key={`${p.driverId}-${p.stop}-${p.lap}`}>
-                  <b className="num">#{p.stop}</b>
+                  <span className="debrief-mark">
+                    <PilotAvatar code={p.code} />
+                    <b className="num">#{p.stop}</b>
+                  </span>
                   <span className="meta">
                     <span className="nm">
                       {p.code} · lap {p.lap}

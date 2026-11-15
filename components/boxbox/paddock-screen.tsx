@@ -5,6 +5,7 @@ import { type RaceEvent } from '@/lib/f1'
 import type { F1LiveState } from '@/lib/use-f1-live'
 import { useInstallPrompt } from '@/components/pwa-register'
 import { Hero } from './art'
+import { PilotAvatar } from './pilot-avatar'
 
 function Action({
   title,
@@ -94,7 +95,12 @@ export function PaddockScreen({
         {leader && (
           <div className="kv">
             <span>Лидер чемпионата</span>
-            <b>
+            <b className="paddock-leader">
+              <PilotAvatar
+                givenName={leader.Driver.givenName}
+                familyName={leader.Driver.familyName}
+                code={leader.Driver.code}
+              />
               {leader.Driver.code ?? leader.Driver.familyName} · {leader.points}
             </b>
           </div>

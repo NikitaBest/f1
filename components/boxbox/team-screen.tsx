@@ -6,6 +6,7 @@ import { shortName } from '@/lib/f1'
 import { fetchTeamSeason, type TeamRaceResult, type TeamSeason } from '@/lib/jolpica'
 import type { F1LiveState } from '@/lib/use-f1-live'
 import { isFavTeam } from './duo-card'
+import { PilotAvatar } from './pilot-avatar'
 import { WeekendDebriefScreen } from './weekend-debrief'
 
 function formClass(row: TeamRaceResult) {
@@ -134,7 +135,10 @@ export function TeamScreen({ live, onBack }: { live: F1LiveState; onBack: () => 
           <div className="team-lineup">
             {lineUp.map((d) => (
               <div key={d.code} className="team-pilot">
-                <span className="code">{d.code}</span>
+                <span className="team-pilot-who">
+                  <PilotAvatar familyName={d.familyName} code={d.code} />
+                  <span className="code">{d.code}</span>
+                </span>
                 <b className="nm">{d.familyName}</b>
                 <span className="pts">
                   <b className="num">{d.points}</b>

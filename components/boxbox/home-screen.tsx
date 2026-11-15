@@ -8,6 +8,7 @@ import { parseISODate, sortEvents, upcomingEvents, pad, type RaceEvent } from '@
 import { Ticker, TopBar } from './art'
 import { DuoCard } from './duo-card'
 import { NewsTeaser } from './news-teaser'
+import { QuoteCard } from './quote-card'
 import { WeekendCard } from './weekend-view'
 
 const roundOf = (event: RaceEvent, events: RaceEvent[]) =>
@@ -73,12 +74,7 @@ export function HomeScreen({
 
       <NewsTeaser onOpenAll={onOpenNews} />
 
-      <figure className="quote">
-        <blockquote className="disp q">
-          Тебе не нужно быть идеальным. Нужно быть лучшим в этот день.
-        </blockquote>
-        <figcaption className="by">Max Verstappen</figcaption>
-      </figure>
+      <QuoteCard />
     </div>
   )
 }

@@ -4,21 +4,13 @@ import { useState } from 'react'
 import { RefreshCw } from 'lucide-react'
 import { pad } from '@/lib/f1'
 import type { F1LiveState } from '@/lib/use-f1-live'
-import { CROPS, Crop, Hero } from './art'
+import { Hero } from './art'
 import { isFavDriver, isFavTeam } from './duo-card'
+import { PilotAvatar } from './pilot-avatar'
 
 type Board = 'drivers' | 'constructors' | 'results'
 
 const codeOf = (d: { code?: string; familyName: string }) => d.code ?? d.familyName.slice(0, 3).toUpperCase()
-
-function Avatar({ fav }: { fav: boolean }) {
-  if (!fav) return null
-  return (
-    <span className="av">
-      <Crop spec={CROPS.face} />
-    </span>
-  )
-}
 
 export function SeasonScreen({ live }: { live: F1LiveState }) {
   const [board, setBoard] = useState<Board>('drivers')
@@ -66,7 +58,11 @@ export function SeasonScreen({ live }: { live: F1LiveState }) {
               <li key={row.Driver.familyName + row.position} className={`srow ${fav ? 'fav' : ''} ${row.position === '1' ? 'lead' : ''}`}>
                 <span className="p num">{pad(Number(row.position))}</span>
                 <span className="who">
-                  <Avatar fav={fav} />
+                  <PilotAvatar
+                    givenName={row.Driver.givenName}
+                    familyName={row.Driver.familyName}
+                    code={row.Driver.code}
+                  />
                   <span style={{ minWidth: 0 }}>
                     <span className="nm">
                       <span className="code">{codeOf(row.Driver)}</span>
@@ -120,7 +116,11 @@ export function SeasonScreen({ live }: { live: F1LiveState }) {
                 <li key={row.position + row.Driver.familyName} className={`srow ${fav ? 'fav' : ''} ${row.position === '1' ? 'lead' : ''}`}>
                   <span className="p num">{pad(Number(row.position))}</span>
                   <span className="who">
-                    <Avatar fav={fav} />
+                    <PilotAvatar
+                      givenName={row.Driver.givenName}
+                      familyName={row.Driver.familyName}
+                      code={row.Driver.code}
+                    />
                     <span style={{ minWidth: 0 }}>
                       <span className="nm">
                         <span className="code">{codeOf(row.Driver)}</span>
