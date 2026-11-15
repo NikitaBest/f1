@@ -299,7 +299,6 @@ export function ReelDemo() {
             events={state.events}
             live={live}
             weekendForceOpen={expand}
-            onCreate={() => {}}
             onOpenDriver={() => {}}
             onOpenTeam={() => {}}
             onOpenCar={() => {}}

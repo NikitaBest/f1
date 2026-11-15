@@ -124,9 +124,6 @@ export function useAppState() {
 
 export const actions = {
   finishOnboarding: () => setState((s) => ({ ...s, onboarded: true })),
-  addEvent: (event: Omit<RaceEvent, 'id'>) =>
-    setState((s) => ({ ...s, events: [...s.events, { ...event, id: crypto.randomUUID() }] })),
   removeEvent: (id: string) => setState((s) => ({ ...s, events: s.events.filter((e) => e.id !== id) })),
   setEvents: (events: RaceEvent[]) => setState((s) => ({ ...s, events })),
-  resetDemo: () => setState((s) => ({ ...s, events: seed() })),
 }

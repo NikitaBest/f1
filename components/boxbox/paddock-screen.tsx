@@ -1,6 +1,5 @@
 'use client'
 
-import { actions } from '@/lib/store'
 import { type RaceEvent } from '@/lib/f1'
 import type { F1LiveState } from '@/lib/use-f1-live'
 import { useInstallPrompt } from '@/components/pwa-register'
@@ -13,17 +12,15 @@ function Action({
   go,
   onClick,
   disabled,
-  warn,
 }: {
   title: string
   hint: string
   go: string
   onClick: () => void
   disabled?: boolean
-  warn?: boolean
 }) {
   return (
-    <button type="button" className={`act ${warn ? 'warn' : ''}`} onClick={onClick} disabled={disabled}>
+    <button type="button" className="act" onClick={onClick} disabled={disabled}>
       <span>
         <b>{title}</b>
         <small>{hint}</small>
@@ -36,15 +33,13 @@ function Action({
 export function PaddockScreen({
   events,
   live,
-  onCreate,
 }: {
   events: RaceEvent[]
   live: F1LiveState
-  onCreate: () => void
 }) {
   const { canInstall, installed, install } = useInstallPrompt()
   const sprints = events.filter((e) => e.format === 'sprint').length
-  const own = events.filter((e) => e.source !== 'f1').length
+  const season = events[0]?.season ?? new Date().getFullYear()
   const tz = Intl.DateTimeFormat().resolvedOptions().timeZone
   const leader = live.drivers[0]
 
@@ -62,8 +57,8 @@ export function PaddockScreen({
           <span>Спринтов</span>
         </div>
         <div>
-          <b className="num">{own}</b>
-          <span>Своих</span>
+          <b className="num">{season}</b>
+          <span>Сезон</span>
         </div>
       </div>
 
@@ -81,15 +76,7 @@ export function PaddockScreen({
         disabled={live.loading}
         onClick={() => void live.refreshLive()}
       />
-      <Action title="Свой этап" hint="Добавить уикенд вручную" go="Добавить" onClick={onCreate} />
       {canInstall && <Action title="Установить на устройство" hint="Работает как приложение" go="PWA" onClick={() => void install()} />}
-      <Action
-        title="Демо-календарь"
-        hint="Вернуть локальный набор этапов"
-        go="Сбросить"
-        warn
-        onClick={() => confirm('Вернуть локальный демо-календарь?') && actions.resetDemo()}
-      />
 
       <div style={{ marginTop: 18 }}>
         {leader && (

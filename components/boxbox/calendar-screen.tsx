@@ -1,7 +1,7 @@
 'use client'
 
 import { Fragment, useState, type CSSProperties } from 'react'
-import { ChevronDown, ChevronUp, Plus } from 'lucide-react'
+import { ChevronDown, ChevronUp } from 'lucide-react'
 import { useNow } from '@/lib/use-now'
 import { daysUntil, eventEnd, mon, monthYear, parseISODate, shortName, sortEvents, type Format, type RaceEvent } from '@/lib/f1'
 import { Hero } from './art'
@@ -73,11 +73,9 @@ function EventList({
 export function CalendarScreen({
   events,
   onOpen,
-  onCreate,
 }: {
   events: RaceEvent[]
   onOpen: (id: string) => void
-  onCreate: () => void
 }) {
   const [filter, setFilter] = useState<Filter>('all')
   const [showPast, setShowPast] = useState(false)
@@ -95,7 +93,7 @@ export function CalendarScreen({
         pos="50%"
         eyebrow={`Сезон ${season}`}
         title="Календарь"
-        sub={`${events.length} ${plural(events.length)} · официальный и свои`}
+        sub={`${events.length} ${plural(events.length)} · официальный F1`}
       />
 
       <div className="topbar" style={{ marginBottom: 4 }}>
@@ -106,15 +104,12 @@ export function CalendarScreen({
             </button>
           ))}
         </div>
-        <button type="button" className="btn sm" onClick={onCreate} style={{ marginLeft: 8 }} aria-label="Добавить этап">
-          <Plus size={18} aria-hidden="true" />
-        </button>
       </div>
 
       {list.length === 0 && (
         <div className="empty" style={{ marginTop: 16 }}>
           <h2 className="disp">Пусто</h2>
-          <p>Нажми «+», чтобы добавить этап.</p>
+          <p>Синхронизируй календарь F1 в Паддоке.</p>
         </div>
       )}
 

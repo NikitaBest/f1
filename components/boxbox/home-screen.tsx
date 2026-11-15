@@ -17,7 +17,6 @@ const roundOf = (event: RaceEvent, events: RaceEvent[]) =>
 export function HomeScreen({
   events,
   live,
-  onCreate,
   onOpenDriver,
   onOpenTeam,
   onOpenCar,
@@ -26,7 +25,6 @@ export function HomeScreen({
 }: {
   events: RaceEvent[]
   live: F1LiveState
-  onCreate: () => void
   onOpenDriver?: () => void
   onOpenTeam?: () => void
   onOpenCar?: () => void
@@ -56,11 +54,8 @@ export function HomeScreen({
           <p>
             {live.syncing
               ? 'Подтягиваем официальный календарь F1…'
-              : 'Нет предстоящих этапов. Синхронизируй календарь в Паддоке или добавь свой.'}
+              : 'Нет предстоящих этапов. Синхронизируй календарь в Паддоке.'}
           </p>
-          <button type="button" className="btn sm" onClick={onCreate} style={{ marginTop: 8, alignSelf: 'flex-start' }}>
-            Новый этап
-          </button>
         </div>
       )}
 

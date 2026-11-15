@@ -6,7 +6,6 @@ import { useF1Live } from '@/lib/use-f1-live'
 import { useViewportLock } from '@/lib/use-viewport-lock'
 import { CalendarScreen } from './calendar-screen'
 import { CarScreen } from './car-screen'
-import { CreateScreen } from './create-screen'
 import { DriverScreen } from './driver-screen'
 import { EventDetailScreen, HomeScreen } from './home-screen'
 import { NewsScreen } from './news-screen'
@@ -25,7 +24,6 @@ export function BoxBoxApp() {
   const [openDriver, setOpenDriver] = useState(false)
   const [openTeam, setOpenTeam] = useState(false)
   const [openCar, setOpenCar] = useState(false)
-  const [creating, setCreating] = useState(false)
   const [booted, setBooted] = useState(false)
 
   if (!booted || !state.hydrated) {
@@ -46,23 +44,11 @@ export function BoxBoxApp() {
   const go = (t: Tab) => {
     setOpenId(null)
     closeGarage()
-    setCreating(false)
     setTab(t)
   }
-  const create = () => setCreating(true)
 
   let screen: React.ReactNode
-  if (creating) {
-    screen = (
-      <CreateScreen
-        onCancel={() => setCreating(false)}
-        onCreated={() => {
-          setCreating(false)
-          go('calendar')
-        }}
-      />
-    )
-  } else if (openDriver && tab === 'home') {
+  if (openDriver && tab === 'home') {
     screen = <DriverScreen live={live} onBack={() => setOpenDriver(false)} />
   } else if (openTeam && tab === 'home') {
     screen = <TeamScreen live={live} onBack={() => setOpenTeam(false)} />
@@ -75,7 +61,6 @@ export function BoxBoxApp() {
       <HomeScreen
         events={state.events}
         live={live}
-        onCreate={create}
         onOpenDriver={() => {
           closeGarage()
           setOpenDriver(true)
@@ -94,19 +79,19 @@ export function BoxBoxApp() {
   } else if (tab === 'news') {
     screen = <NewsScreen />
   } else if (tab === 'calendar') {
-    screen = <CalendarScreen events={state.events} onOpen={setOpenId} onCreate={create} />
+    screen = <CalendarScreen events={state.events} onOpen={setOpenId} />
   } else if (tab === 'season') {
     screen = <SeasonScreen live={live} />
   } else {
-    screen = <PaddockScreen events={state.events} live={live} onCreate={create} />
+    screen = <PaddockScreen events={state.events} live={live} />
   }
 
   return (
     <div className="bb-app">
-      <div key={`${tab}-${openId ?? ''}-${openDriver}-${openTeam}-${openCar}-${creating}`} className="contents">
+      <div key={`${tab}-${openId ?? ''}-${openDriver}-${openTeam}-${openCar}`} className="contents">
         {screen}
       </div>
-      {!creating && <TabBar active={tab} onChange={go} />}
+      <TabBar active={tab} onChange={go} />
     </div>
   )
 }
