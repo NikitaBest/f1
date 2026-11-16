@@ -650,6 +650,7 @@ const DRIVER_CODES: Record<string, string> = {
   leclerc: 'LEC',
   hamilton: 'HAM',
   norris: 'NOR',
+  piastri: 'PIA',
   hadjar: 'HAD',
   lawson: 'LAW',
   perez: 'PER',

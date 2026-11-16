@@ -1,4 +1,11 @@
-export type ThemeId = 'verstappen' | 'antonelli' | 'russell' | 'leclerc' | 'hamilton' | 'norris'
+export type ThemeId =
+  | 'verstappen'
+  | 'antonelli'
+  | 'russell'
+  | 'leclerc'
+  | 'hamilton'
+  | 'norris'
+  | 'piastri'
 
 export type ThemeCrop = {
   img: string
@@ -18,7 +25,7 @@ export type DriverTheme = {
   givenName: string
   familyName: string
   number: number
-  flagClass: 'flag-nl' | 'flag-it' | 'flag-gb' | 'flag-mc'
+  flagClass: 'flag-nl' | 'flag-it' | 'flag-gb' | 'flag-mc' | 'flag-au'
   teamShort: string
   teamName: string
   teamEyebrow: string
@@ -603,6 +610,96 @@ export const THEMES: Record<ThemeId, DriverTheme> = {
       'Папайя не ждёт.',
       'Давление делает круг быстрее.',
       'Один шанс — один качественный круг.',
+    ],
+  },
+  piastri: {
+    id: 'piastri',
+    driverId: 'piastri',
+    constructorId: 'mclaren',
+    code: 'PIA',
+    givenName: 'Oscar',
+    familyName: 'Piastri',
+    number: 81,
+    flagClass: 'flag-au',
+    teamShort: 'McLaren',
+    teamName: 'McLaren',
+    teamEyebrow: 'Papaya · Australian',
+    teamTitle: ['McLaren', 'Racing'],
+    carCode: 'MCL40',
+    carGhost: 'MCL',
+    carTagline: 'Ice cold.',
+    carBlurb: 'Папайя Woking — холодная голова Oscar и новая формула 2026.',
+    carNote:
+      'MCL40 для Oscar Piastri: спокойная агрессия, папайя-ливрея McLaren и давление титула на каждом круге.',
+    powerLabel: 'Mercedes PU',
+    splashSideL: 'Australian ice. Papaya fire.',
+    splashSideR: 'One team. One orange. Calculated attack.',
+    showSignature: false,
+    teamMatch: /mclaren/i,
+    assets: {
+      splash: '/themes/piastri/splash.jpeg',
+      poster: '/themes/piastri/poster.jpeg',
+      portrait: '/themes/piastri/portrait.jpeg',
+      logo: '/themes/piastri/logo.jpeg',
+      car: '/themes/piastri/car-side.jpeg',
+      carTop: '/themes/piastri/car.jpeg',
+      team: '/themes/piastri/team.jpeg',
+      quote: '/themes/piastri/quote.jpeg',
+      pilot: '/pilots/Oscar%20Piastri.jpeg',
+    },
+    portraitCrop: {
+      img: '/themes/piastri/portrait.jpeg',
+      iw: 680,
+      ih: 900,
+      cx: 40,
+      cy: 40,
+      cw: 600,
+      ch: 760,
+    },
+    carCrop: {
+      img: '/themes/piastri/car-side.jpeg',
+      iw: 680,
+      ih: 900,
+      cx: 20,
+      cy: 340,
+      cw: 640,
+      ch: 220,
+    },
+    specs: [
+      { k: 'Chassis', v: 'MCL40' },
+      { k: 'Team', v: 'McLaren' },
+      { k: 'Era', v: '2026 regulations' },
+      { k: 'Power', v: 'Mercedes PU' },
+      { k: 'Tyres', v: 'Pirelli' },
+      { k: 'Focus', v: 'Papaya · precision' },
+    ],
+    zones: [
+      {
+        code: '01',
+        title: 'Nose & front wing',
+        text: 'Нос и переднее крыло McLaren задают поток на весь болид — геометрия Woking под регламент 2026.',
+      },
+      {
+        code: '02',
+        title: 'Cockpit',
+        text: 'Кабина Oscar и Lando: halo, руль McLaren и телеметрия команды на каждом круге.',
+      },
+      {
+        code: '03',
+        title: 'Power unit',
+        text: 'Силовая установка Mercedes в шасси McLaren: гибридный удар и холодный расчёт на выходе из медленных зон.',
+      },
+      {
+        code: '04',
+        title: 'Rear wing & DRS',
+        text: 'Заднее крыло в папайе — на прямой MCL40 раскрывается, в связке снова прижимается к асфальту.',
+      },
+    ],
+    quotes: [
+      'Спокойствие быстрее хаоса.',
+      'Считай круг. Атакуй момент.',
+      'Папайя любит холодную голову.',
+      'Давление — просто ещё одна переменная.',
     ],
   },
 }

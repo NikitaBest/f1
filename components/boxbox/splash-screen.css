@@ -65,7 +65,8 @@
 .ps[data-theme='hamilton'] {
   --ps-sun: #fff200;
 }
-.ps[data-theme='norris'] {
+.ps[data-theme='norris'],
+.ps[data-theme='piastri'] {
   --ps-sun: #ffc38a;
 }
 .ps-frame {

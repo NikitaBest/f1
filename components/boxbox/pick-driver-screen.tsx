@@ -13,6 +13,7 @@ const THEME_COLORS: Record<ThemeId, { navy: string; accent: string; sun: string 
   leclerc: { navy: '#14060a', accent: '#e10600', sun: '#fff200' },
   hamilton: { navy: '#14060a', accent: '#e10600', sun: '#fff200' },
   norris: { navy: '#0b0b0b', accent: '#ff8700', sun: '#ffc38a' },
+  piastri: { navy: '#0b0b0b', accent: '#ff8700', sun: '#ffc38a' },
 }
 
 export function PickDriverScreen({ onBack }: { onBack: () => void }) {
