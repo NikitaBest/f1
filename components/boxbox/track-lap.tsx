@@ -2,7 +2,17 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { RotateCcw } from 'lucide-react'
+import useSWR from 'swr'
 import { CIRCUITS } from '@/lib/circuits'
+import type { BestLap } from '@/app/api/best-lap/route'
+
+const fetchBestLap = async (url: string): Promise<BestLap> => {
+  const res = await fetch(url)
+  if (!res.ok) throw new Error('no lap data')
+  return res.json()
+}
+
+const DEMO_SPLITS: [number, number] = [1 / 3, 1 / 3]
 
 const LOOP_MS = 11_000
 const TAIL = 14
@@ -25,6 +35,11 @@ const fmtLap = (ms: number) => {
   const s = Math.floor((total % 60_000) / 1000)
   const t = Math.floor((total % 1000) / 100)
   return `${m}:${String(s).padStart(2, '0')}.${t}`
+}
+
+const fmtFull = (seconds: number) => {
+  const m = Math.floor(seconds / 60)
+  return `${m}:${(seconds - m * 60).toFixed(3).padStart(6, '0')}`
 }
 
 export function hasCircuit(circuitId?: string) {
@@ -62,7 +77,23 @@ export function TrackLap({ circuitId }: { circuitId: string }) {
   const [clock, setClock] = useState('0:00.0')
   const [reduced, setReduced] = useState(false)
 
-  const lapMs = useMemo(() => (circuit ? (circuit.length / (AVG_KMH / 3.6)) * 1000 : 0), [circuit])
+  const { data: best } = useSWR(`/api/best-lap?circuit=${circuitId}`, fetchBestLap, {
+    revalidateOnFocus: false,
+    shouldRetryOnError: false,
+  })
+
+  const lapMs = useMemo(() => {
+    if (best) return best.lap * 1000
+    return circuit ? (circuit.length / (AVG_KMH / 3.6)) * 1000 : 0
+  }, [best, circuit])
+
+  /** Доли круга, где заканчиваются S1 и S2. */
+  const splits = useMemo<[number, number]>(() => {
+    if (!best) return DEMO_SPLITS
+    const total = best.s1 + best.s2 + best.s3
+    return [best.s1 / total, (best.s1 + best.s2) / total]
+  }, [best])
+  const [end1, end2] = splits
 
   useEffect(() => {
     setReduced(window.matchMedia('(prefers-reduced-motion: reduce)').matches)
@@ -101,7 +132,7 @@ export function TrackLap({ circuitId }: { circuitId: string }) {
       const tail = Math.min(TAIL, head)
       trail.setAttribute('stroke-dasharray', `${tail.toFixed(2)} ${(200 - tail).toFixed(2)}`)
       trail.setAttribute('stroke-dashoffset', `${(-(head - tail)).toFixed(2)}`)
-      const sec = Math.min(2, Math.floor(p * 3))
+      const sec = p < end1 ? 0 : p < end2 ? 1 : 2
       if (sec !== lastSector) {
         lastSector = sec
         setSector(sec)
@@ -125,7 +156,7 @@ export function TrackLap({ circuitId }: { circuitId: string }) {
     }
     raf = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(raf)
-  }, [circuit, lapMs, reduced])
+  }, [circuit, lapMs, reduced, end1, end2])
 
   if (!circuit) return null
 
@@ -133,7 +164,7 @@ export function TrackLap({ circuitId }: { circuitId: string }) {
     <section className="lap" aria-label={`Схема трассы: ${circuit.name}`}>
       <div className="lap-head">
         <div>
-          <span className="eyebrow">Круг · 3D демо</span>
+          <span className="eyebrow">{best ? `Круг · квалификация ${best.year}` : 'Круг · 3D демо'}</span>
           <h3 className="disp">{circuit.name}</h3>
         </div>
         <button
@@ -165,9 +196,27 @@ export function TrackLap({ circuitId }: { circuitId: string }) {
 
         <g transform={PLANE}>
           <path d={circuit.path} className="lap-bed" pathLength={100} />
-          <path d={circuit.path} className="lap-sec s1" pathLength={100} strokeDasharray="33.3 66.7" strokeDashoffset="0" />
-          <path d={circuit.path} className="lap-sec s2" pathLength={100} strokeDasharray="33.3 66.7" strokeDashoffset="-33.3" />
-          <path d={circuit.path} className="lap-sec s3" pathLength={100} strokeDasharray="33.4 66.6" strokeDashoffset="-66.6" />
+          <path
+            d={circuit.path}
+            className="lap-sec s1"
+            pathLength={100}
+            strokeDasharray={`${(end1 * 100).toFixed(2)} ${(100 - end1 * 100).toFixed(2)}`}
+            strokeDashoffset="0"
+          />
+          <path
+            d={circuit.path}
+            className="lap-sec s2"
+            pathLength={100}
+            strokeDasharray={`${((end2 - end1) * 100).toFixed(2)} ${(100 - (end2 - end1) * 100).toFixed(2)}`}
+            strokeDashoffset={(-end1 * 100).toFixed(2)}
+          />
+          <path
+            d={circuit.path}
+            className="lap-sec s3"
+            pathLength={100}
+            strokeDasharray={`${((1 - end2) * 100).toFixed(2)} ${(end2 * 100).toFixed(2)}`}
+            strokeDashoffset={(-end2 * 100).toFixed(2)}
+          />
           <path
             ref={trailRef}
             d={circuit.path}
@@ -194,19 +243,35 @@ export function TrackLap({ circuitId }: { circuitId: string }) {
         ))}
       </svg>
 
-      <div className="lap-secs">
-        {['S1', 'S2', 'S3'].map((s, i) => (
-          <div key={s} className={`lap-sector s${i + 1}${sector === i ? ' on' : ''}`}>
-            <small>{s}</small>
-          </div>
-        ))}
+      <div
+        className="lap-secs"
+        style={{ gridTemplateColumns: `${end1}fr ${end2 - end1}fr ${1 - end2}fr auto` }}
+      >
+        {['S1', 'S2', 'S3'].map((s, i) => {
+          const time = best ? [best.s1, best.s2, best.s3][i] : null
+          return (
+            <div key={s} className={`lap-sector s${i + 1}${sector === i ? ' on' : ''}`}>
+              <small>{s}</small>
+              {time ? <span className="lap-sector-time num">{time.toFixed(3)}</span> : null}
+            </div>
+          )
+        })}
         <div className="lap-clock">
           <small>Круг</small>
           <b className="disp num">{clock}</b>
         </div>
       </div>
       <p className="lap-foot">
-        {(circuit.length / 1000).toFixed(3)} км · средний темп {AVG_KMH} км/ч
+        {best ? (
+          <>
+            <span className="lap-dot" style={{ background: best.color }} aria-hidden="true" />
+            Лучший круг квалификации · {best.driver} · {fmtFull(best.lap)}
+          </>
+        ) : (
+          <>
+            {(circuit.length / 1000).toFixed(3)} км · демо-темп {AVG_KMH} км/ч
+          </>
+        )}
       </p>
     </section>
   )

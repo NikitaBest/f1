@@ -2569,6 +2569,21 @@ html[data-theme='verstappen'],
 .lap-sector.s3 {
   color: var(--red);
 }
+.lap-sector-time {
+  display: block;
+  margin-top: 2px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--white);
+}
+.lap-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 8px;
+  vertical-align: 0.5px;
+}
 .lap-sector small,
 .lap-clock small {
   display: block;
