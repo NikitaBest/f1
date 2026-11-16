@@ -1,4 +1,4 @@
-export type ThemeId = 'verstappen' | 'antonelli' | 'russell' | 'leclerc' | 'hamilton'
+export type ThemeId = 'verstappen' | 'antonelli' | 'russell' | 'leclerc' | 'hamilton' | 'norris'
 
 export type ThemeCrop = {
   img: string
@@ -513,6 +513,96 @@ export const THEMES: Record<ThemeId, DriverTheme> = {
       'Красный — новый чёрный.',
       'Легенды не останавливаются.',
       'Восьмой ждёт на финише.',
+    ],
+  },
+  norris: {
+    id: 'norris',
+    driverId: 'norris',
+    constructorId: 'mclaren',
+    code: 'NOR',
+    givenName: 'Lando',
+    familyName: 'Norris',
+    number: 4,
+    flagClass: 'flag-gb',
+    teamShort: 'McLaren',
+    teamName: 'McLaren',
+    teamEyebrow: 'Papaya · British',
+    teamTitle: ['McLaren', 'Racing'],
+    carCode: 'MCL40',
+    carGhost: 'MCL',
+    carTagline: 'Papaya rules.',
+    carBlurb: 'Папайя Woking — скорость, улыбка и новая формула 2026.',
+    carNote:
+      'MCL40 для Lando Norris: папайя-ливрея McLaren, гибрид новой эры и давление титула на каждом круге.',
+    powerLabel: 'Mercedes PU',
+    splashSideL: 'British speed. Papaya pride.',
+    splashSideR: 'One team. One orange. Race on.',
+    showSignature: false,
+    teamMatch: /mclaren/i,
+    assets: {
+      splash: '/themes/norris/splash.jpeg',
+      poster: '/themes/norris/poster.jpeg',
+      portrait: '/themes/norris/portrait.jpeg',
+      logo: '/themes/norris/logo.jpeg',
+      car: '/themes/norris/car-side.jpeg',
+      carTop: '/themes/norris/car.jpeg',
+      team: '/themes/norris/team.jpeg',
+      quote: '/themes/norris/quote.jpeg',
+      pilot: '/pilots/Lando%20Norris.jpeg',
+    },
+    portraitCrop: {
+      img: '/themes/norris/portrait.jpeg',
+      iw: 736,
+      ih: 920,
+      cx: 60,
+      cy: 40,
+      cw: 620,
+      ch: 760,
+    },
+    carCrop: {
+      img: '/themes/norris/car-side.jpeg',
+      iw: 736,
+      ih: 920,
+      cx: 20,
+      cy: 360,
+      cw: 696,
+      ch: 220,
+    },
+    specs: [
+      { k: 'Chassis', v: 'MCL40' },
+      { k: 'Team', v: 'McLaren' },
+      { k: 'Era', v: '2026 regulations' },
+      { k: 'Power', v: 'Mercedes PU' },
+      { k: 'Tyres', v: 'Pirelli' },
+      { k: 'Focus', v: 'Papaya · title fight' },
+    ],
+    zones: [
+      {
+        code: '01',
+        title: 'Nose & front wing',
+        text: 'Нос и переднее крыло McLaren задают поток на весь болид — геометрия Woking под регламент 2026.',
+      },
+      {
+        code: '02',
+        title: 'Cockpit',
+        text: 'Кабина Lando и напарника: halo, руль McLaren и телеметрия команды на каждом круге.',
+      },
+      {
+        code: '03',
+        title: 'Power unit',
+        text: 'Силовая установка Mercedes в шасси McLaren: гибридный удар и папайя-характер на выходе из медленных зон.',
+      },
+      {
+        code: '04',
+        title: 'Rear wing & DRS',
+        text: 'Заднее крыло в папайе — на прямой MCL40 раскрывается, в связке снова прижимается к асфальту.',
+      },
+    ],
+    quotes: [
+      'Улыбайся и атакуй.',
+      'Папайя не ждёт.',
+      'Давление делает круг быстрее.',
+      'Один шанс — один качественный круг.',
     ],
   },
 }
