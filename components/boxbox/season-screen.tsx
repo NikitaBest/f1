@@ -8,6 +8,7 @@ import { useTheme } from '@/lib/store'
 import { isFavDriver, isFavTeam } from '@/lib/themes'
 import { Hero } from './art'
 import { PilotAvatar } from './pilot-avatar'
+import { TeamAvatar } from './team-avatar'
 
 type Board = 'drivers' | 'constructors' | 'results'
 
@@ -89,9 +90,12 @@ export function SeasonScreen({ live }: { live: F1LiveState }) {
               className={`srow ${isFavTeam(theme, row.Constructor.name) ? 'fav' : ''} ${row.position === '1' ? 'lead' : ''}`}
             >
               <span className="p num">{pad(Number(row.position))}</span>
-              <span style={{ minWidth: 0 }}>
-                <span className="nm">{row.Constructor.name}</span>
-                <span className="tm">{row.Constructor.nationality}</span>
+              <span className="who">
+                <TeamAvatar name={row.Constructor.name} />
+                <span style={{ minWidth: 0 }}>
+                  <span className="nm">{row.Constructor.name}</span>
+                  <span className="tm">{row.Constructor.nationality}</span>
+                </span>
               </span>
               <span className="pts">
                 <b className="num">{row.points}</b>

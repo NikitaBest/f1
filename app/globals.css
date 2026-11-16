@@ -1973,8 +1973,21 @@ html[data-theme='verstappen'],
   display: block;
   aspect-ratio: 1;
 }
+.av-team {
+  background: color-mix(in srgb, var(--navy) 8%, var(--white));
+  border-radius: 12px;
+  padding: 4px;
+  box-sizing: border-box;
+}
+.av-team img {
+  object-fit: contain;
+  object-position: center;
+}
 .srow.fav .av {
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--sun) 70%, transparent);
+}
+.srow.fav .av-team {
+  background: color-mix(in srgb, var(--white) 12%, transparent);
 }
 .lastrace {
   background:
