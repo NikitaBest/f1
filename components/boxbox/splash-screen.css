@@ -57,7 +57,8 @@
   height: env(safe-area-inset-top, 0px);
   background: var(--navy, #0a1033);
 }
-.ps[data-theme='antonelli'] {
+.ps[data-theme='antonelli'],
+.ps[data-theme='russell'] {
   --ps-sun: #c5ccd6;
 }
 .ps-frame {

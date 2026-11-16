@@ -151,11 +151,20 @@ label:focus-within {
   background: var(--paper);
 }
 html[data-theme='antonelli'],
-.bb-app[data-theme='antonelli'] {
+.bb-app[data-theme='antonelli'],
+html[data-theme='russell'],
+.bb-app[data-theme='russell'] {
   --navy: #0c0f12;
   --red: #00a19c;
   --sun: #c5ccd6;
+}
+html[data-theme='antonelli'],
+.bb-app[data-theme='antonelli'] {
   --quote-img: url(/themes/antonelli/quote.jpeg);
+}
+html[data-theme='russell'],
+.bb-app[data-theme='russell'] {
+  --quote-img: url(/themes/russell/quote.jpeg);
 }
 html[data-theme='verstappen'],
 .bb-app[data-theme='verstappen'] {
@@ -1286,7 +1295,8 @@ html[data-theme='verstappen'],
   display: block;
 }
 .flag-nl,
-.flag-it {
+.flag-it,
+.flag-gb {
   position: absolute;
   left: 12px;
   top: 14px;
@@ -1299,6 +1309,14 @@ html[data-theme='verstappen'],
 }
 .flag-it {
   background: linear-gradient(to right, #009246 33.3%, #fff 33.3% 66.6%, #ce2b37 66.6%);
+}
+.flag-gb {
+  background:
+    linear-gradient(to bottom, transparent 42%, #fff 42% 58%, transparent 58%),
+    linear-gradient(to right, transparent 42%, #fff 42% 58%, transparent 58%),
+    linear-gradient(to bottom, transparent 46%, #c8102e 46% 54%, transparent 54%),
+    linear-gradient(to right, transparent 46%, #c8102e 46% 54%, transparent 54%),
+    #012169;
 }
 .duo-t {
   position: relative;
@@ -2023,104 +2041,119 @@ html[data-theme='verstappen'],
 }
 /* ---------- pick driver ---------- */
 .pick-drv-head {
-  margin: 4px 0 18px;
+  margin: 0 0 14px;
 }
 .pick-drv-head .disp {
-  font-size: 42px;
+  font-size: 34px;
   line-height: 0.92;
-  margin: 4px 0 10px;
+  margin: 0 0 6px;
 }
 .pick-drv-head p {
   margin: 0;
-  max-width: 34ch;
-  font-size: 14px;
-  line-height: 1.4;
+  max-width: 36ch;
+  font-size: 13px;
+  line-height: 1.35;
   color: var(--ink-60);
   font-weight: 600;
 }
 .pick-drv-list {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 10px;
 }
 .pick-drv-card {
   position: relative;
-  display: block;
+  display: grid;
+  grid-template-columns: 112px minmax(0, 1fr);
+  gap: 0;
   width: 100%;
-  min-height: 280px;
+  min-height: 132px;
   padding: 0;
   border: 0;
-  border-radius: 22px;
+  border-radius: 18px;
   overflow: hidden;
   background: var(--pick-navy, var(--navy));
   color: var(--white);
   text-align: left;
   cursor: pointer;
-  animation: pick-rise 0.45s ease both;
+  animation: pick-rise 0.4s ease both;
 }
 .pick-drv-card.is-on {
-  box-shadow: inset 0 0 0 3px var(--pick-accent, var(--red));
+  box-shadow: inset 0 0 0 2px var(--pick-accent, var(--red));
 }
 .pick-drv-card:focus-visible {
   outline: 3px solid var(--pick-sun, var(--sun));
   outline-offset: 2px;
+}
+.pick-drv-shot {
+  position: relative;
+  min-height: 132px;
+  background: color-mix(in srgb, var(--pick-navy, var(--navy)) 80%, #000);
 }
 .pick-drv-photo {
   position: absolute;
   inset: 0;
 }
 .pick-drv-photo .soft-img-el {
-  object-position: center 18%;
-}
-.pick-drv-veil {
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(to top, color-mix(in srgb, var(--pick-navy, var(--navy)) 94%, transparent) 0%, transparent 52%),
-    linear-gradient(135deg, color-mix(in srgb, var(--pick-accent, var(--red)) 32%, transparent), transparent 46%);
-  pointer-events: none;
+  object-position: center 16%;
 }
 .pick-drv-flag {
-  position: absolute;
-  left: 16px;
-  top: 16px;
+  left: 8px;
+  top: 8px;
   z-index: 1;
+  width: 22px;
+  height: 15px;
+}
+.pick-drv-meta {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  padding: 12px 14px 12px 12px;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--pick-accent, var(--red)) 22%, transparent), transparent 48%),
+    var(--pick-navy, var(--navy));
+  overflow: hidden;
 }
 .pick-drv-no {
   position: absolute;
-  right: 10px;
-  top: 4px;
-  z-index: 1;
-  font-size: 92px;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-52%);
+  font-size: 64px;
   line-height: 1;
-  color: color-mix(in srgb, var(--pick-sun, var(--sun)) 55%, transparent);
+  color: color-mix(in srgb, var(--pick-sun, var(--sun)) 28%, transparent);
   pointer-events: none;
 }
-.pick-drv-cap {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
+.pick-drv-meta .eyebrow {
+  position: relative;
   z-index: 1;
-  padding: 22px 16px 16px;
-}
-.pick-drv-cap .eyebrow {
   color: var(--pick-sun, var(--sun));
+  font-size: 10px;
+  letter-spacing: 0.1em;
 }
-.pick-drv-cap .disp {
-  font-size: 40px;
-  line-height: 0.9;
-  margin: 4px 0 12px;
+.pick-drv-name {
+  position: relative;
+  z-index: 1;
+  font-size: 22px;
+  line-height: 1;
+  margin: 2px 0 10px;
+  max-width: 14ch;
 }
 .pick-drv-cta {
+  position: relative;
+  z-index: 1;
   display: inline-flex;
   align-items: center;
-  padding: 8px 12px;
+  gap: 5px;
+  align-self: flex-start;
+  padding: 6px 10px;
   border-radius: 999px;
   background: var(--pick-accent, var(--red));
   color: var(--white);
-  font-size: 11px;
-  letter-spacing: 0.12em;
+  font-size: 10px;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   font-weight: 700;
 }
@@ -2128,19 +2161,10 @@ html[data-theme='verstappen'],
   background: var(--pick-sun, var(--sun));
   color: var(--pick-navy, var(--navy));
 }
-.pick-drv-note {
-  margin: 16px 2px 8px;
-  font-size: 13px;
-  color: var(--ink-60);
-  font-weight: 600;
-}
-.pick-drv-note b {
-  color: var(--navy);
-}
 @keyframes pick-rise {
   from {
     opacity: 0;
-    transform: translateY(14px);
+    transform: translateY(10px);
   }
   to {
     opacity: 1;

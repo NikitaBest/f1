@@ -1,4 +1,4 @@
-export type ThemeId = 'verstappen' | 'antonelli'
+export type ThemeId = 'verstappen' | 'antonelli' | 'russell'
 
 export type ThemeCrop = {
   img: string
@@ -18,7 +18,7 @@ export type DriverTheme = {
   givenName: string
   familyName: string
   number: number
-  flagClass: 'flag-nl' | 'flag-it'
+  flagClass: 'flag-nl' | 'flag-it' | 'flag-gb'
   teamShort: string
   teamName: string
   teamEyebrow: string
@@ -243,6 +243,96 @@ export const THEMES: Record<ThemeId, DriverTheme> = {
       'Давление делает тебя сильнее.',
       'Мечтать мало — нужно работать.',
       'Серебряные стрелы не ждут.',
+    ],
+  },
+  russell: {
+    id: 'russell',
+    driverId: 'russell',
+    constructorId: 'mercedes',
+    code: 'RUS',
+    givenName: 'George',
+    familyName: 'Russell',
+    number: 63,
+    flagClass: 'flag-gb',
+    teamShort: 'Mercedes-AMG Petronas',
+    teamName: 'Mercedes',
+    teamEyebrow: 'Petronas · German',
+    teamTitle: ['Mercedes', 'AMG'],
+    carCode: 'W16',
+    carGhost: 'W16',
+    carTagline: 'Mr. Saturday.',
+    carBlurb: 'Серебряные стрелы Brackley — точность, темп и бирюза Petronas.',
+    carNote:
+      'W16 под George Russell: квалифа-машина с характером, гибрид Mercedes и холодная точность Silver Arrows.',
+    powerLabel: 'Mercedes PU',
+    splashSideL: 'British talent. Silver Arrows.',
+    splashSideR: 'One team. One aim. Race day ready.',
+    showSignature: false,
+    teamMatch: /mercedes/i,
+    assets: {
+      splash: '/themes/russell/splash.jpeg',
+      poster: '/themes/russell/poster.jpeg',
+      portrait: '/themes/russell/portrait.jpeg',
+      logo: '/themes/russell/logo.jpeg',
+      car: '/themes/russell/car-side.jpeg',
+      carTop: '/themes/russell/car.jpeg',
+      team: '/themes/russell/team.jpeg',
+      quote: '/themes/russell/quote.jpeg',
+      pilot: '/pilots/George%20Russell.jpeg',
+    },
+    portraitCrop: {
+      img: '/themes/russell/portrait.jpeg',
+      iw: 736,
+      ih: 923,
+      cx: 60,
+      cy: 40,
+      cw: 620,
+      ch: 760,
+    },
+    carCrop: {
+      img: '/themes/russell/car-side.jpeg',
+      iw: 736,
+      ih: 981,
+      cx: 16,
+      cy: 360,
+      cw: 704,
+      ch: 240,
+    },
+    specs: [
+      { k: 'Chassis', v: 'W16' },
+      { k: 'Team', v: 'Mercedes-AMG Petronas' },
+      { k: 'Era', v: '2026 regulations' },
+      { k: 'Power', v: 'Mercedes PU' },
+      { k: 'Tyres', v: 'Pirelli' },
+      { k: 'Focus', v: 'Silver Arrows · precision' },
+    ],
+    zones: [
+      {
+        code: '01',
+        title: 'Nose & front wing',
+        text: 'Нос и переднее крыло Silver Arrows — чистая геометрия Brackley под регламент 2026.',
+      },
+      {
+        code: '02',
+        title: 'Cockpit',
+        text: 'Кабина George и Kimi: halo, руль Mercedes и телеметрия команды на каждом круге.',
+      },
+      {
+        code: '03',
+        title: 'Power unit',
+        text: 'Силовая установка Mercedes: гибридный удар и точный отклик на выходе из медленных зон.',
+      },
+      {
+        code: '04',
+        title: 'Rear wing & DRS',
+        text: 'Заднее крыло с акцентом Petronas — на прямой W16 раскрывается, в связке снова садится на асфальт.',
+      },
+    ],
+    quotes: [
+      'Детали решают гонку.',
+      'Квалификация — мой язык.',
+      'Давление — это привилегия.',
+      'Серебро не прощает ошибок.',
     ],
   },
 }
