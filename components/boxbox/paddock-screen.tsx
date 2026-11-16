@@ -1,8 +1,8 @@
 'use client'
 
 import { type RaceEvent } from '@/lib/f1'
-import { actions, useTheme } from '@/lib/store'
-import { THEME_LIST, driverDisplayName, type ThemeId } from '@/lib/themes'
+import { useTheme } from '@/lib/store'
+import { driverDisplayName } from '@/lib/themes'
 import type { F1LiveState } from '@/lib/use-f1-live'
 import { useInstallPrompt } from '@/components/pwa-register'
 import { Hero } from './art'
@@ -35,9 +35,11 @@ function Action({
 export function PaddockScreen({
   events,
   live,
+  onPickDriver,
 }: {
   events: RaceEvent[]
   live: F1LiveState
+  onPickDriver: () => void
 }) {
   const theme = useTheme()
   const { canInstall, installed, install } = useInstallPrompt()
@@ -65,33 +67,12 @@ export function PaddockScreen({
         </div>
       </div>
 
-      <div className="sec-title">
-        <h2 className="disp">Любимый</h2>
-        <span className="eyebrow">Тема приложения</span>
-      </div>
-      <div className="fav-picker" role="listbox" aria-label="Любимый гонщик">
-        {THEME_LIST.map((t) => {
-          const active = t.id === theme.id
-          return (
-            <button
-              key={t.id}
-              type="button"
-              role="option"
-              aria-selected={active}
-              className={`fav-pick${active ? ' is-on' : ''}`}
-              onClick={() => actions.setFavTheme(t.id as ThemeId)}
-            >
-              <img className="fav-pick-av" src={t.assets.pilot} alt="" />
-              <span className="fav-pick-copy">
-                <b>{driverDisplayName(t)}</b>
-                <small>{t.teamShort}</small>
-              </span>
-              <span className="fav-pick-go">{active ? 'Выбран' : 'Выбрать'}</span>
-            </button>
-          )
-        })}
-      </div>
-
+      <Action
+        title="Любимый гонщик"
+        hint={`${driverDisplayName(theme)} · ${theme.teamShort}`}
+        go="Выбрать"
+        onClick={onPickDriver}
+      />
       <Action
         title="Календарь F1"
         hint="Подтянуть официальный календарь"

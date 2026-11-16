@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useTheme } from '@/lib/store'
 import { driverDisplayName } from '@/lib/themes'
+import { SoftImage } from './soft-image'
 
 const INTERVAL_MS = 6500
 
@@ -39,6 +40,8 @@ export function QuoteCard() {
 
   return (
     <figure className="quote">
+      <SoftImage className="quote-bg" src={theme.assets.quote} alt="" aria-hidden="true" />
+      <div className="quote-veil" aria-hidden="true" />
       <div className={`quote-swap${visible ? ' is-on' : ''}`}>
         <blockquote className="disp q">{quotes[index] ?? quotes[0]}</blockquote>
         <figcaption className="by">{driverDisplayName(theme)}</figcaption>

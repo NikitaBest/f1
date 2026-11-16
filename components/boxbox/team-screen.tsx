@@ -8,6 +8,7 @@ import type { F1LiveState } from '@/lib/use-f1-live'
 import { useTheme } from '@/lib/store'
 import { isFavTeam } from '@/lib/themes'
 import { PilotAvatar } from './pilot-avatar'
+import { SoftImage } from './soft-image'
 import { WeekendDebriefScreen } from './weekend-debrief'
 
 function formClass(row: TeamRaceResult) {
@@ -101,7 +102,7 @@ export function TeamScreen({ live, onBack }: { live: F1LiveState; onBack: () => 
       </div>
 
       <header className="team-hero">
-        <img className="team-hero-bg" src={theme.assets.team} alt={theme.teamShort} />
+        <SoftImage className="team-hero-bg" src={theme.assets.team} alt={theme.teamShort} />
         <div className="team-hero-veil" aria-hidden="true" />
         <div className="cap">
           <span className="eyebrow">{theme.teamEyebrow}</span>

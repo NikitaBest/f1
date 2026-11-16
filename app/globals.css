@@ -239,12 +239,90 @@ html[data-theme='verstappen'],
 
 /* ---------- crops of the supplied posters ---------- */
 .crop {
+  position: relative;
   aspect-ratio: var(--cw) / var(--ch);
-  background-image: var(--img);
+  background-image: none;
   background-repeat: no-repeat;
   background-size: calc(var(--iw) / var(--cw) * 100%) auto;
   background-position: calc(var(--cx) / (var(--iw) - var(--cw)) * 100%) calc(var(--cy) / (var(--ih) - var(--ch)) * 100%);
   width: 100%;
+  overflow: hidden;
+  background-color: color-mix(in srgb, var(--navy) 18%, var(--paper));
+}
+.crop.is-ready {
+  background-image: var(--img);
+}
+.soft-img {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--navy) 18%, var(--paper));
+}
+.soft-img-el {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+.soft-img-el.is-on {
+  opacity: 1;
+}
+.soft-img-shell {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+.soft-img-blur {
+  position: absolute;
+  inset: -12%;
+  background:
+    radial-gradient(circle at 30% 30%, color-mix(in srgb, var(--red) 28%, transparent), transparent 55%),
+    radial-gradient(circle at 70% 60%, color-mix(in srgb, var(--sun) 22%, transparent), transparent 50%),
+    color-mix(in srgb, var(--navy) 22%, var(--paper));
+  filter: blur(18px);
+  transform: scale(1.08);
+  animation: soft-pulse 1.4s ease-in-out infinite alternate;
+}
+.soft-img-spin {
+  position: relative;
+  z-index: 1;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid color-mix(in srgb, var(--navy) 18%, transparent);
+  border-top-color: var(--red);
+  animation: soft-spin 0.7s linear infinite;
+}
+.soft-crop .soft-img-shell {
+  border-radius: inherit;
+}
+@keyframes soft-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes soft-pulse {
+  from {
+    opacity: 0.7;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .soft-img-el {
+    transition: none;
+    opacity: 1;
+  }
+  .soft-img-blur,
+  .soft-img-spin {
+    animation: none;
+  }
 }
 
 /* ---------- shared bits ---------- */
@@ -708,10 +786,16 @@ html[data-theme='verstappen'],
   background: #e8e4dc;
   color: var(--white);
 }
-.drv-poster img {
+.drv-poster .soft-img {
   display: block;
   width: 100%;
+  min-height: 320px;
+  background: #e8e4dc;
+}
+.drv-poster .soft-img-el {
+  width: 100%;
   height: auto;
+  object-fit: contain;
   vertical-align: top;
 }
 .drv-poster-bar {
@@ -1050,7 +1134,8 @@ html[data-theme='verstappen'],
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+}
+.team-hero-bg .soft-img-el {
   object-position: center 38%;
 }
 .team-hero-veil {
@@ -1239,7 +1324,8 @@ html[data-theme='verstappen'],
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+}
+.duo-t-bg .soft-img-el {
   /* логотип + жёлтый бык в кадре */
   object-position: center 62%;
   transform: scale(1.08);
@@ -1297,7 +1383,7 @@ html[data-theme='verstappen'],
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .duo-t-bg {
+  .duo-t-bg .soft-img-el {
     animation: none;
     transform: none;
   }
@@ -1345,7 +1431,8 @@ html[data-theme='verstappen'],
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+}
+.car-hero-img .soft-img-el {
   object-position: 46% 52%;
   transform: scale(1.01);
   animation: car-drift 18s ease-in-out infinite alternate;
@@ -1480,7 +1567,8 @@ html[data-theme='verstappen'],
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .car-hero-img {
+  .car-hero-img .soft-img-el,
+  .duo-t-bg .soft-img-el {
     animation: none;
     transform: none;
   }
@@ -1533,15 +1621,28 @@ html[data-theme='verstappen'],
   padding: 22px 20px;
   margin-top: 22px;
   color: var(--white);
-  background:
-    linear-gradient(to top, var(--navy) 18%, color-mix(in srgb, var(--navy) 10%, transparent) 72%),
-    var(--quote-img) center 22% / cover no-repeat var(--navy);
+  background: var(--navy);
+}
+.quote-bg {
+  position: absolute;
+  inset: 0;
+}
+.quote-bg .soft-img-el {
+  object-position: center 22%;
+}
+.quote-veil {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(to top, var(--navy) 18%, color-mix(in srgb, var(--navy) 10%, transparent) 72%);
+  pointer-events: none;
 }
 .quote::before {
   content: '\201C';
   position: absolute;
   left: 14px;
   top: -6px;
+  z-index: 2;
   font-family: var(--display);
   font-weight: 700;
   font-size: 150px;
@@ -1550,7 +1651,7 @@ html[data-theme='verstappen'],
 }
 .quote-swap {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   opacity: 0;
   transform: translateY(8px);
   transition:
@@ -1920,68 +2021,136 @@ html[data-theme='verstappen'],
   width: 28px;
   height: 28px;
 }
-.fav-picker {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-bottom: 14px;
+/* ---------- pick driver ---------- */
+.pick-drv-head {
+  margin: 4px 0 18px;
 }
-.fav-pick {
-  display: grid;
-  grid-template-columns: 48px minmax(0, 1fr) auto;
-  gap: 12px;
-  align-items: center;
-  width: 100%;
-  padding: 12px 14px;
-  border: 0;
-  border-radius: 16px;
-  background: var(--white);
-  color: var(--navy);
-  text-align: left;
-  cursor: pointer;
+.pick-drv-head .disp {
+  font-size: 42px;
+  line-height: 0.92;
+  margin: 4px 0 10px;
 }
-.fav-pick.is-on {
-  background: var(--navy);
-  color: var(--white);
-  box-shadow: inset 0 0 0 2px var(--red);
-}
-.fav-pick-av {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  object-fit: cover;
-  object-position: center 18%;
-  background: var(--navy);
-}
-.fav-pick-copy {
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-.fav-pick-copy b {
-  font-weight: 700;
-  font-size: 15px;
-  line-height: 1.2;
-}
-.fav-pick-copy small {
-  font-size: 12px;
-  opacity: 0.65;
+.pick-drv-head p {
+  margin: 0;
+  max-width: 34ch;
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--ink-60);
   font-weight: 600;
 }
-.fav-pick.is-on .fav-pick-copy small {
-  opacity: 0.75;
-  color: var(--sun);
+.pick-drv-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
-.fav-pick-go {
+.pick-drv-card {
+  position: relative;
+  display: block;
+  width: 100%;
+  min-height: 280px;
+  padding: 0;
+  border: 0;
+  border-radius: 22px;
+  overflow: hidden;
+  background: var(--pick-navy, var(--navy));
+  color: var(--white);
+  text-align: left;
+  cursor: pointer;
+  animation: pick-rise 0.45s ease both;
+}
+.pick-drv-card.is-on {
+  box-shadow: inset 0 0 0 3px var(--pick-accent, var(--red));
+}
+.pick-drv-card:focus-visible {
+  outline: 3px solid var(--pick-sun, var(--sun));
+  outline-offset: 2px;
+}
+.pick-drv-photo {
+  position: absolute;
+  inset: 0;
+}
+.pick-drv-photo .soft-img-el {
+  object-position: center 18%;
+}
+.pick-drv-veil {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to top, color-mix(in srgb, var(--pick-navy, var(--navy)) 94%, transparent) 0%, transparent 52%),
+    linear-gradient(135deg, color-mix(in srgb, var(--pick-accent, var(--red)) 32%, transparent), transparent 46%);
+  pointer-events: none;
+}
+.pick-drv-flag {
+  position: absolute;
+  left: 16px;
+  top: 16px;
+  z-index: 1;
+}
+.pick-drv-no {
+  position: absolute;
+  right: 10px;
+  top: 4px;
+  z-index: 1;
+  font-size: 92px;
+  line-height: 1;
+  color: color-mix(in srgb, var(--pick-sun, var(--sun)) 55%, transparent);
+  pointer-events: none;
+}
+.pick-drv-cap {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+  padding: 22px 16px 16px;
+}
+.pick-drv-cap .eyebrow {
+  color: var(--pick-sun, var(--sun));
+}
+.pick-drv-cap .disp {
+  font-size: 40px;
+  line-height: 0.9;
+  margin: 4px 0 12px;
+}
+.pick-drv-cta {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: var(--pick-accent, var(--red));
+  color: var(--white);
   font-size: 11px;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   font-weight: 700;
-  color: var(--red);
 }
-.fav-pick.is-on .fav-pick-go {
-  color: var(--sun);
+.pick-drv-card.is-on .pick-drv-cta {
+  background: var(--pick-sun, var(--sun));
+  color: var(--pick-navy, var(--navy));
+}
+.pick-drv-note {
+  margin: 16px 2px 8px;
+  font-size: 13px;
+  color: var(--ink-60);
+  font-weight: 600;
+}
+.pick-drv-note b {
+  color: var(--navy);
+}
+@keyframes pick-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pick-drv-card {
+    animation: none;
+  }
 }
 
 /* ---------- news teaser (home) ---------- */

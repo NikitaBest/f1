@@ -4,6 +4,7 @@ import { useTheme } from '@/lib/store'
 import { driverDisplayName, isFavDriver, isFavTeam } from '@/lib/themes'
 import type { F1LiveState } from '@/lib/use-f1-live'
 import { Crop } from './art'
+import { SoftImage } from './soft-image'
 
 export function DuoCard({
   live,
@@ -41,7 +42,7 @@ export function DuoCard({
           </div>
         </button>
         <button type="button" className="duo-t" onClick={onOpenTeam} aria-label={`Открыть ${theme.teamName}`}>
-          <img className="duo-t-bg" src={theme.assets.logo} alt="" aria-hidden="true" />
+          <SoftImage className="duo-t-bg" src={theme.assets.logo} alt="" aria-hidden="true" />
           <div className="duo-t-veil" aria-hidden="true" />
           <div className="cap">
             <span className="eyebrow">Team</span>

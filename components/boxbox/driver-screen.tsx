@@ -12,6 +12,7 @@ import {
 import { useTheme } from '@/lib/store'
 import { driverDisplayName, isFavDriver } from '@/lib/themes'
 import type { F1LiveState } from '@/lib/use-f1-live'
+import { SoftImage } from './soft-image'
 import { WeekendDebriefScreen } from './weekend-debrief'
 
 function isDnf(row: DriverRaceResult) {
@@ -106,7 +107,7 @@ export function DriverScreen({ live, onBack }: { live: F1LiveState; onBack: () =
       </div>
 
       <header className="drv-poster" aria-label={driverDisplayName(theme)}>
-        <img src={theme.assets.poster} alt={`${driverDisplayName(theme)} — ${theme.teamShort}`} />
+        <SoftImage src={theme.assets.poster} alt={`${driverDisplayName(theme)} — ${theme.teamShort}`} />
         <div className="drv-poster-bar">
           <div className="stat">
             <b className="num">{standing ? `P${standing.position}` : dash}</b>

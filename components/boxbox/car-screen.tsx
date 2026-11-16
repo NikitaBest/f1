@@ -3,6 +3,7 @@
 import { ArrowLeft } from 'lucide-react'
 import { useTheme } from '@/lib/store'
 import { Crop } from './art'
+import { SoftImage } from './soft-image'
 
 export function CarScreen({ onBack }: { onBack: () => void }) {
   const theme = useTheme()
@@ -18,7 +19,7 @@ export function CarScreen({ onBack }: { onBack: () => void }) {
       </div>
 
       <header className="car-hero" aria-label={`${theme.teamShort} ${theme.carCode}`}>
-        <img
+        <SoftImage
           className="car-hero-img"
           src={theme.assets.carTop}
           alt={`${theme.teamShort} ${theme.carCode}`}

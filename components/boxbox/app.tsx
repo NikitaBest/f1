@@ -10,6 +10,7 @@ import { DriverScreen } from './driver-screen'
 import { EventDetailScreen, HomeScreen } from './home-screen'
 import { NewsScreen } from './news-screen'
 import { PaddockScreen } from './paddock-screen'
+import { PickDriverScreen } from './pick-driver-screen'
 import { SeasonScreen } from './season-screen'
 import { SplashScreen } from './splash-screen'
 import { TabBar, type Tab } from './tab-bar'
@@ -25,6 +26,7 @@ export function BoxBoxApp() {
   const [openDriver, setOpenDriver] = useState(false)
   const [openTeam, setOpenTeam] = useState(false)
   const [openCar, setOpenCar] = useState(false)
+  const [openPickDriver, setOpenPickDriver] = useState(false)
   const [booted, setBooted] = useState(false)
   const [themeSplash, setThemeSplash] = useState(false)
   const prevTheme = useRef<string | null>(null)
@@ -44,6 +46,7 @@ export function BoxBoxApp() {
       setOpenDriver(false)
       setOpenTeam(false)
       setOpenCar(false)
+      setOpenPickDriver(false)
       setOpenId(null)
       setTab('home')
       setThemeSplash(true)
@@ -77,12 +80,15 @@ export function BoxBoxApp() {
   }
   const go = (t: Tab) => {
     setOpenId(null)
+    setOpenPickDriver(false)
     closeGarage()
     setTab(t)
   }
 
   let screen: React.ReactNode
-  if (openDriver && tab === 'home') {
+  if (openPickDriver && tab === 'paddock') {
+    screen = <PickDriverScreen onBack={() => setOpenPickDriver(false)} />
+  } else if (openDriver && tab === 'home') {
     screen = <DriverScreen live={live} onBack={() => setOpenDriver(false)} />
   } else if (openTeam && tab === 'home') {
     screen = <TeamScreen live={live} onBack={() => setOpenTeam(false)} />
@@ -117,12 +123,17 @@ export function BoxBoxApp() {
   } else if (tab === 'season') {
     screen = <SeasonScreen live={live} />
   } else {
-    screen = <PaddockScreen events={state.events} live={live} />
+    screen = (
+      <PaddockScreen events={state.events} live={live} onPickDriver={() => setOpenPickDriver(true)} />
+    )
   }
 
   return (
     <div className="bb-app" data-theme={theme.id}>
-      <div key={`${tab}-${theme.id}-${openId ?? ''}-${openDriver}-${openTeam}-${openCar}`} className="contents">
+      <div
+        key={`${tab}-${theme.id}-${openId ?? ''}-${openDriver}-${openTeam}-${openCar}-${openPickDriver}`}
+        className="contents"
+      >
         {screen}
       </div>
       <TabBar active={tab} onChange={go} />
