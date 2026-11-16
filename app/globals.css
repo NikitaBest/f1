@@ -2461,20 +2461,38 @@ html[data-theme='verstappen'],
   width: 100%;
   max-width: 340px;
   height: auto;
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 100 / 72;
   margin: 8px auto 4px;
   overflow: visible;
 }
+.lap-wall {
+  fill: none;
+  stroke-width: 5.2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.lap-wall.w0 {
+  stroke: #05060f;
+}
+.lap-wall.w1 {
+  stroke: #0a0d22;
+}
+.lap-wall.w2 {
+  stroke: #10153a;
+}
+.lap-wall.w3 {
+  stroke: #161c4a;
+}
 .lap-bed {
   fill: none;
-  stroke: var(--wh-14);
-  stroke-width: 3.4;
+  stroke: #2a3263;
+  stroke-width: 4.6;
   stroke-linejoin: round;
   stroke-linecap: round;
 }
 .lap-sec {
   fill: none;
-  stroke-width: 1.1;
+  stroke-width: 1.5;
   stroke-linecap: butt;
   stroke-linejoin: round;
   opacity: 0.9;
@@ -2491,17 +2509,41 @@ html[data-theme='verstappen'],
 .lap-trail {
   fill: none;
   stroke: var(--white);
-  stroke-width: 2.6;
+  stroke-width: 3.4;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
-.lap-car-halo {
-  fill: color-mix(in srgb, var(--red) 55%, transparent);
+.car-body {
+  fill: var(--red);
+  stroke: var(--white);
+  stroke-width: 0.25;
+  stroke-linejoin: round;
 }
-.lap-car {
+.car-wing {
   fill: var(--white);
-  stroke: var(--red);
-  stroke-width: 0.8;
+}
+.car-wheel {
+  fill: #0b0f24;
+  stroke: var(--wh-60);
+  stroke-width: 0.15;
+}
+.car-stripe {
+  fill: var(--white);
+}
+.car-helm {
+  fill: var(--sun);
+}
+.car-body.mid,
+.car-wing.mid,
+.car-wheel.mid {
+  fill: color-mix(in srgb, var(--red) 45%, #000);
+  stroke: none;
+}
+.car-body.sh,
+.car-wing.sh,
+.car-wheel.sh {
+  fill: rgba(0, 0, 0, 0.55);
+  stroke: none;
 }
 .lap-secs {
   display: grid;
