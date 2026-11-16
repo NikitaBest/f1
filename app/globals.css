@@ -167,11 +167,20 @@ html[data-theme='russell'],
   --quote-img: url(/themes/russell/quote.jpeg);
 }
 html[data-theme='leclerc'],
-.bb-app[data-theme='leclerc'] {
+.bb-app[data-theme='leclerc'],
+html[data-theme='hamilton'],
+.bb-app[data-theme='hamilton'] {
   --navy: #14060a;
   --red: #e10600;
   --sun: #fff200;
+}
+html[data-theme='leclerc'],
+.bb-app[data-theme='leclerc'] {
   --quote-img: url(/themes/leclerc/quote.jpeg);
+}
+html[data-theme='hamilton'],
+.bb-app[data-theme='hamilton'] {
+  --quote-img: url(/themes/hamilton/quote.jpeg);
 }
 html[data-theme='verstappen'],
 .bb-app[data-theme='verstappen'] {

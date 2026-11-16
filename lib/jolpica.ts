@@ -648,6 +648,7 @@ const DRIVER_CODES: Record<string, string> = {
   antonelli: 'ANT',
   russell: 'RUS',
   leclerc: 'LEC',
+  hamilton: 'HAM',
   hadjar: 'HAD',
   lawson: 'LAW',
   perez: 'PER',

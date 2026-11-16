@@ -61,7 +61,8 @@
 .ps[data-theme='russell'] {
   --ps-sun: #c5ccd6;
 }
-.ps[data-theme='leclerc'] {
+.ps[data-theme='leclerc'],
+.ps[data-theme='hamilton'] {
   --ps-sun: #fff200;
 }
 .ps-frame {

@@ -1,4 +1,4 @@
-export type ThemeId = 'verstappen' | 'antonelli' | 'russell' | 'leclerc'
+export type ThemeId = 'verstappen' | 'antonelli' | 'russell' | 'leclerc' | 'hamilton'
 
 export type ThemeCrop = {
   img: string
@@ -423,6 +423,96 @@ export const THEMES: Record<ThemeId, DriverTheme> = {
       'Ошибки учат быстрее побед.',
       'Мечта Maranello — в каждом круге.',
       'Давление титула — это топливо.',
+    ],
+  },
+  hamilton: {
+    id: 'hamilton',
+    driverId: 'hamilton',
+    constructorId: 'ferrari',
+    code: 'HAM',
+    givenName: 'Lewis',
+    familyName: 'Hamilton',
+    number: 44,
+    flagClass: 'flag-gb',
+    teamShort: 'Scuderia Ferrari',
+    teamName: 'Ferrari',
+    teamEyebrow: 'Maranello · Italian',
+    teamTitle: ['Scuderia', 'Ferrari'],
+    carCode: 'SF-26',
+    carGhost: 'SF',
+    carTagline: 'Still I rise.',
+    carBlurb: 'Семь титулов в красном — новая глава Hamilton в Maranello.',
+    carNote:
+      'SF-26 для Lewis Hamilton: опыт чемпиона, красная ливрея Ferrari и охота за восьмым титулом в новой формуле.',
+    powerLabel: 'Ferrari PU',
+    splashSideL: 'Seven titles. One more chapter.',
+    splashSideR: 'British legend. Italian red.',
+    showSignature: false,
+    teamMatch: /ferrari/i,
+    assets: {
+      splash: '/themes/hamilton/splash.jpeg',
+      poster: '/themes/hamilton/poster.jpeg',
+      portrait: '/themes/hamilton/portrait.jpeg',
+      logo: '/themes/hamilton/logo.jpeg',
+      car: '/themes/hamilton/car-side.jpeg',
+      carTop: '/themes/hamilton/car.jpeg',
+      team: '/themes/hamilton/team.jpeg',
+      quote: '/themes/hamilton/quote.jpeg',
+      pilot: '/pilots/Lewis%20Hamilton.jpeg',
+    },
+    portraitCrop: {
+      img: '/themes/hamilton/portrait.jpeg',
+      iw: 736,
+      ih: 736,
+      cx: 40,
+      cy: 20,
+      cw: 656,
+      ch: 700,
+    },
+    carCrop: {
+      img: '/themes/hamilton/car-side.jpeg',
+      iw: 736,
+      ih: 736,
+      cx: 20,
+      cy: 280,
+      cw: 696,
+      ch: 220,
+    },
+    specs: [
+      { k: 'Chassis', v: 'SF-26' },
+      { k: 'Team', v: 'Scuderia Ferrari' },
+      { k: 'Era', v: '2026 regulations' },
+      { k: 'Power', v: 'Ferrari PU' },
+      { k: 'Tyres', v: 'Pirelli' },
+      { k: 'Focus', v: 'Rosso corsa · eighth' },
+    ],
+    zones: [
+      {
+        code: '01',
+        title: 'Nose & front wing',
+        text: 'Нос и переднее крыло Ferrari — геометрия Maranello под новый цикл 2026.',
+      },
+      {
+        code: '02',
+        title: 'Cockpit',
+        text: 'Кабина Lewis и Charles: halo, руль Ferrari и телеметрия гаража на каждом круге.',
+      },
+      {
+        code: '03',
+        title: 'Power unit',
+        text: 'Силовая установка Ferrari: гибридная ярость и фирменный отклик на выходе из медленных зон.',
+      },
+      {
+        code: '04',
+        title: 'Rear wing & DRS',
+        text: 'Заднее крыло в rosso corsa — на прямой SF-26 раскрывается, в связке снова садится на асфальт.',
+      },
+    ],
+    quotes: [
+      'Ещё одна глава. Ещё одна битва.',
+      'Красный — новый чёрный.',
+      'Легенды не останавливаются.',
+      'Восьмой ждёт на финише.',
     ],
   },
 }
