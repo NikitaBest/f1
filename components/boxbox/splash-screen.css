@@ -69,6 +69,13 @@
 .ps[data-theme='piastri'] {
   --ps-sun: #ffc38a;
 }
+/* Max: прогресс и выход — синий Red Bull, не красный */
+.ps[data-theme='verstappen'] {
+  --ps-fill: #0a1033;
+}
+.ps[data-theme='verstappen'].ps-exit {
+  background-color: var(--ps-fill);
+}
 .ps-frame {
   --p: 0;
   position: relative;
@@ -179,12 +186,12 @@
   transition: opacity 0.3s;
 }
 
-/* red panel: the progress bar */
+/* progress panel — accent / team fill */
 .ps-panel {
   position: absolute;
   inset: 0;
   z-index: 2;
-  background: var(--red);
+  background: var(--ps-fill, var(--red));
   --ps-top: calc(66.6cqw + (1 - var(--p)) * 99.2cqw);
   clip-path: inset(var(--ps-top) 12.1cqw 11.9cqw 13.9cqw);
 }
