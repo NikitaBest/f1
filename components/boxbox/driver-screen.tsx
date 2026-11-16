@@ -12,6 +12,7 @@ import {
 import { useTheme } from '@/lib/store'
 import { driverDisplayName, isFavDriver } from '@/lib/themes'
 import type { F1LiveState } from '@/lib/use-f1-live'
+import { HoloCard } from './holo-card'
 import { SoftImage } from './soft-image'
 import { WeekendDebriefScreen } from './weekend-debrief'
 
@@ -123,6 +124,20 @@ export function DriverScreen({ live, onBack }: { live: F1LiveState; onBack: () =
           </div>
         </div>
       </header>
+
+      <div className="sec-title">
+        <h2 className="disp">Card</h2>
+        <span className="eyebrow">Наклони и смотри</span>
+      </div>
+      <HoloCard
+        theme={theme}
+        season={season}
+        stats={{
+          position: standing?.position,
+          points: standing?.points,
+          wins: standing?.wins,
+        }}
+      />
 
       {error && <p className="err-note">{error}</p>}
       {loading && !results.length && <p className="sub">Загружаем сезон…</p>}

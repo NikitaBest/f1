@@ -3,6 +3,7 @@
 import { useState, type CSSProperties } from 'react'
 import { ChevronDown, ChevronUp, ImagePlus, X } from 'lucide-react'
 import { useNow } from '@/lib/use-now'
+import { hasCircuit, TrackLap } from './track-lap'
 import { addDays, hhmm, hintFor, mon, pad, parseISODate, shortName, weekday, type RaceEvent } from '@/lib/f1'
 
 const PHOTO_KEY = (id: string) => `boxbox:wk-img:${id}`
@@ -174,6 +175,7 @@ export function WeekendCard({
         </div>
         {next ? <Countdown target={new Date(next.at).getTime()} /> : null}
       </div>
+      {showAll && hasCircuit(event.circuitId) && event.circuitId ? <TrackLap circuitId={event.circuitId} /> : null}
       <ul className="sched">
         {showAll
           ? event.sessions.map((s, i) => {
