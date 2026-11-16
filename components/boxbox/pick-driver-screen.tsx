@@ -63,7 +63,9 @@ export function PickDriverScreen({ onBack }: { onBack: () => void }) {
             >
               <span className="pick-drv-shot">
                 <SoftImage className="pick-drv-photo" src={t.assets.portrait} alt="" />
-                <span className={`pick-drv-flag ${t.flagClass}`} aria-hidden="true" />
+                <span className={`bb-flag pick-drv-flag ${t.flagClass}`} aria-hidden="true">
+                  {t.flag}
+                </span>
               </span>
               <span className="pick-drv-meta">
                 <span className="pick-drv-no disp" aria-hidden="true">

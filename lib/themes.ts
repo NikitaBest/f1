@@ -26,6 +26,8 @@ export type DriverTheme = {
   familyName: string
   number: number
   flagClass: 'flag-nl' | 'flag-it' | 'flag-gb' | 'flag-mc' | 'flag-au'
+  /** Emoji-флаг национальности — надёжнее CSS на маленьких размерах */
+  flag: string
   teamShort: string
   teamName: string
   teamEyebrow: string
@@ -79,6 +81,7 @@ export const THEMES: Record<ThemeId, DriverTheme> = {
     familyName: 'Verstappen',
     number: 33,
     flagClass: 'flag-nl',
+    flag: '🇳🇱',
     teamShort: 'Oracle Red Bull Racing',
     teamName: 'Red Bull Racing',
     teamEyebrow: 'Oracle · Austrian',
@@ -171,6 +174,7 @@ export const THEMES: Record<ThemeId, DriverTheme> = {
     familyName: 'Antonelli',
     number: 12,
     flagClass: 'flag-it',
+    flag: '🇮🇹',
     teamShort: 'Mercedes-AMG Petronas',
     teamName: 'Mercedes',
     teamEyebrow: 'Petronas · German',
@@ -261,6 +265,7 @@ export const THEMES: Record<ThemeId, DriverTheme> = {
     familyName: 'Russell',
     number: 63,
     flagClass: 'flag-gb',
+    flag: '🇬🇧',
     teamShort: 'Mercedes-AMG Petronas',
     teamName: 'Mercedes',
     teamEyebrow: 'Petronas · German',
@@ -351,6 +356,7 @@ export const THEMES: Record<ThemeId, DriverTheme> = {
     familyName: 'Leclerc',
     number: 16,
     flagClass: 'flag-mc',
+    flag: '🇲🇨',
     teamShort: 'Scuderia Ferrari',
     teamName: 'Ferrari',
     teamEyebrow: 'Maranello · Italian',
@@ -441,6 +447,7 @@ export const THEMES: Record<ThemeId, DriverTheme> = {
     familyName: 'Hamilton',
     number: 44,
     flagClass: 'flag-gb',
+    flag: '🇬🇧',
     teamShort: 'Scuderia Ferrari',
     teamName: 'Ferrari',
     teamEyebrow: 'Maranello · Italian',
@@ -531,6 +538,7 @@ export const THEMES: Record<ThemeId, DriverTheme> = {
     familyName: 'Norris',
     number: 4,
     flagClass: 'flag-gb',
+    flag: '🇬🇧',
     teamShort: 'McLaren',
     teamName: 'McLaren',
     teamEyebrow: 'Papaya · British',
@@ -621,6 +629,7 @@ export const THEMES: Record<ThemeId, DriverTheme> = {
     familyName: 'Piastri',
     number: 81,
     flagClass: 'flag-au',
+    flag: '🇦🇺',
     teamShort: 'McLaren',
     teamName: 'McLaren',
     teamEyebrow: 'Papaya · Australian',

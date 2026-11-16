@@ -28,7 +28,9 @@ export function DuoCard({
       <div className="duo-grid">
         <button type="button" className="duo-d" onClick={onOpenDriver} aria-label={`Open ${name}`}>
           <Crop spec={theme.portraitCrop} label={name} />
-          <span className={theme.flagClass} aria-hidden="true" />
+          <span className={`bb-flag ${theme.flagClass}`} aria-hidden="true">
+            {theme.flag}
+          </span>
           <span className="no disp" aria-hidden="true">
             {theme.number}
           </span>
