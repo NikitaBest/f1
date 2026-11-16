@@ -7,10 +7,11 @@ import type { F1LiveState } from '@/lib/use-f1-live'
 import { useTheme } from '@/lib/store'
 import { isFavDriver, isFavTeam } from '@/lib/themes'
 import { Hero } from './art'
+import { DuelPanel } from './duel-panel'
 import { PilotAvatar } from './pilot-avatar'
 import { TeamAvatar } from './team-avatar'
 
-type Board = 'drivers' | 'constructors' | 'results'
+type Board = 'drivers' | 'constructors' | 'results' | 'duel'
 
 const codeOf = (d: { code?: string; familyName: string }) => d.code ?? d.familyName.slice(0, 3).toUpperCase()
 
@@ -30,6 +31,7 @@ export function SeasonScreen({ live }: { live: F1LiveState }) {
               ['drivers', 'Пилоты'],
               ['constructors', 'Команды'],
               ['results', 'Финиш'],
+              ['duel', 'Дуэль'],
             ] as const
           ).map(([k, l]) => (
             <button key={k} type="button" aria-pressed={board === k} onClick={() => setBoard(k)}>
@@ -51,8 +53,10 @@ export function SeasonScreen({ live }: { live: F1LiveState }) {
 
       {live.error && <p className="err-note">{live.error}</p>}
 
-      {busy && !live.drivers.length && !live.lastRace ? (
+      {busy && !live.drivers.length && !live.lastRace && board !== 'duel' ? (
         <p className="sub">Загружаем чемпионат…</p>
+      ) : board === 'duel' ? (
+        <DuelPanel live={live} />
       ) : board === 'drivers' ? (
         <ol>
           {live.drivers.map((row) => {
