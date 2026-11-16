@@ -61,6 +61,9 @@
 .ps[data-theme='russell'] {
   --ps-sun: #c5ccd6;
 }
+.ps[data-theme='leclerc'] {
+  --ps-sun: #fff200;
+}
 .ps-frame {
   --p: 0;
   position: relative;

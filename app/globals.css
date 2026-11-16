@@ -166,6 +166,13 @@ html[data-theme='russell'],
 .bb-app[data-theme='russell'] {
   --quote-img: url(/themes/russell/quote.jpeg);
 }
+html[data-theme='leclerc'],
+.bb-app[data-theme='leclerc'] {
+  --navy: #14060a;
+  --red: #e10600;
+  --sun: #fff200;
+  --quote-img: url(/themes/leclerc/quote.jpeg);
+}
 html[data-theme='verstappen'],
 .bb-app[data-theme='verstappen'] {
   --quote-img: url(/themes/verstappen/quote.jpeg);
@@ -1296,7 +1303,8 @@ html[data-theme='verstappen'],
 }
 .flag-nl,
 .flag-it,
-.flag-gb {
+.flag-gb,
+.flag-mc {
   position: absolute;
   left: 12px;
   top: 14px;
@@ -1317,6 +1325,9 @@ html[data-theme='verstappen'],
     linear-gradient(to bottom, transparent 46%, #c8102e 46% 54%, transparent 54%),
     linear-gradient(to right, transparent 46%, #c8102e 46% 54%, transparent 54%),
     #012169;
+}
+.flag-mc {
+  background: linear-gradient(#ce1126 50%, #fff 50%);
 }
 .duo-t {
   position: relative;

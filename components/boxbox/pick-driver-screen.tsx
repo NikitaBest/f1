@@ -10,6 +10,7 @@ const THEME_COLORS: Record<ThemeId, { navy: string; accent: string; sun: string 
   verstappen: { navy: '#0a1033', accent: '#e3101e', sun: '#ffc20e' },
   antonelli: { navy: '#0c0f12', accent: '#00a19c', sun: '#c5ccd6' },
   russell: { navy: '#0c0f12', accent: '#00a19c', sun: '#c5ccd6' },
+  leclerc: { navy: '#14060a', accent: '#e10600', sun: '#fff200' },
 }
 
 export function PickDriverScreen({ onBack }: { onBack: () => void }) {

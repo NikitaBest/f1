@@ -1,4 +1,4 @@
-export type ThemeId = 'verstappen' | 'antonelli' | 'russell'
+export type ThemeId = 'verstappen' | 'antonelli' | 'russell' | 'leclerc'
 
 export type ThemeCrop = {
   img: string
@@ -18,7 +18,7 @@ export type DriverTheme = {
   givenName: string
   familyName: string
   number: number
-  flagClass: 'flag-nl' | 'flag-it' | 'flag-gb'
+  flagClass: 'flag-nl' | 'flag-it' | 'flag-gb' | 'flag-mc'
   teamShort: string
   teamName: string
   teamEyebrow: string
@@ -333,6 +333,96 @@ export const THEMES: Record<ThemeId, DriverTheme> = {
       'Квалификация — мой язык.',
       'Давление — это привилегия.',
       'Серебро не прощает ошибок.',
+    ],
+  },
+  leclerc: {
+    id: 'leclerc',
+    driverId: 'leclerc',
+    constructorId: 'ferrari',
+    code: 'LEC',
+    givenName: 'Charles',
+    familyName: 'Leclerc',
+    number: 16,
+    flagClass: 'flag-mc',
+    teamShort: 'Scuderia Ferrari',
+    teamName: 'Ferrari',
+    teamEyebrow: 'Maranello · Italian',
+    teamTitle: ['Scuderia', 'Ferrari'],
+    carCode: 'SF-26',
+    carGhost: 'SF',
+    carTagline: 'Forza.',
+    carBlurb: 'Красный Maranello — страсть, скорость и новый цикл 2026.',
+    carNote:
+      'SF-26 — ответ Ferrari на новую формулу: ярость гибрида, красная ливрея и давление титула на каждом круге.',
+    powerLabel: 'Ferrari PU',
+    splashSideL: 'Monegasque fire. Italian red.',
+    splashSideR: 'One dream. One prancing horse.',
+    showSignature: false,
+    teamMatch: /ferrari/i,
+    assets: {
+      splash: '/themes/leclerc/splash.jpeg',
+      poster: '/themes/leclerc/poster.jpeg',
+      portrait: '/themes/leclerc/portrait.jpeg',
+      logo: '/themes/leclerc/logo.jpeg',
+      car: '/themes/leclerc/car-side.jpeg',
+      carTop: '/themes/leclerc/car.jpeg',
+      team: '/themes/leclerc/team.jpeg',
+      quote: '/themes/leclerc/quote.jpeg',
+      pilot: '/pilots/Charles%20Leclerc.jpeg',
+    },
+    portraitCrop: {
+      img: '/themes/leclerc/portrait.jpeg',
+      iw: 736,
+      ih: 1308,
+      cx: 80,
+      cy: 80,
+      cw: 576,
+      ch: 720,
+    },
+    carCrop: {
+      img: '/themes/leclerc/car-side.jpeg',
+      iw: 736,
+      ih: 1308,
+      cx: 40,
+      cy: 480,
+      cw: 656,
+      ch: 240,
+    },
+    specs: [
+      { k: 'Chassis', v: 'SF-26' },
+      { k: 'Team', v: 'Scuderia Ferrari' },
+      { k: 'Era', v: '2026 regulations' },
+      { k: 'Power', v: 'Ferrari PU' },
+      { k: 'Tyres', v: 'Pirelli' },
+      { k: 'Focus', v: 'Rosso corsa · new era' },
+    ],
+    zones: [
+      {
+        code: '01',
+        title: 'Nose & front wing',
+        text: 'Нос и переднее крыло Ferrari задают поток на весь болид — геометрия Maranello под регламент 2026.',
+      },
+      {
+        code: '02',
+        title: 'Cockpit',
+        text: 'Кабина Charles и напарника: halo, руль Ferrari и телеметрия гаража на каждом круге.',
+      },
+      {
+        code: '03',
+        title: 'Power unit',
+        text: 'Собственная силовая установка Ferrari: гибридная ярость и фирменный звук на выходе из медленных зон.',
+      },
+      {
+        code: '04',
+        title: 'Rear wing & DRS',
+        text: 'Заднее крыло в rosso corsa — на прямой SF-26 раскрывается, в связке снова прижимается к асфальту.',
+      },
+    ],
+    quotes: [
+      'Красный цвет обязывает.',
+      'Ошибки учат быстрее побед.',
+      'Мечта Maranello — в каждом круге.',
+      'Давление титула — это топливо.',
     ],
   },
 }

@@ -647,6 +647,7 @@ const DRIVER_CODES: Record<string, string> = {
   max_verstappen: 'VER',
   antonelli: 'ANT',
   russell: 'RUS',
+  leclerc: 'LEC',
   hadjar: 'HAD',
   lawson: 'LAW',
   perez: 'PER',

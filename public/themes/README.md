@@ -1,7 +1,7 @@
 # Темы пилотов — имена файлов
 
 Каждый гонщик = папка `public/themes/{id}/`  
-`{id}` как в коде: `verstappen`, `antonelli`, `russell`…
+`{id}` как в коде: `verstappen`, `antonelli`, `russell`, `leclerc`…
 
 ## Обязательные файлы (одинаковые имена у всех)
 
