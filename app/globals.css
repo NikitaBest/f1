@@ -2936,3 +2936,350 @@ html[data-theme='verstappen'],
     animation: none !important;
   }
 }
+
+/* ---------- track lap ---------- */
+.lap {
+  margin: 0 20px 20px;
+  padding: 16px 14px 12px;
+  border-radius: 20px;
+  color: var(--white);
+  background:
+    radial-gradient(120% 90% at 50% 0%, color-mix(in srgb, var(--red) 22%, transparent), transparent 60%),
+    color-mix(in srgb, #000 28%, var(--navy));
+  border: 1px solid var(--wh-14);
+}
+.wk.compact .lap {
+  margin: 0 16px 12px;
+}
+.lap-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.lap-head .eyebrow {
+  color: var(--sun);
+}
+.lap-head .disp {
+  font-size: 22px;
+  margin-top: 4px;
+}
+.lap-restart {
+  flex: none;
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--wh-14);
+  color: var(--white);
+  border: 0;
+}
+.lap-svg {
+  display: block;
+  width: 100%;
+  max-width: 340px;
+  height: auto;
+  aspect-ratio: 100 / 72;
+  margin: 8px auto 4px;
+  overflow: visible;
+}
+.lap-wall {
+  fill: none;
+  stroke-width: 5.2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.lap-wall.w0 {
+  stroke: #05060f;
+}
+.lap-wall.w1 {
+  stroke: #0a0d22;
+}
+.lap-wall.w2 {
+  stroke: #10153a;
+}
+.lap-wall.w3 {
+  stroke: #161c4a;
+}
+.lap-bed {
+  fill: none;
+  stroke: #2a3263;
+  stroke-width: 4.6;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.lap-sec {
+  fill: none;
+  stroke-width: 1.5;
+  stroke-linecap: butt;
+  stroke-linejoin: round;
+  opacity: 0.9;
+}
+.lap-sec.s1 {
+  stroke: var(--sun);
+}
+.lap-sec.s2 {
+  stroke: var(--white);
+}
+.lap-sec.s3 {
+  stroke: var(--red);
+}
+.lap-trail {
+  fill: none;
+  stroke: var(--white);
+  stroke-width: 3.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.car-body {
+  fill: var(--red);
+  stroke: var(--white);
+  stroke-width: 0.25;
+  stroke-linejoin: round;
+}
+.car-wing {
+  fill: var(--white);
+}
+.car-wheel {
+  fill: #0b0f24;
+  stroke: var(--wh-60);
+  stroke-width: 0.15;
+}
+.car-stripe {
+  fill: var(--white);
+}
+.car-helm {
+  fill: var(--sun);
+}
+.car-body.mid,
+.car-wing.mid,
+.car-wheel.mid {
+  fill: color-mix(in srgb, var(--red) 45%, #000);
+  stroke: none;
+}
+.car-body.sh,
+.car-wing.sh,
+.car-wheel.sh {
+  fill: rgba(0, 0, 0, 0.55);
+  stroke: none;
+}
+.lap-secs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr) auto;
+  gap: 8px;
+  align-items: end;
+}
+.lap-sector {
+  border-top: 4px solid currentColor;
+  padding-top: 6px;
+  opacity: 0.35;
+  transition: opacity 0.2s;
+}
+.lap-sector.on {
+  opacity: 1;
+}
+.lap-sector.s1 {
+  color: var(--sun);
+}
+.lap-sector.s2 {
+  color: var(--white);
+}
+.lap-sector.s3 {
+  color: var(--red);
+}
+.lap-sector-time {
+  display: block;
+  margin-top: 2px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--white);
+}
+.lap-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 8px;
+  vertical-align: 0.5px;
+}
+.lap-sector small,
+.lap-clock small {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.lap-clock {
+  text-align: right;
+  padding-left: 8px;
+}
+.lap-clock small {
+  color: var(--wh-60);
+}
+.lap-clock b {
+  font-size: 30px;
+  min-width: 4.4ch;
+  display: inline-block;
+}
+.lap-foot {
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--wh-60);
+  letter-spacing: 0.04em;
+}
+
+/* ---------- holo card ---------- */
+.holo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.holo-stage {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 26px 0 30px;
+  border-radius: 24px;
+  perspective: 900px;
+  touch-action: pan-y;
+  background:
+    radial-gradient(70% 60% at 50% 40%, color-mix(in srgb, var(--red) 34%, transparent), transparent 70%),
+    var(--navy);
+}
+.holo-card {
+  --rx: 0deg;
+  --ry: 0deg;
+  --mx: 50%;
+  --my: 50%;
+  --hue: 0deg;
+  position: relative;
+  width: min(74%, 290px);
+  aspect-ratio: 3 / 4;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 2px solid var(--sun);
+  background: var(--navy);
+  color: var(--white);
+  transform: rotateX(var(--rx)) rotateY(var(--ry));
+  transform-style: preserve-3d;
+  will-change: transform;
+  box-shadow:
+    0 26px 44px -18px rgba(0, 0, 0, 0.75),
+    0 0 0 1px color-mix(in srgb, var(--sun) 35%, transparent);
+}
+.holo-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 18%;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+.holo-foil {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  mix-blend-mode: color-dodge;
+  opacity: 0.6;
+  filter: hue-rotate(var(--hue));
+  background:
+    repeating-linear-gradient(115deg, transparent 0 14px, rgba(255, 255, 255, 0.16) 14px 15px),
+    linear-gradient(
+      115deg,
+      transparent 18%,
+      color-mix(in srgb, var(--sun) 70%, transparent) 38%,
+      color-mix(in srgb, var(--red) 65%, transparent) 54%,
+      rgba(90, 160, 255, 0.5) 66%,
+      transparent 82%
+    );
+  background-size: 100% 100%, 240% 240%;
+  background-position: 0 0, var(--mx) var(--my);
+}
+.holo-glare {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  mix-blend-mode: soft-light;
+  background: radial-gradient(circle at var(--mx) var(--my), rgba(255, 255, 255, 0.95), transparent 42%);
+}
+.holo-num {
+  position: absolute;
+  right: 10px;
+  top: 4px;
+  font-size: 104px;
+  line-height: 1;
+  color: transparent;
+  -webkit-text-stroke: 2px var(--sun);
+  text-shadow: 0 0 18px color-mix(in srgb, var(--sun) 40%, transparent);
+  transform: translateZ(30px);
+}
+.holo-tag {
+  position: absolute;
+  left: 12px;
+  top: 12px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--navy) 70%, transparent);
+  color: var(--sun);
+}
+.holo-foot {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 56px 14px 12px;
+  background: linear-gradient(transparent, color-mix(in srgb, var(--navy) 96%, transparent) 62%);
+  transform: translateZ(20px);
+}
+.holo-foot h3 {
+  font-family: var(--display);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 34px;
+  line-height: 0.92;
+}
+.holo-foot .eyebrow {
+  margin-top: 4px;
+  color: var(--wh-60);
+}
+.holo-foot dl {
+  display: flex;
+  justify-content: space-between;
+  margin: 10px 0 0;
+  padding-top: 8px;
+  border-top: 1px solid var(--wh-14);
+}
+.holo-foot dt {
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--wh-60);
+}
+.holo-foot dd {
+  margin: 0;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 24px;
+  color: var(--sun);
+}
+.holo-gyro {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 999px;
+  border: 0;
+  background: var(--navy);
+  color: var(--white);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
