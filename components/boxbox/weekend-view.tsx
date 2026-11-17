@@ -1,14 +1,10 @@
 'use client'
 
 import { useState, type CSSProperties } from 'react'
-import { ArrowUpRight, ChevronDown, ChevronRight, ChevronUp, ImagePlus, X } from 'lucide-react'
+import { ArrowUpRight, ChevronRight, ImagePlus, X } from 'lucide-react'
 import { useNow } from '@/lib/use-now'
-import { hasCircuit, TrackLap } from './track-lap'
-import { WeekendGrid } from './weekend-grid'
-import { WeekendLive } from './weekend-live'
-import { WeekendRaceFeed } from './weekend-race-feed'
-import { WeekendTeamRadio } from './weekend-team-radio'
-import { WeekendTelemetry } from './weekend-telemetry'
+import { hasCircuit } from './track-lap'
+import { WeekendHub, type WeekendPhase } from './weekend-hub'
 import { WeekendWeather } from './weekend-weather'
 import { addDays, hhmm, hintFor, mon, pad, parseISODate, shortName, weekday, type RaceEvent } from '@/lib/f1'
 
@@ -183,18 +179,15 @@ export function WeekendCard({
 }) {
   const now = useNow(30_000)
   const { photo, save, clear } = useWeekendPhoto(event.id)
-  const [lapOpen, setLapOpen] = useState(false)
-  const [liveOpen, setLiveOpen] = useState(false)
-  const [gridOpen, setGridOpen] = useState(false)
-  const [feedOpen, setFeedOpen] = useState(false)
-  const [radioOpen, setRadioOpen] = useState(false)
-  const [telemOpen, setTelemOpen] = useState(false)
   const nextIdx = event.sessions.findIndex((s) => new Date(s.at).getTime() > now)
   const next = event.sessions[nextIdx]
   const dates = weekendDates(event)
   const title = shortName(event.name)
   const circuitId = event.circuitId
   const canLap = Boolean(circuitId && hasCircuit(circuitId))
+  const first = new Date(event.sessions[0].at).getTime()
+  const last = new Date(event.sessions[event.sessions.length - 1].at).getTime()
+  const phase: WeekendPhase = now < first ? 'before' : now > last + 2 * 3_600_000 ? 'after' : 'live'
 
   return (
     <article className="wk" aria-label={`Уикенд: ${event.name}`}>
@@ -240,6 +233,14 @@ export function WeekendCard({
         {next ? <Countdown target={new Date(next.at).getTime()} /> : null}
       </div>
       {circuitId ? <WeekendWeather circuitId={circuitId} /> : null}
+      {circuitId ? (
+        <WeekendHub
+          circuitId={circuitId}
+          canLap={canLap}
+          phase={phase}
+          eyebrow={`Раунд ${pad(round)} · ${title}`}
+        />
+      ) : null}
       <ul className="sched">
         {event.sessions.map((s, i) => {
           const at = new Date(s.at)
@@ -247,78 +248,6 @@ export function WeekendCard({
           return <SessionRow key={s.key} session={s} at={at} state={state} />
         })}
       </ul>
-      {circuitId ? (
-        <>
-          <button
-            type="button"
-            className="wk-more wk-live-toggle"
-            aria-expanded={gridOpen}
-            onClick={() => setGridOpen((v) => !v)}
-          >
-            <span>{gridOpen ? 'Скрыть решётку' : 'Стартовая решётка'}</span>
-            {gridOpen ? <ChevronUp size={18} aria-hidden="true" /> : <ChevronDown size={18} aria-hidden="true" />}
-          </button>
-          {gridOpen ? <WeekendGrid circuitId={circuitId} /> : null}
-
-          <button
-            type="button"
-            className="wk-more wk-live-toggle"
-            aria-expanded={liveOpen}
-            onClick={() => setLiveOpen((v) => !v)}
-          >
-            <span>{liveOpen ? 'Скрыть эфир' : 'Эфир / результат'}</span>
-            {liveOpen ? <ChevronUp size={18} aria-hidden="true" /> : <ChevronDown size={18} aria-hidden="true" />}
-          </button>
-          {liveOpen ? <WeekendLive circuitId={circuitId} /> : null}
-
-          <button
-            type="button"
-            className="wk-more wk-live-toggle"
-            aria-expanded={feedOpen}
-            onClick={() => setFeedOpen((v) => !v)}
-          >
-            <span>{feedOpen ? 'Скрыть питы' : 'Питы и обгоны'}</span>
-            {feedOpen ? <ChevronUp size={18} aria-hidden="true" /> : <ChevronDown size={18} aria-hidden="true" />}
-          </button>
-          {feedOpen ? <WeekendRaceFeed circuitId={circuitId} /> : null}
-
-          <button
-            type="button"
-            className="wk-more wk-live-toggle"
-            aria-expanded={radioOpen}
-            onClick={() => setRadioOpen((v) => !v)}
-          >
-            <span>{radioOpen ? 'Скрыть радио' : 'Team radio'}</span>
-            {radioOpen ? <ChevronUp size={18} aria-hidden="true" /> : <ChevronDown size={18} aria-hidden="true" />}
-          </button>
-          {radioOpen ? <WeekendTeamRadio circuitId={circuitId} /> : null}
-
-          <button
-            type="button"
-            className="wk-more wk-live-toggle"
-            aria-expanded={telemOpen}
-            onClick={() => setTelemOpen((v) => !v)}
-          >
-            <span>{telemOpen ? 'Скрыть телеметрию' : 'GPS и телеметрия'}</span>
-            {telemOpen ? <ChevronUp size={18} aria-hidden="true" /> : <ChevronDown size={18} aria-hidden="true" />}
-          </button>
-          {telemOpen ? <WeekendTelemetry circuitId={circuitId} /> : null}
-        </>
-      ) : null}
-      {canLap && circuitId ? (
-        <>
-          <button
-            type="button"
-            className="wk-more wk-lap-toggle"
-            aria-expanded={lapOpen}
-            onClick={() => setLapOpen((v) => !v)}
-          >
-            <span>{lapOpen ? 'Скрыть круг' : 'Круг трассы'}</span>
-            {lapOpen ? <ChevronUp size={18} aria-hidden="true" /> : <ChevronDown size={18} aria-hidden="true" />}
-          </button>
-          {lapOpen ? <TrackLap circuitId={circuitId} /> : null}
-        </>
-      ) : null}
     </article>
   )
 }
