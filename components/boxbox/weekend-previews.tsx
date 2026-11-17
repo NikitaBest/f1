@@ -118,29 +118,3 @@ export function TelemPreview({ circuitId }: { circuitId: string }) {
   )
 }
 
-export function LapPreview({ circuitId }: { circuitId: string }) {
-  const { data } = useWk<LapRecord>('lap-record', circuitId)
-  const shape = CIRCUITS[circuitId]
-  return (
-    <div className="wp-pv wp-pv-lap">
-      <div>
-        <span className="wp-pv-cap">Рекорд круга</span>
-        {data ? (
-          <div className="wp-pv-big">
-            <b className="disp num">{data.time}</b>
-            <span>
-              {data.code} · {data.year}
-            </span>
-          </div>
-        ) : (
-          <Skeleton rows={1} />
-        )}
-      </div>
-      {shape ? (
-        <svg className="wp-mini sm" viewBox="-6 -6 112 112" aria-hidden="true">
-          <path d={shape.path} className="wp-mini-run still" />
-        </svg>
-      ) : null}
-    </div>
-  )
-}

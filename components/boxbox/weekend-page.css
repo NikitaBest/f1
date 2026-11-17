@@ -684,111 +684,197 @@
   justify-content: space-between;
 }
 
-/* ---------- circuit ---------- */
-.wp-circ-map {
+/* ---------- circuit: neon isometric track ---------- */
+.wk3d {
+  --wk-neon: #d4ff1e;
+}
+.wk-frame {
   position: relative;
   margin-top: 12px;
-  height: 300px;
-  border-radius: 24px;
-  border: 1px solid var(--wp-line);
+  padding: 18px 16px 12px;
+  border: 1.5px solid color-mix(in srgb, var(--wk-neon) 78%, transparent);
+  border-radius: 28px 28px 28px 8px;
   background:
-    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.08), transparent 70%),
-    linear-gradient(var(--wp-line) 1px, transparent 1px) 0 0 / 100% 38px,
-    linear-gradient(90deg, var(--wp-line) 1px, transparent 1px) 0 0 / 38px 100%;
-  background-color: rgba(255, 255, 255, 0.025);
-  display: grid;
-  place-items: center;
+    radial-gradient(70% 46% at 50% 58%, color-mix(in srgb, var(--wk-neon) 12%, transparent), transparent 72%),
+    #0b0c07;
   overflow: hidden;
 }
-.wp-circ-map svg {
-  width: 74%;
-  height: 72%;
-  margin-bottom: 52px;
+.wk-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px 12px;
+}
+.wk-stats dt {
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--wp-dim);
+}
+.wk-stats dd {
+  margin-top: 2px;
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  font-family: var(--display);
+  font-size: 38px;
+  line-height: 1.05;
+  font-weight: 700;
+  color: var(--wk-neon);
+}
+.wk-stats dd small {
+  font-family: var(--wp-tech);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: #fff;
+  text-transform: uppercase;
+}
+.wk-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin-top: 4px;
   overflow: visible;
-  filter: drop-shadow(0 0 14px color-mix(in srgb, var(--red) 55%, transparent));
 }
-.wp-trk-base,
-.wp-trk-line {
+.wk-svg path {
   fill: none;
-  stroke-linecap: round;
   stroke-linejoin: round;
+  stroke-linecap: round;
 }
-.wp-trk-base {
-  stroke: rgba(255, 255, 255, 0.14);
-  stroke-width: 4.5;
+.wk-wall {
+  stroke: var(--wk-neon);
+  stroke-width: 0.72;
+  stroke-opacity: 0.15;
 }
-.wp-trk-line {
+.wk-bloom {
+  stroke: var(--wk-neon);
+  stroke-width: 2.2;
+  stroke-opacity: 0.1;
+}
+.wk-bloom.soft {
+  stroke-width: 3.6;
+  stroke-opacity: 0.06;
+}
+.wk-top-glow {
+  stroke: var(--wk-neon);
+  stroke-width: 1.5;
+  stroke-opacity: 0.3;
+}
+.wk-top {
+  stroke: #f3ffb0;
+  stroke-width: 0.5;
+}
+.wk-run {
   stroke: #fff;
-  stroke-width: 1.7;
+  stroke-width: 1.5;
+  stroke-dasharray: 4 96;
+  stroke-opacity: 0;
+}
+.wk-run.halo {
+  stroke: var(--wk-neon);
+  stroke-width: 2.4;
+}
+.wk-run.core {
+  stroke-width: 0.8;
+}
+.wk-draw {
   stroke-dasharray: 1;
   stroke-dashoffset: 1;
-  animation: wp-draw 2.6s 0.4s cubic-bezier(0.6, 0, 0.2, 1) forwards;
 }
-@keyframes wp-draw {
+.wk-frame.is-in .wk-draw {
+  animation: wk-draw 2.6s cubic-bezier(0.55, 0, 0.2, 1) forwards;
+}
+.wk-frame.is-in .wk-run {
+  animation: wk-run 6.5s linear 2.8s infinite;
+}
+.wk-pin line {
+  stroke: var(--wk-neon);
+  stroke-width: 0.2;
+  stroke-opacity: 0.7;
+}
+.wk-pin circle {
+  fill: var(--wk-neon);
+}
+.wk-pin text {
+  font-family: var(--wp-tech);
+  font-size: 2.7px;
+  fill: var(--wk-neon);
+  fill-opacity: 0.95;
+}
+.wk-flag line {
+  stroke: #fff;
+  stroke-width: 0.2;
+}
+.wk-flag rect.on {
+  fill: #fff;
+}
+.wk-flag rect.off {
+  fill: #111;
+}
+.wk-pin,
+.wk-flag {
+  opacity: 0;
+}
+.wk-frame.is-in .wk-pin,
+.wk-frame.is-in .wk-flag {
+  animation: wk-pin 0.6s ease-out both;
+}
+@keyframes wk-draw {
   to {
     stroke-dashoffset: 0;
   }
 }
-.wp-trk-start {
-  fill: var(--wp-bg);
-  stroke: var(--red);
-  stroke-width: 1.6;
+@keyframes wk-run {
+  0% {
+    stroke-dashoffset: 0;
+    stroke-opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: -100;
+    stroke-opacity: 1;
+  }
 }
-.wp-trk-car {
-  fill: var(--red);
-  stroke: #fff;
-  stroke-width: 0.8;
+@keyframes wk-pin {
+  from {
+    opacity: 0;
+    transform: translateY(1.4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
-.wp-circ-len {
-  position: absolute;
-  left: 14px;
-  bottom: 10px;
+.wk-foot {
   display: flex;
-  align-items: baseline;
-  gap: 6px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 2px;
 }
-.wp-circ-len .wp-out {
-  font-size: 58px;
-  line-height: 1;
-}
-.wp-circ-len small {
-  font-size: 11px;
-  letter-spacing: 0.18em;
-  color: var(--wp-dim);
-}
-.wp-circ-name {
-  margin-top: 12px;
-  font-size: 11px;
+.wk-foot p {
+  font-size: 10px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--wp-dim);
 }
-.wp-stats {
+.wk-replay {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  margin-top: 12px;
-  border-top: 1px solid var(--wp-line);
+  place-items: center;
+  background: var(--wk-neon);
+  color: #0b0c07;
+  transition: transform 0.15s ease;
 }
-.wp-stats > div {
-  padding: 12px 0 4px;
+.wk-replay:active {
+  transform: scale(0.94);
 }
-.wp-stats > div + div {
-  padding-left: 14px;
-  border-left: 1px solid var(--wp-line);
+.wk-replay:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
 }
-.wp-stats dt {
-  font-size: 9px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--wp-dim);
-  margin-bottom: 6px;
-}
-.wp-stats dd {
-  font-family: var(--display);
-  font-weight: 700;
-  font-size: 30px;
-  line-height: 1;
-}
+
 .wp-rec {
   display: flex;
   flex-direction: column;
@@ -913,7 +999,10 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .wp > *,
-  .wp-trk-line,
+  .wk-frame .wk-draw,
+  .wk-frame .wk-run,
+  .wk-frame .wk-pin,
+  .wk-frame .wk-flag,
   .wp-mini-run,
   .wp-wave i,
   .wp-gauge u,
@@ -922,7 +1011,11 @@
   .wp-skel {
     animation: none;
   }
-  .wp-trk-line {
+  .wk-frame .wk-draw {
     stroke-dashoffset: 0;
+  }
+  .wk-frame .wk-pin,
+  .wk-frame .wk-flag {
+    opacity: 1;
   }
 }

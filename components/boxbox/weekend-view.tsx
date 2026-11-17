@@ -3,7 +3,6 @@
 import { useState, type CSSProperties } from 'react'
 import { ArrowUpRight, ChevronRight } from 'lucide-react'
 import { useNow } from '@/lib/use-now'
-import { hasCircuit } from './track-lap'
 import { WeekendCircuit } from './weekend-circuit'
 import { WeekendHero } from './weekend-hero'
 import { WeekendHub, type WeekendPhase } from './weekend-hub'
@@ -161,7 +160,6 @@ export function WeekendCard({
   const { photo, save, clear } = useWeekendPhoto(event.id)
   const title = shortName(event.name)
   const circuitId = event.circuitId
-  const canLap = Boolean(circuitId && hasCircuit(circuitId))
   const first = new Date(event.sessions[0].at).getTime()
   const last = new Date(event.sessions[event.sessions.length - 1].at).getTime()
   const phase: WeekendPhase = now < first ? 'before' : now > last + 2 * 3_600_000 ? 'after' : 'live'
@@ -181,7 +179,7 @@ export function WeekendCard({
       />
       <WeekendSchedule event={event} />
       {circuitId ? (
-        <WeekendHub circuitId={circuitId} canLap={canLap} phase={phase} eyebrow={`Раунд ${pad(round)} · ${title}`} />
+        <WeekendHub circuitId={circuitId} phase={phase} eyebrow={`Раунд ${pad(round)} · ${title}`} />
       ) : null}
       {circuitId ? <WeekendCircuit circuitId={circuitId} /> : null}
       {circuitId ? <WeekendWeather circuitId={circuitId} /> : null}

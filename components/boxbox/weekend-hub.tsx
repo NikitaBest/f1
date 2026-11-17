@@ -2,18 +2,17 @@
 
 import { useEffect, useRef, useState, type ComponentType, type PointerEvent as ReactPointerEvent } from 'react'
 import { createPortal } from 'react-dom'
-import { Activity, ArrowUpRight, LayoutGrid, Mic, Route, Timer, Tv, X } from 'lucide-react'
-import { TrackLap } from './track-lap'
+import { Activity, ArrowUpRight, LayoutGrid, Mic, Timer, Tv, X } from 'lucide-react'
 import { WeekendGrid } from './weekend-grid'
 import { WeekendLive } from './weekend-live'
-import { FeedPreview, GridPreview, LapPreview, LivePreview, RadioPreview, TelemPreview } from './weekend-previews'
+import { FeedPreview, GridPreview, LivePreview, RadioPreview, TelemPreview } from './weekend-previews'
 import { WeekendRaceFeed } from './weekend-race-feed'
 import { WeekendTeamRadio } from './weekend-team-radio'
 import { WeekendTelemetry } from './weekend-telemetry'
 
 export type WeekendPhase = 'before' | 'live' | 'after'
 
-type FeatureKey = 'live' | 'grid' | 'feed' | 'radio' | 'telem' | 'lap'
+type FeatureKey = 'live' | 'grid' | 'feed' | 'radio' | 'telem'
 
 type Feature = {
   key: FeatureKey
@@ -70,15 +69,6 @@ const FEATURES: Record<FeatureKey, Feature> = {
     icon: Activity,
     preview: (id) => <TelemPreview circuitId={id} />,
     render: (id) => <WeekendTelemetry circuitId={id} />,
-  },
-  lap: {
-    key: 'lap',
-    tag: 'Track lap',
-    title: 'Круг трассы',
-    sheetTitle: 'Круг трассы',
-    icon: Route,
-    preview: (id) => <LapPreview circuitId={id} />,
-    render: (id) => <TrackLap circuitId={id} />,
   },
 }
 
@@ -180,12 +170,10 @@ function Sheet({
 /** Плитки возможностей уикенда с живым превью данных; полный контент открывается в шторке. */
 export function WeekendHub({
   circuitId,
-  canLap,
   phase,
   eyebrow,
 }: {
   circuitId: string
-  canLap: boolean
   phase: WeekendPhase
   eyebrow: string
 }) {
@@ -197,7 +185,7 @@ export function WeekendHub({
     setHost(anchor.current?.closest<HTMLElement>('.bb-app') ?? null)
   }, [])
 
-  const tiles: FeatureKey[] = ['live', 'grid', 'feed', 'radio', 'telem', ...(canLap ? (['lap'] as const) : [])]
+  const tiles: FeatureKey[] = ['live', 'grid', 'feed', 'radio', 'telem']
   const active = open ? FEATURES[open] : null
 
   return (
@@ -211,7 +199,7 @@ export function WeekendHub({
           const f = FEATURES[key]
           const Icon = f.icon
           const hero = key === 'live'
-          const wide = hero || key === 'lap'
+          const wide = hero
           return (
             <button
               key={key}
