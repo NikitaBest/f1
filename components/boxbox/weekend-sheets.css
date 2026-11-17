@@ -1,19 +1,19 @@
-/* Weekend sheets + weather: same technical black / glass / mono language as the weekend page */
+/* Weekend sheets + weather: same navy / Oswald + Inter language as the rest of the app */
 .bb-sheet.wp-sheet {
-  background: #09090b;
+  background: var(--navy);
   color: #fff;
 }
 .wp-sheet .bb-sheet-body {
-  background: #09090b;
+  background: var(--navy);
   scroll-behavior: smooth;
 }
 
 .wx {
-  --wx-neon: #d4ff1e;
+  --wx-neon: var(--sun);
   --wx-line: rgba(255, 255, 255, 0.12);
   --wx-dim: rgba(255, 255, 255, 0.62);
   --wx-glass: rgba(255, 255, 255, 0.05);
-  --wx-tech: var(--font-tech), ui-monospace, 'SF Mono', Menlo, monospace;
+  --wx-tech: var(--font-body), system-ui, sans-serif;
   --tc: var(--red);
   display: flex;
   flex-direction: column;
@@ -131,7 +131,7 @@
   margin: 0;
   padding: 28px 20px;
   text-align: center;
-  font-family: var(--font-tech), ui-monospace, monospace;
+  font-family: var(--font-body), system-ui, sans-serif;
   font-size: 12px;
   letter-spacing: 0.04em;
   color: rgba(255, 255, 255, 0.62);
@@ -205,7 +205,7 @@
 .wx-chips button[aria-selected='true'] {
   background: #fff;
   border-color: #fff;
-  color: #09090b;
+  color: var(--navy);
 }
 .wx-chips button[aria-selected='true'] small {
   color: rgba(9, 9, 11, 0.6);
@@ -285,7 +285,7 @@
 }
 .wx-flag.chq i,
 .wx-tl-dot.chq {
-  background: repeating-conic-gradient(#fff 0 25%, #09090b 0 50%) 0 0 / 4px 4px;
+  background: repeating-conic-gradient(#fff 0 25%, var(--navy) 0 50%) 0 0 / 4px 4px;
 }
 
 .wx-podium {
@@ -552,7 +552,7 @@
   padding: 2px 7px;
   border-radius: 99px;
   background: var(--wx-neon);
-  color: #09090b;
+  color: var(--navy);
   font-size: 9px;
   font-style: normal;
   font-weight: 700;
@@ -646,7 +646,7 @@
   padding: 2px 7px;
   border-radius: 99px;
   background: var(--wx-neon);
-  color: #09090b;
+  color: var(--navy);
   font-size: 9px;
   font-style: normal;
   font-weight: 700;
@@ -976,7 +976,7 @@
 .wx-hud-drs.on {
   background: var(--wx-neon);
   border-color: var(--wx-neon);
-  color: #09090b;
+  color: var(--navy);
 }
 .wx-play {
   position: absolute;
@@ -988,7 +988,7 @@
   height: 48px;
   border-radius: 50%;
   background: var(--wx-neon);
-  color: #09090b;
+  color: var(--navy);
   box-shadow: 0 0 22px -2px color-mix(in srgb, var(--wx-neon) 60%, transparent);
 }
 .wx-play.on {
@@ -1135,7 +1135,7 @@
   border-radius: 24px;
   background: linear-gradient(170deg, var(--sky-a), var(--sky-b));
   color: #fff;
-  font-family: var(--font-tech), ui-monospace, monospace;
+  font-family: var(--font-body), system-ui, sans-serif;
 }
 .wxw-sky {
   position: absolute;
@@ -1267,10 +1267,10 @@
   min-height: 112px;
   overflow: hidden;
   padding: 12px 14px;
-  border: 1px solid var(--wp-line);
   border-radius: 20px;
-  background: var(--wp-glass);
-  font-family: var(--font-tech), ui-monospace, monospace;
+  background: var(--navy);
+  box-shadow: 0 14px 30px -18px color-mix(in srgb, var(--navy) 75%, transparent);
+  font-family: var(--font-body), system-ui, sans-serif;
 }
 .wxw-tile small {
   font-size: 10px;
@@ -1286,7 +1286,7 @@
 }
 .wxw-tile em {
   margin-left: 4px;
-  font-family: var(--font-tech), ui-monospace, monospace;
+  font-family: var(--font-body), system-ui, sans-serif;
   font-size: 11px;
   font-style: normal;
   color: var(--wp-dim);

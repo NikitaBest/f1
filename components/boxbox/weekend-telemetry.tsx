@@ -217,8 +217,8 @@ export function WeekendTelemetry({ circuitId }: { circuitId: string }) {
         <svg className="wx-chart" viewBox={`0 0 ${CHART_W} ${CHART_H}`} role="img" aria-label="Скорость по кругу">
           <defs>
             <linearGradient id="wx-speed-fill" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stopColor="#d4ff1e" stopOpacity="0.38" />
-              <stop offset="1" stopColor="#d4ff1e" stopOpacity="0" />
+              <stop offset="0" stopColor="#ffc20e" stopOpacity="0.38" />
+              <stop offset="1" stopColor="#ffc20e" stopOpacity="0" />
             </linearGradient>
           </defs>
           <path d={chart.area} fill="url(#wx-speed-fill)" />
