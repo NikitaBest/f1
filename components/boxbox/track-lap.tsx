@@ -2,15 +2,8 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { RotateCcw } from 'lucide-react'
-import useSWR from 'swr'
 import { CIRCUITS } from '@/lib/circuits'
 import type { BestLap } from '@/app/api/best-lap/route'
-
-const fetchBestLap = async (url: string): Promise<BestLap> => {
-  const res = await fetch(url)
-  if (!res.ok) throw new Error('no lap data')
-  return res.json()
-}
 
 const DEMO_SPLITS: [number, number] = [1 / 3, 1 / 3]
 
@@ -77,10 +70,26 @@ export function TrackLap({ circuitId }: { circuitId: string }) {
   const [clock, setClock] = useState('0:00.0')
   const [reduced, setReduced] = useState(false)
 
-  const { data: best } = useSWR(`/api/best-lap?circuit=${circuitId}`, fetchBestLap, {
-    revalidateOnFocus: false,
-    shouldRetryOnError: false,
-  })
+  const [best, setBest] = useState<BestLap | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    setBest(null)
+    fetch(`/api/best-lap?circuit=${encodeURIComponent(circuitId)}`)
+      .then(async (res) => {
+        if (!res.ok) throw new Error('no lap data')
+        return res.json() as Promise<BestLap>
+      })
+      .then((data) => {
+        if (!cancelled) setBest(data)
+      })
+      .catch(() => {
+        if (!cancelled) setBest(null)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [circuitId])
 
   const lapMs = useMemo(() => {
     if (best) return best.lap * 1000
