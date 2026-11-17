@@ -4,21 +4,39 @@ import { Pause, Play } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { TelemetryPayload } from '@/app/api/telemetry/route'
 import { useTheme } from '@/lib/store'
+import { PilotAvatar } from './pilot-avatar'
+import { cssVars, WxEmpty, WxHead, WxLoading } from './wx-ui'
+
+const CHART_W = 320
+const CHART_H = 84
+const SEGMENTS = 22
 
 function fmtLap(sec: number) {
   const m = Math.floor(sec / 60)
   return `${m}:${(sec - m * 60).toFixed(3).padStart(6, '0')}`
 }
 
-function speedPath(points: TelemetryPayload['points'], maxSpeed: number, w = 320, h = 72) {
-  if (!points.length) return ''
-  return points
+function chartPaths(points: TelemetryPayload['points'], maxSpeed: number) {
+  if (!points.length) return { line: '', area: '' }
+  const line = points
     .map((p, i) => {
-      const x = p.t * w
-      const y = h - (p.speed / maxSpeed) * (h - 8) - 4
+      const x = p.t * CHART_W
+      const y = CHART_H - (p.speed / maxSpeed) * (CHART_H - 10) - 5
       return `${i === 0 ? 'M' : 'L'}${x.toFixed(1)} ${y.toFixed(1)}`
     })
     .join(' ')
+  return { line, area: `${line} L${CHART_W} ${CHART_H} L0 ${CHART_H} Z` }
+}
+
+function Meter({ value, tone }: { value: number; tone: 'thr' | 'brk' }) {
+  const lit = Math.round((Math.min(100, Math.max(0, value)) / 100) * SEGMENTS)
+  return (
+    <span className={`wx-meter ${tone}`} aria-hidden="true">
+      {Array.from({ length: SEGMENTS }, (_, i) => (
+        <i key={i} className={i < lit ? 'on' : undefined} />
+      ))}
+    </span>
+  )
 }
 
 export function WeekendTelemetry({ circuitId }: { circuitId: string }) {
@@ -81,6 +99,8 @@ export function WeekendTelemetry({ circuitId }: { circuitId: string }) {
     }
     raf.current = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(raf.current)
+    // cursor is intentionally read once at start so playback resumes from the scrubbed position
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [playing, data])
 
   const point = useMemo(() => {
@@ -89,107 +109,134 @@ export function WeekendTelemetry({ circuitId }: { circuitId: string }) {
     return data.points[idx]!
   }, [data, cursor])
 
-  const chart = useMemo(() => {
-    if (!data) return ''
-    return speedPath(data.points, data.maxSpeed)
-  }, [data])
+  const chart = useMemo(() => (data ? chartPaths(data.points, data.maxSpeed) : null), [data])
 
-  if (error) return <p className="wk-live-empty">Нет GPS и телеметрии круга.</p>
-  if (!data) return <p className="wk-live-empty">Собираем GPS и телеметрию…</p>
+  if (error) return <WxEmpty>Нет GPS и телеметрии круга.</WxEmpty>
+  if (!data || !chart) return <WxLoading />
+
+  const sectorBest = Math.min(...data.lap.sectors.filter((s) => s > 0))
 
   return (
-    <section className="wk-telem" aria-label="GPS и телеметрия">
-      <div className="wk-feed-head">
-        <div>
-          <span className="eyebrow">
-            Telemetry · {data.year} · lap {data.lap.number}
+    <section className="wx wx-telem" aria-label="GPS и телеметрия">
+      <WxHead
+        eyebrow={`Telemetry · ${data.year} · круг ${data.lap.number}`}
+        title={data.circuitName}
+        aside={
+          <span className="wx-count">
+            <b className="num">{fmtLap(data.lap.duration)}</b>
+            <small>время круга</small>
           </span>
-          <b className="disp">{data.circuitName}</b>
-        </div>
-        <span className="wk-feed-stat">{fmtLap(data.lap.duration)}</span>
-      </div>
+        }
+      />
 
-      <div className="wk-radio-filters" role="tablist" aria-label="Пилот">
+      <div className="wx-chips" role="tablist" aria-label="Пилот">
         {data.drivers.map((d) => (
           <button
             key={d.number}
             type="button"
             role="tab"
             aria-selected={d.code === data.driver.code}
-            className={d.code === theme.code ? 'fav' : undefined}
+            className={`has-av${d.code === theme.code ? ' fav' : ''}`}
             onClick={() => {
               if (d.code !== driver) setDriver(d.code)
             }}
           >
+            <PilotAvatar code={d.code} className="wx-av xs" />
             {d.code}
           </button>
         ))}
       </div>
 
-      <div className="wk-telem-map-wrap">
-        <svg className="wk-telem-map" viewBox="0 0 100 100" role="img" aria-label="GPS трек круга">
-          <path d={data.path} className="wk-telem-track" />
+      <div className="wx-map">
+        <svg viewBox="0 0 100 100" role="img" aria-label="GPS трек круга">
+          <path d={data.path} className="wx-map-glow" />
+          <path d={data.path} className="wx-map-line" />
           {point ? (
-            <circle cx={point.x} cy={point.y} r="2.4" className="wk-telem-dot">
-              <animate attributeName="r" values="2.2;2.8;2.2" dur="1.2s" repeatCount="indefinite" />
-            </circle>
+            <g transform={`translate(${point.x} ${point.y})`}>
+              <circle r="5" className="wx-map-halo" />
+              <circle r="2.2" className="wx-map-dot" />
+            </g>
           ) : null}
         </svg>
-        <div className="wk-telem-hud">
-          <button
-            type="button"
-            className={`wk-radio-play${playing ? ' on' : ''}`}
-            aria-label={playing ? 'Пауза' : 'Проиграть круг'}
-            onClick={() => {
-              if (cursor >= 1) setCursor(0)
-              setPlaying((v) => !v)
-            }}
-          >
-            {playing ? <Pause size={16} aria-hidden="true" /> : <Play size={16} aria-hidden="true" />}
-          </button>
-          <div className="wk-telem-readouts">
+
+        <div className="wx-hud">
+          <span className="wx-hud-speed">
             <b className="num">{point ? Math.round(point.speed) : '—'}</b>
-            <span>км/ч</span>
-            <b className="num">{point?.gear || '—'}</b>
-            <span>передача</span>
-            <b className="num">{point?.drs ? 'DRS' : '—'}</b>
-            <span>статус</span>
-          </div>
+            <small>км/ч</small>
+          </span>
+          <span className="wx-hud-gear">
+            <small>Gear</small>
+            <b className="num">{point?.gear || 'N'}</b>
+          </span>
+          <span className={`wx-hud-drs${point?.drs ? ' on' : ''}`}>DRS</span>
         </div>
+
+        <button
+          type="button"
+          className={`wx-play${playing ? ' on' : ''}`}
+          aria-label={playing ? 'Пауза' : 'Проиграть круг'}
+          onClick={() => {
+            if (cursor >= 1) setCursor(0)
+            setPlaying((v) => !v)
+          }}
+        >
+          {playing ? <Pause size={18} aria-hidden="true" /> : <Play size={18} aria-hidden="true" />}
+        </button>
       </div>
 
-      <ul className="wk-telem-sectors" aria-label="Сектора">
+      <label className="wx-scrub">
+        <span className="sr-only">Положение на круге</span>
+        <input
+          type="range"
+          min={0}
+          max={1000}
+          value={Math.round(cursor * 1000)}
+          onChange={(e) => {
+            setPlaying(false)
+            setCursor(Number(e.target.value) / 1000)
+          }}
+          style={cssVars({ '--p': `${cursor * 100}%` })}
+        />
+      </label>
+
+      <ul className="wx-sectors" aria-label="Сектора">
         {data.lap.sectors.map((s, i) => (
-          <li key={i}>
-            <span>S{i + 1}</span>
+          <li key={i} className={s > 0 && s === sectorBest ? 'best' : undefined} style={cssVars({ '--i': i })}>
+            <small>S{i + 1}</small>
             <b className="num">{s ? s.toFixed(3) : '—'}</b>
           </li>
         ))}
-        <li>
-          <span>ST</span>
+        <li style={cssVars({ '--i': 3 })}>
+          <small>Speed trap</small>
           <b className="num">{data.lap.st ?? '—'}</b>
         </li>
       </ul>
 
-      <svg className="wk-telem-chart" viewBox="0 0 320 72" role="img" aria-label="Скорость по кругу">
-        <path d={chart} className="wk-telem-speed" />
-        <line
-          x1={cursor * 320}
-          x2={cursor * 320}
-          y1="0"
-          y2="72"
-          className="wk-telem-cursor"
-        />
-      </svg>
+      <div className="wx-block">
+        <span className="wx-eyebrow">Скорость по кругу</span>
+        <svg className="wx-chart" viewBox={`0 0 ${CHART_W} ${CHART_H}`} role="img" aria-label="Скорость по кругу">
+          <defs>
+            <linearGradient id="wx-speed-fill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stopColor="#d4ff1e" stopOpacity="0.38" />
+              <stop offset="1" stopColor="#d4ff1e" stopOpacity="0" />
+            </linearGradient>
+          </defs>
+          <path d={chart.area} fill="url(#wx-speed-fill)" />
+          <path d={chart.line} className="wx-chart-line" />
+          <line x1={cursor * CHART_W} x2={cursor * CHART_W} y1="0" y2={CHART_H} className="wx-chart-cursor" />
+        </svg>
+      </div>
 
-      <div className="wk-telem-pedals" aria-hidden="true">
+      <div className="wx-pedals">
         <div>
-          <span>Throttle</span>
-          <i style={{ width: `${point?.throttle ?? 0}%` }} className="thr" />
+          <small>Throttle</small>
+          <Meter value={point?.throttle ?? 0} tone="thr" />
+          <b className="num">{Math.round(point?.throttle ?? 0)}%</b>
         </div>
         <div>
-          <span>Brake</span>
-          <i style={{ width: `${point?.brake ?? 0}%` }} className="brk" />
+          <small>Brake</small>
+          <Meter value={point?.brake ?? 0} tone="brk" />
+          <b className="num">{Math.round(point?.brake ?? 0)}%</b>
         </div>
       </div>
     </section>

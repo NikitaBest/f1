@@ -9,6 +9,7 @@ import { WeekendHub, type WeekendPhase } from './weekend-hub'
 import { WeekendSchedule } from './weekend-schedule'
 import { WeekendWeather } from './weekend-weather'
 import './weekend-page.css'
+import './weekend-sheets.css'
 import { addDays, hhmm, mon, pad, parseISODate, shortName, weekday, type RaceEvent } from '@/lib/f1'
 
 const PHOTO_KEY = (id: string) => `boxbox:wk-img:${id}`

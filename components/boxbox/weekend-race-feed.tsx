@@ -1,68 +1,43 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { ArrowRight } from 'lucide-react'
+import { useMemo, useState } from 'react'
 import type { RaceFeed } from '@/app/api/race-feed/route'
 import { useTheme } from '@/lib/store'
 import { PilotAvatar } from './pilot-avatar'
-
-function fmtDur(sec: number | null) {
-  if (sec == null || !Number.isFinite(sec)) return '—'
-  return `${sec.toFixed(1)}s`
-}
-
-function timeOf(iso: string) {
-  const d = new Date(iso)
-  if (Number.isNaN(d.getTime())) return ''
-  return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-}
+import { useWk } from './weekend-data'
+import { cssVars, timeOf, WxEmpty, WxHead, WxLoading } from './wx-ui'
 
 export function WeekendRaceFeed({ circuitId }: { circuitId: string }) {
   const theme = useTheme()
-  const [data, setData] = useState<RaceFeed | null>(null)
-  const [error, setError] = useState(false)
+  const { data, error } = useWk<RaceFeed>('race-feed', circuitId)
   const [tab, setTab] = useState<'pits' | 'passes'>('pits')
 
-  useEffect(() => {
-    let cancelled = false
-    setData(null)
-    setError(false)
-    fetch(`/api/race-feed?circuit=${encodeURIComponent(circuitId)}`)
-      .then(async (res) => {
-        if (!res.ok) throw new Error('no feed')
-        return res.json() as Promise<RaceFeed>
-      })
-      .then((payload) => {
-        if (!cancelled) setData(payload)
-      })
-      .catch(() => {
-        if (!cancelled) {
-          setError(true)
-          setData(null)
-        }
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [circuitId])
+  const stats = useMemo(() => {
+    const durations = (data?.pits ?? []).map((p) => p.duration).filter((d): d is number => d != null && d > 0)
+    if (!durations.length) return { fastest: null as number | null, max: 1 }
+    return { fastest: Math.min(...durations), max: Math.min(Math.max(...durations), 40) }
+  }, [data])
 
-  if (error) return <p className="wk-live-empty">Нет данных питов и обгонов.</p>
-  if (!data) return <p className="wk-live-empty">Собираем питы и обгоны…</p>
+  if (error && !data) return <WxEmpty>Нет данных питов и обгонов.</WxEmpty>
+  if (!data) return <WxLoading />
+
+  const topMax = Math.max(1, ...data.topPassers.map((p) => p.count))
 
   return (
-    <section className="wk-feed" aria-label="Питы и обгоны">
-      <div className="wk-feed-head">
-        <div>
-          <span className="eyebrow">
-            Race feed · {data.year}
+    <section className="wx wx-feed" aria-label="Питы и обгоны">
+      <WxHead
+        eyebrow={`Pit wall · ${data.year}`}
+        title={data.circuitName}
+        aside={
+          <span className="wx-count">
+            <b className="num">{tab === 'pits' ? data.pits.length : data.totalOvertakes}</b>
+            <small>{tab === 'pits' ? 'пит-стопов' : 'обгонов'}</small>
           </span>
-          <b className="disp">{data.circuitName}</b>
-        </div>
-        <span className="wk-feed-stat">
-          {data.pits.length} pits · {data.totalOvertakes} passes
-        </span>
-      </div>
+        }
+      />
 
-      <div className="wk-feed-tabs" role="tablist" aria-label="Питы или обгоны">
+      <div className="wx-seg" role="tablist" aria-label="Питы или обгоны">
         <button type="button" role="tab" aria-selected={tab === 'pits'} onClick={() => setTab('pits')}>
           Питы
         </button>
@@ -73,54 +48,71 @@ export function WeekendRaceFeed({ circuitId }: { circuitId: string }) {
 
       {tab === 'pits' ? (
         data.pits.length === 0 ? (
-          <p className="wk-feed-empty">Пит-стопов в данных нет.</p>
+          <WxEmpty>Пит-стопов в данных нет.</WxEmpty>
         ) : (
-          <ol className="wk-feed-list">
-            {data.pits.map((p) => (
-              <li key={`${p.number}-${p.lap}-${p.date}`} className={p.code === theme.code ? 'fav' : undefined}>
-                <span className="debrief-mark">
-                  <PilotAvatar code={p.code} />
-                  <span className="code">{p.code}</span>
-                </span>
-                <span className="meta">
-                  <b>Lap {p.lap || '—'}</b>
-                  <span>{timeOf(p.date)}</span>
-                </span>
-                <span className="tail num">{fmtDur(p.duration)}</span>
-              </li>
-            ))}
+          <ol className="wx-pits">
+            {data.pits.map((p, i) => {
+              const fastest = p.duration != null && p.duration === stats.fastest
+              const width = p.duration ? Math.max(8, Math.min(100, (p.duration / stats.max) * 100)) : 8
+              return (
+                <li
+                  key={`${p.number}-${p.lap}-${p.date}`}
+                  className={`${p.code === theme.code ? 'fav' : ''}${fastest ? ' best' : ''}`}
+                  style={cssVars({ '--i': Math.min(i, 14), '--w': `${width}%` })}
+                >
+                  <PilotAvatar code={p.code} className="wx-av sm" />
+                  <span className="wx-pit-who">
+                    <b>{p.code}</b>
+                    <small className="num">
+                      Круг {p.lap || '—'} · {timeOf(p.date)}
+                    </small>
+                  </span>
+                  <span className="wx-pit-time num">
+                    {p.duration != null ? p.duration.toFixed(1) : '—'}
+                    <small>с</small>
+                  </span>
+                  <i className="wx-pit-bar" aria-hidden="true" />
+                  {fastest ? <em className="wx-pit-tag">Fastest</em> : null}
+                </li>
+              )
+            })}
           </ol>
         )
       ) : (
         <>
           {data.topPassers.length > 0 ? (
-            <div className="wk-feed-top" aria-label="Больше всего обгонов">
-              {data.topPassers.map((p) => (
-                <span key={p.code} className={p.code === theme.code ? 'fav' : undefined}>
-                  <b>{p.code}</b>
-                  <small>{p.count}</small>
-                </span>
-              ))}
+            <div className="wx-block">
+              <span className="wx-eyebrow">Больше всего обгонов</span>
+              <ul className="wx-top">
+                {data.topPassers.map((p, i) => (
+                  <li
+                    key={p.code}
+                    className={p.code === theme.code ? 'fav' : undefined}
+                    style={cssVars({ '--i': i, '--w': `${(p.count / topMax) * 100}%` })}
+                  >
+                    <b>{p.code}</b>
+                    <i aria-hidden="true" />
+                    <span className="num">{p.count}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
           ) : null}
           {data.overtakes.length === 0 ? (
-            <p className="wk-feed-empty">Обгонов в данных нет.</p>
+            <WxEmpty>Обгонов в данных нет.</WxEmpty>
           ) : (
-            <ol className="wk-feed-list">
-              {data.overtakes.map((o) => (
+            <ol className="wx-passes">
+              {data.overtakes.map((o, i) => (
                 <li
                   key={`${o.date}-${o.by}-${o.of}`}
                   className={o.by === theme.code || o.of === theme.code ? 'fav' : undefined}
+                  style={cssVars({ '--i': Math.min(i, 14) })}
                 >
-                  <span className="pass-pair">
-                    <b>{o.by}</b>
-                    <span aria-hidden="true">→</span>
-                    <b>{o.of}</b>
-                  </span>
-                  <span className="meta">
-                    <b>P{o.position || '—'}</b>
-                    <span>{timeOf(o.date)}</span>
-                  </span>
+                  <b className="by">{o.by}</b>
+                  <ArrowRight size={16} aria-hidden="true" />
+                  <b className="of">{o.of}</b>
+                  <span className="wx-pass-pos num">P{o.position || '—'}</span>
+                  <time className="num">{timeOf(o.date)}</time>
                 </li>
               ))}
             </ol>

@@ -1,9 +1,10 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import type { LiveBoard } from '@/app/api/live/route'
+import type { LiveBoard, LiveStanding } from '@/app/api/live/route'
 import { useTheme } from '@/lib/store'
 import { PilotAvatar } from './pilot-avatar'
+import { useWk } from './weekend-data'
+import { cssVars, timeOf, WxEmpty, WxHead, WxLoading } from './wx-ui'
 
 function flagLabel(flag?: string | null) {
   if (!flag) return null
@@ -15,99 +16,97 @@ function flagLabel(flag?: string | null) {
   return flag
 }
 
-function timeOf(iso: string) {
-  const d = new Date(iso)
-  if (Number.isNaN(d.getTime())) return ''
-  return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+function flagTone(flag?: string | null) {
+  if (!flag) return 'none'
+  if (/CHEQUERED/i.test(flag)) return 'chq'
+  if (/GREEN/i.test(flag)) return 'green'
+  if (/YELLOW|SAFETY/i.test(flag)) return 'yellow'
+  if (/RED/i.test(flag)) return 'red'
+  return 'none'
+}
+
+function Podium({ rows, favCode }: { rows: LiveStanding[]; favCode?: string }) {
+  const order = [rows[1], rows[0], rows[2]].filter(Boolean) as LiveStanding[]
+  return (
+    <ol className="wx-podium" aria-label="Подиум">
+      {order.map((r, i) => (
+        <li
+          key={r.number}
+          className={`wx-pod p${r.position}${r.code === favCode ? ' fav' : ''}`}
+          style={cssVars({ '--tc': r.color, '--i': i })}
+        >
+          <span className="wx-pod-no" aria-hidden="true">
+            {r.position}
+          </span>
+          <PilotAvatar code={r.code} className="wx-av" />
+          <b className="wx-pod-code">{r.code}</b>
+          <small className="wx-pod-team">{r.team || r.name}</small>
+          <span className="wx-pod-gap num">{r.status ? r.status.toUpperCase() : r.gap}</span>
+        </li>
+      ))}
+    </ol>
+  )
 }
 
 export function WeekendLive({ circuitId }: { circuitId: string }) {
   const theme = useTheme()
-  const [data, setData] = useState<LiveBoard | null>(null)
-  const [error, setError] = useState(false)
+  const { data, error } = useWk<LiveBoard>('live', circuitId, 30_000)
 
-  useEffect(() => {
-    let cancelled = false
-    let timer: ReturnType<typeof setInterval> | undefined
-
-    const load = () => {
-      fetch(`/api/live?circuit=${encodeURIComponent(circuitId)}`)
-        .then(async (res) => {
-          if (!res.ok) throw new Error('no live')
-          return res.json() as Promise<LiveBoard>
-        })
-        .then((payload) => {
-          if (cancelled) return
-          setData(payload)
-          setError(false)
-        })
-        .catch(() => {
-          if (cancelled) return
-          setError(true)
-          setData(null)
-        })
-    }
-
-    load()
-    timer = setInterval(load, 30_000)
-    return () => {
-      cancelled = true
-      if (timer) clearInterval(timer)
-    }
-  }, [circuitId])
-
-  if (error) {
-    return <p className="wk-live-empty">Нет данных эфира для этой трассы.</p>
-  }
-  if (!data) {
-    return <p className="wk-live-empty">Подтягиваем эфир…</p>
-  }
+  if (error && !data) return <WxEmpty>Нет данных эфира для этой трассы.</WxEmpty>
+  if (!data) return <WxLoading />
 
   const flag = flagLabel(data.flag)
+  const podium = data.standings.slice(0, 3)
+  const rest = data.standings.slice(3)
 
   return (
-    <section className="wk-live" aria-label={data.live ? 'Эфир гонки' : 'Результат гонки'}>
-      <div className="wk-live-head">
-        <div>
-          <span className="eyebrow">{data.live ? 'Live' : `Результат · ${data.year}`}</span>
-          <b className="disp">
-            {data.circuitName} · {data.sessionName}
-          </b>
-        </div>
-        {flag ? <span className={`wk-live-flag ${flag.toLowerCase().replace(/\s+/g, '-')}`}>{flag}</span> : null}
-      </div>
+    <section className="wx wx-live" aria-label={data.live ? 'Эфир гонки' : 'Результат гонки'}>
+      <WxHead
+        eyebrow={data.live ? 'Live timing' : `Результат · ${data.year}`}
+        title={`${data.circuitName} · ${data.sessionName}`}
+        aside={
+          flag ? (
+            <span className={`wx-flag ${flagTone(data.flag)}`}>
+              <i aria-hidden="true" />
+              {flag}
+            </span>
+          ) : null
+        }
+      />
 
-      <ol className="wk-live-board">
-        {data.standings.map((row) => {
-          const fav = row.code === theme.code
-          return (
-            <li key={row.number} className={fav ? 'fav' : undefined}>
-              <span className="pos num">{row.position}</span>
-              <span className="who">
-                <PilotAvatar code={row.code} />
-                <span>
-                  <b>{row.code}</b>
-                  <small>{row.team || row.name}</small>
-                </span>
-              </span>
-              <span className="gap num">
-                {row.status ? row.status.toUpperCase() : row.gap}
-              </span>
-            </li>
-          )
-        })}
+      {podium.length > 0 ? <Podium rows={podium} favCode={theme.code} /> : null}
+
+      <ol className="wx-board">
+        {rest.map((r, i) => (
+          <li
+            key={r.number}
+            className={r.code === theme.code ? 'fav' : undefined}
+            style={cssVars({ '--tc': r.color, '--i': i })}
+          >
+            <span className="wx-board-pos num">{r.position}</span>
+            <i className="wx-board-bar" aria-hidden="true" />
+            <PilotAvatar code={r.code} className="wx-av sm" />
+            <span className="wx-board-who">
+              <b>{r.code}</b>
+              <small>{r.team || r.name}</small>
+            </span>
+            <span className={`wx-board-gap num${r.status ? ' out' : ''}`}>
+              {r.status ? r.status.toUpperCase() : r.gap}
+            </span>
+          </li>
+        ))}
       </ol>
 
       {data.control.length > 0 ? (
-        <div className="wk-live-rc">
-          <span className="eyebrow">Race control</span>
-          <ul>
-            {data.control.map((c) => (
-              <li key={`${c.date}-${c.message}`}>
-                <span className="rc-time">{timeOf(c.date)}</span>
-                <span className="rc-msg">
+        <div className="wx-block">
+          <span className="wx-eyebrow">Race control</span>
+          <ul className="wx-timeline">
+            {data.control.map((c, i) => (
+              <li key={`${c.date}-${c.message}`} style={cssVars({ '--i': i })}>
+                <span className={`wx-tl-dot ${flagTone(c.flag)}`} aria-hidden="true" />
+                <time className="num">{timeOf(c.date)}</time>
+                <span className="wx-tl-msg">
                   {c.flag ? <b>{c.flag}</b> : null}
-                  {c.flag ? ' · ' : ''}
                   {c.message}
                 </span>
               </li>

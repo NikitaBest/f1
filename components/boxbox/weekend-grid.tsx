@@ -1,74 +1,63 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import type { GridPayload } from '@/app/api/grid/route'
+import type { GridPayload, GridRow } from '@/app/api/grid/route'
 import { useTheme } from '@/lib/store'
 import { PilotAvatar } from './pilot-avatar'
+import { useWk } from './weekend-data'
+import { cssVars, WxEmpty, WxHead, WxLoading } from './wx-ui'
+
+function Slot({ row, index, fav }: { row: GridRow; index: number; fav: boolean }) {
+  return (
+    <li
+      className={`wx-slot${row.position === 1 ? ' pole' : ''}${fav ? ' fav' : ''}`}
+      style={cssVars({ '--tc': row.color, '--i': index })}
+    >
+      <span className="wx-slot-no" aria-hidden="true">
+        {row.position}
+      </span>
+      <PilotAvatar code={row.code} className="wx-av sm" />
+      <span className="wx-slot-meta">
+        <b>{row.code}</b>
+        <small className="num">{row.lapLabel ?? row.team}</small>
+      </span>
+      {row.position === 1 ? <em className="wx-slot-tag">Pole</em> : null}
+    </li>
+  )
+}
 
 export function WeekendGrid({ circuitId }: { circuitId: string }) {
   const theme = useTheme()
-  const [data, setData] = useState<GridPayload | null>(null)
-  const [error, setError] = useState(false)
+  const { data, error } = useWk<GridPayload>('grid', circuitId)
 
-  useEffect(() => {
-    let cancelled = false
-    setData(null)
-    setError(false)
-    fetch(`/api/grid?circuit=${encodeURIComponent(circuitId)}`)
-      .then(async (res) => {
-        if (!res.ok) throw new Error('no grid')
-        return res.json() as Promise<GridPayload>
-      })
-      .then((payload) => {
-        if (!cancelled) setData(payload)
-      })
-      .catch(() => {
-        if (!cancelled) {
-          setError(true)
-          setData(null)
-        }
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [circuitId])
-
-  if (error) return <p className="wk-live-empty">Нет данных стартовой решётки.</p>
-  if (!data) return <p className="wk-live-empty">Загружаем решётку…</p>
+  if (error && !data) return <WxEmpty>Нет данных стартовой решётки.</WxEmpty>
+  if (!data) return <WxLoading />
 
   const left = data.rows.filter((r) => r.position % 2 === 1)
   const right = data.rows.filter((r) => r.position % 2 === 0)
 
   return (
-    <section className="wk-grid" aria-label="Стартовая решётка">
-      <div className="wk-grid-head">
-        <span className="eyebrow">Grid · {data.year}</span>
-        <b className="disp">{data.circuitName}</b>
+    <section className="wx wx-grid" aria-label="Стартовая решётка">
+      <WxHead
+        eyebrow={`Grid · ${data.year}`}
+        title={data.circuitName}
+        aside={<span className="wx-chip">{data.sessionName}</span>}
+      />
+
+      <div className="wx-lights" aria-hidden="true">
+        {Array.from({ length: 5 }, (_, i) => (
+          <i key={i} style={cssVars({ '--i': i })} />
+        ))}
       </div>
 
-      <div className="wk-grid-lanes" role="list">
-        <ol className="wk-grid-col">
-          {left.map((row) => (
-            <li key={row.number} className={row.code === theme.code ? 'fav' : undefined} role="listitem">
-              <span className="pos num">{row.position}</span>
-              <PilotAvatar code={row.code} />
-              <span className="meta">
-                <b>{row.code}</b>
-                <small>{row.lapLabel ?? row.team}</small>
-              </span>
-            </li>
+      <div className="wx-lanes">
+        <ol className="wx-lane">
+          {left.map((r, i) => (
+            <Slot key={r.number} row={r} index={i * 2} fav={r.code === theme.code} />
           ))}
         </ol>
-        <ol className="wk-grid-col offset">
-          {right.map((row) => (
-            <li key={row.number} className={row.code === theme.code ? 'fav' : undefined} role="listitem">
-              <span className="pos num">{row.position}</span>
-              <PilotAvatar code={row.code} />
-              <span className="meta">
-                <b>{row.code}</b>
-                <small>{row.lapLabel ?? row.team}</small>
-              </span>
-            </li>
+        <ol className="wx-lane offset">
+          {right.map((r, i) => (
+            <Slot key={r.number} row={r} index={i * 2 + 1} fav={r.code === theme.code} />
           ))}
         </ol>
       </div>

@@ -2,57 +2,67 @@
 
 import { Pause, Play } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
+import type { LiveBoard } from '@/app/api/live/route'
 import type { TeamRadioPayload } from '@/app/api/team-radio/route'
 import { useTheme } from '@/lib/store'
 import { PilotAvatar } from './pilot-avatar'
+import { useWk } from './weekend-data'
+import { cssVars, timeOf, WxEmpty, WxHead, WxLoading } from './wx-ui'
 
-function timeOf(iso: string) {
-  const d = new Date(iso)
-  if (Number.isNaN(d.getTime())) return ''
-  return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+const BARS = 46
+const PAGE = 24
+const FALLBACK_COLOR = '#4f7cff'
+
+function waveHeights(seed: string) {
+  let h = 2166136261
+  for (let i = 0; i < seed.length; i++) h = Math.imul(h ^ seed.charCodeAt(i), 16777619)
+  return Array.from({ length: BARS }, (_, i) => {
+    h = Math.imul(h ^ (h >>> 13), 1274126177)
+    const envelope = Math.sin((i / (BARS - 1)) * Math.PI)
+    const noise = ((h >>> 0) % 100) / 100
+    return Math.round(14 + envelope * 54 * (0.35 + noise * 0.65))
+  })
+}
+
+function surname(name: string) {
+  const parts = name.trim().split(/\s+/)
+  return (parts[parts.length - 1] ?? name).toUpperCase()
 }
 
 export function WeekendTeamRadio({ circuitId }: { circuitId: string }) {
   const theme = useTheme()
   const audioRef = useRef<HTMLAudioElement | null>(null)
-  const [data, setData] = useState<TeamRadioPayload | null>(null)
-  const [error, setError] = useState(false)
-  const [filter, setFilter] = useState<string | 'all'>('all')
+  const { data, error } = useWk<TeamRadioPayload>('team-radio', circuitId)
+  const { data: board } = useWk<LiveBoard>('live', circuitId, 30_000)
+  const [filter, setFilter] = useState<string>('all')
   const [playing, setPlaying] = useState<string | null>(null)
   const [playError, setPlayError] = useState(false)
+  const [limit, setLimit] = useState(PAGE)
 
   useEffect(() => {
-    let cancelled = false
-    setData(null)
-    setError(false)
-    setFilter('all')
-    setPlaying(null)
-    setPlayError(false)
-    fetch(`/api/team-radio?circuit=${encodeURIComponent(circuitId)}`)
-      .then(async (res) => {
-        if (!res.ok) throw new Error('no radio')
-        return res.json() as Promise<TeamRadioPayload>
-      })
-      .then((payload) => {
-        if (!cancelled) setData(payload)
-      })
-      .catch(() => {
-        if (!cancelled) {
-          setError(true)
-          setData(null)
-        }
-      })
-    return () => {
-      cancelled = true
-      audioRef.current?.pause()
-    }
-  }, [circuitId])
+    const el = audioRef.current
+    return () => el?.pause()
+  }, [])
+
+  const colors = useMemo(() => {
+    const map = new Map<string, string>()
+    board?.standings.forEach((s) => map.set(s.code, s.color))
+    return map
+  }, [board])
 
   const clips = useMemo(() => {
     if (!data) return []
-    if (filter === 'all') return data.clips
-    return data.clips.filter((c) => c.code === filter)
+    return filter === 'all' ? data.clips : data.clips.filter((c) => c.code === filter)
   }, [data, filter])
+
+  const numbered = useMemo(() => {
+    const counters = new Map<string, number>()
+    return clips.map((c) => {
+      const n = (counters.get(c.code) ?? 0) + 1
+      counters.set(c.code, n)
+      return { clip: c, n }
+    })
+  }, [clips])
 
   const toggle = async (url: string) => {
     const el = audioRef.current
@@ -77,11 +87,13 @@ export function WeekendTeamRadio({ circuitId }: { circuitId: string }) {
     }
   }
 
-  if (error) return <p className="wk-live-empty">Нет записей team radio.</p>
-  if (!data) return <p className="wk-live-empty">Загружаем team radio…</p>
+  if (error && !data) return <WxEmpty>Нет записей team radio.</WxEmpty>
+  if (!data) return <WxLoading />
+
+  const visible = numbered.slice(0, limit)
 
   return (
-    <section className="wk-radio" aria-label="Team radio">
+    <section className="wx wx-radio" aria-label="Team radio">
       <audio
         ref={audioRef}
         preload="none"
@@ -91,38 +103,44 @@ export function WeekendTeamRadio({ circuitId }: { circuitId: string }) {
           setPlayError(true)
         }}
         onPause={() => {
-          if (audioRef.current?.ended) return
-          if (audioRef.current?.paused) setPlaying(null)
+          if (!audioRef.current?.ended && audioRef.current?.paused) setPlaying(null)
         }}
       />
 
-      <div className="wk-feed-head">
-        <div>
-          <span className="eyebrow">Team radio · {data.year}</span>
-          <b className="disp">{data.circuitName}</b>
-        </div>
-        <span className="wk-feed-stat">{data.total} clips</span>
-      </div>
+      <WxHead
+        eyebrow={`Team radio · ${data.year}`}
+        title={data.circuitName}
+        aside={
+          <span className="wx-count">
+            <b className="num">{data.total}</b>
+            <small>записей</small>
+          </span>
+        }
+      />
 
-      {playError ? <p className="wk-feed-empty">Не удалось воспроизвести клип. Попробуй ещё раз.</p> : null}
-
-      <div className="wk-radio-filters" role="tablist" aria-label="Фильтр пилота">
+      <div className="wx-chips" role="tablist" aria-label="Фильтр пилота">
         <button
           type="button"
           role="tab"
           aria-selected={filter === 'all'}
-          onClick={() => setFilter('all')}
+          onClick={() => {
+            setFilter('all')
+            setLimit(PAGE)
+          }}
         >
           Все
         </button>
-        {data.drivers.slice(0, 10).map((d) => (
+        {data.drivers.slice(0, 12).map((d) => (
           <button
             key={d.number}
             type="button"
             role="tab"
             aria-selected={filter === d.code}
             className={d.code === theme.code ? 'fav' : undefined}
-            onClick={() => setFilter(d.code)}
+            onClick={() => {
+              setFilter(d.code)
+              setLimit(PAGE)
+            }}
           >
             {d.code}
             <small>{d.count}</small>
@@ -130,35 +148,61 @@ export function WeekendTeamRadio({ circuitId }: { circuitId: string }) {
         ))}
       </div>
 
-      {clips.length === 0 ? (
-        <p className="wk-feed-empty">Для фильтра записей нет.</p>
+      {playError ? <WxEmpty>Не удалось воспроизвести клип. Попробуй ещё раз.</WxEmpty> : null}
+
+      {visible.length === 0 ? (
+        <WxEmpty>Для фильтра записей нет.</WxEmpty>
       ) : (
-        <ol className="wk-feed-list wk-radio-list">
-          {clips.map((c) => {
-            const active = playing === c.url
+        <ol className="wx-rc-list">
+          {visible.map(({ clip, n }, i) => {
+            const on = playing === clip.url
+            const color = colors.get(clip.code) ?? FALLBACK_COLOR
             return (
-              <li key={`${c.date}-${c.number}`} className={c.code === theme.code ? 'fav' : undefined}>
+              <li key={`${clip.date}-${clip.number}`} style={cssVars({ '--tc': color, '--i': Math.min(i, 10) })}>
                 <button
                   type="button"
-                  className={`wk-radio-play${active ? ' on' : ''}`}
-                  aria-label={active ? `Пауза ${c.code}` : `Слушать ${c.code}`}
-                  onClick={() => void toggle(c.url)}
+                  className={`wx-rc${on ? ' on' : ''}${clip.code === theme.code ? ' fav' : ''}`}
+                  aria-label={`${on ? 'Пауза' : 'Слушать'} ${clip.name}, запись ${n}`}
+                  aria-pressed={on}
+                  onClick={() => void toggle(clip.url)}
                 >
-                  {active ? <Pause size={16} aria-hidden="true" /> : <Play size={16} aria-hidden="true" />}
+                  <span className="wx-rc-top">
+                    <span className="wx-rc-name">
+                      <b>{surname(clip.name)}</b>
+                      <i>RADIO</i>
+                    </span>
+                    <PilotAvatar code={clip.code} className="wx-av sm" />
+                  </span>
+                  <span className="wx-rc-mid">
+                    <span className="wx-rc-no num" aria-hidden="true">
+                      {n}
+                    </span>
+                    <span className="wx-rc-wave" aria-hidden="true">
+                      {waveHeights(clip.url).map((h, k) => (
+                        <u key={k} style={cssVars({ '--h': `${h}%`, '--k': k })} />
+                      ))}
+                    </span>
+                  </span>
+                  <span className="wx-rc-foot">
+                    <span className="wx-rc-play" aria-hidden="true">
+                      {on ? <Pause size={14} /> : <Play size={14} />}
+                    </span>
+                    <span className="wx-rc-quote num">
+                      &ldquo;TEAM RADIO · {timeOf(clip.date, true)}&rdquo;
+                    </span>
+                  </span>
                 </button>
-                <span className="debrief-mark">
-                  <PilotAvatar code={c.code} />
-                  <span className="code">{c.code}</span>
-                </span>
-                <span className="meta">
-                  <b>{c.name.split(' ').slice(-1)[0]}</b>
-                  <span>{timeOf(c.date)}</span>
-                </span>
               </li>
             )
           })}
         </ol>
       )}
+
+      {numbered.length > limit ? (
+        <button type="button" className="wx-more" onClick={() => setLimit((v) => v + PAGE)}>
+          Показать ещё · {numbered.length - limit}
+        </button>
+      ) : null}
     </section>
   )
 }
