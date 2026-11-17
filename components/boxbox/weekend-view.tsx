@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, type CSSProperties } from 'react'
-import { ChevronDown, ChevronUp, ImagePlus, X } from 'lucide-react'
+import { ArrowUpRight, ChevronDown, ChevronRight, ChevronUp, ImagePlus, X } from 'lucide-react'
 import { useNow } from '@/lib/use-now'
 import { hasCircuit, TrackLap } from './track-lap'
 import { WeekendGrid } from './weekend-grid'
@@ -106,22 +106,83 @@ function SessionRow({
   )
 }
 
-export function WeekendCard({
+function weekendDates(event: RaceEvent) {
+  const start = parseISODate(event.start)
+  const end = addDays(start, 2)
+  return start.getMonth() === end.getMonth()
+    ? `${start.getDate()}–${end.getDate()} ${mon(start)}`
+    : `${start.getDate()} ${mon(start)} – ${end.getDate()} ${mon(end)}`
+}
+
+/** Короткая карточка для главной: только суть, всё остальное — на странице уикенда. */
+export function WeekendTeaser({
   event,
   round,
   season,
-  compact = false,
-  forceOpen = false,
+  onOpen,
 }: {
   event: RaceEvent
   round: number
   season: number
-  compact?: boolean
-  forceOpen?: boolean
+  onOpen?: () => void
+}) {
+  const now = useNow(30_000)
+  const { photo } = useWeekendPhoto(event.id)
+  const nextIdx = event.sessions.findIndex((s) => new Date(s.at).getTime() > now)
+  const next = event.sessions[nextIdx]
+  const nextAt = next ? new Date(next.at) : null
+  const title = shortName(event.name)
+
+  return (
+    <article className="wk wk-teaser" aria-label={`Ближайший уикенд: ${event.name}`}>
+      <div className="wk-head" style={{ '--bg': `url("${photo ?? eventImage(event)}")` } as CSSProperties}>
+        <div className="wk-top">
+          <span className="eyebrow" style={{ color: 'var(--sun)' }}>
+            Раунд {pad(round)} · {season}
+          </span>
+          <span className="wk-go" aria-hidden="true">
+            <ArrowUpRight size={18} />
+          </span>
+        </div>
+        <h2 className="wk-name disp" style={{ fontSize: title.length > 10 ? 34 : 40 }}>
+          {title}
+        </h2>
+        <div className="wk-meta">
+          <b>{event.place}</b>
+          <span>{weekendDates(event)}</span>
+        </div>
+      </div>
+      <div className="cd">
+        <div className="cd-label">
+          <span>{next ? 'До старта' : 'Уикенд'}</span>
+          <b>
+            {next && nextAt ? `${next.label} · ${weekday(nextAt)} ${hhmm(nextAt)}` : 'Завершён'}
+          </b>
+        </div>
+        {next ? <Countdown target={new Date(next.at).getTime()} /> : null}
+      </div>
+      <button type="button" className="wk-more wk-open" onClick={onOpen}>
+        <span>Весь уикенд</span>
+        <span className="wk-open-hint">
+          Расписание · погода · эфир
+          <ChevronRight size={18} aria-hidden="true" />
+        </span>
+      </button>
+    </article>
+  )
+}
+
+export function WeekendCard({
+  event,
+  round,
+  season,
+}: {
+  event: RaceEvent
+  round: number
+  season: number
 }) {
   const now = useNow(30_000)
   const { photo, save, clear } = useWeekendPhoto(event.id)
-  const [open, setOpen] = useState(false)
   const [lapOpen, setLapOpen] = useState(false)
   const [liveOpen, setLiveOpen] = useState(false)
   const [gridOpen, setGridOpen] = useState(false)
@@ -130,21 +191,13 @@ export function WeekendCard({
   const [telemOpen, setTelemOpen] = useState(false)
   const nextIdx = event.sessions.findIndex((s) => new Date(s.at).getTime() > now)
   const next = event.sessions[nextIdx]
-  const start = parseISODate(event.start)
-  const end = addDays(start, 2)
-  const dates =
-    start.getMonth() === end.getMonth()
-      ? `${start.getDate()}–${end.getDate()} ${mon(start)}`
-      : `${start.getDate()} ${mon(start)} – ${end.getDate()} ${mon(end)}`
+  const dates = weekendDates(event)
   const title = shortName(event.name)
-  const focusIdx = nextIdx >= 0 ? nextIdx : Math.max(0, event.sessions.length - 1)
-  const hidden = Math.max(0, event.sessions.length - 1)
-  const showAll = !compact || open || forceOpen
   const circuitId = event.circuitId
   const canLap = Boolean(circuitId && hasCircuit(circuitId))
 
   return (
-    <article className={`wk${compact ? ' compact' : ''}`} aria-label={`Ближайший уикенд: ${event.name}`}>
+    <article className="wk" aria-label={`Уикенд: ${event.name}`}>
       <div className="wk-head" style={{ '--bg': `url("${photo ?? eventImage(event)}")` } as CSSProperties}>
         <div className="wk-top">
           <span className="eyebrow" style={{ color: 'var(--sun)' }}>
@@ -171,10 +224,7 @@ export function WeekendCard({
             )}
           </div>
         </div>
-        <h2
-          className="wk-name disp"
-          style={{ fontSize: compact ? (title.length > 10 ? 36 : 42) : title.length > 10 ? 52 : 64 }}
-        >
+        <h2 className="wk-name disp" style={{ fontSize: title.length > 10 ? 52 : 64 }}>
           {title}
         </h2>
         <div className="wk-meta">
@@ -191,31 +241,12 @@ export function WeekendCard({
       </div>
       {circuitId ? <WeekendWeather circuitId={circuitId} /> : null}
       <ul className="sched">
-        {showAll
-          ? event.sessions.map((s, i) => {
-              const at = new Date(s.at)
-              const state = i === nextIdx ? 'next' : at.getTime() < now ? 'past' : ''
-              return <SessionRow key={s.key} session={s} at={at} state={state} />
-            })
-          : (() => {
-              const s = event.sessions[focusIdx]
-              if (!s) return null
-              const at = new Date(s.at)
-              const state = focusIdx === nextIdx ? 'next' : at.getTime() < now ? 'past' : ''
-              return <SessionRow key={s.key} session={s} at={at} state={state} />
-            })()}
+        {event.sessions.map((s, i) => {
+          const at = new Date(s.at)
+          const state = i === nextIdx ? 'next' : at.getTime() < now ? 'past' : ''
+          return <SessionRow key={s.key} session={s} at={at} state={state} />
+        })}
       </ul>
-      {compact && hidden > 0 && (
-        <button
-          type="button"
-          className="wk-more"
-          aria-expanded={showAll}
-          onClick={() => setOpen((v) => !v)}
-        >
-          <span>{showAll ? 'Свернуть расписание' : `Расписание · ${event.sessions.length}`}</span>
-          {showAll ? <ChevronUp size={18} aria-hidden="true" /> : <ChevronDown size={18} aria-hidden="true" />}
-        </button>
-      )}
       {circuitId ? (
         <>
           <button

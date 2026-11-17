@@ -755,9 +755,6 @@ html[data-theme='verstappen'],
   border-top: 1px solid var(--wh-14);
   color: var(--white);
 }
-.wk.compact .wk-weather {
-  margin: 0 16px 14px;
-}
 .wk-weather-top {
   display: flex;
   justify-content: space-between;
@@ -881,29 +878,6 @@ html[data-theme='verstappen'],
   background: var(--white);
   color: var(--red);
 }
-.wk.compact .wk-head {
-  min-height: 188px;
-  padding: 14px 16px 12px;
-}
-.wk.compact .wk-name {
-  padding-top: 28px;
-  margin-bottom: 8px;
-  font-size: 42px;
-}
-.wk.compact .cd {
-  margin: 0 16px 12px;
-  padding-top: 12px;
-}
-.wk.compact .cd-cell {
-  padding: 8px 0 6px;
-  border-radius: 12px;
-}
-.wk.compact .cd-cell .disp {
-  font-size: 32px;
-}
-.wk.compact .ses {
-  padding: 12px 16px;
-}
 .wk-more {
   display: flex;
   align-items: center;
@@ -919,6 +893,71 @@ html[data-theme='verstappen'],
   letter-spacing: 0.1em;
   text-transform: uppercase;
   cursor: pointer;
+}
+/* ---------- weekend teaser (home) ---------- */
+.wk-teaser {
+  position: relative;
+  transition: transform 0.18s ease;
+}
+.wk-teaser:active {
+  transform: scale(0.985);
+}
+.wk-teaser .wk-head {
+  min-height: 156px;
+  padding: 14px 16px 12px;
+}
+.wk-teaser .wk-name {
+  padding-top: 18px;
+  margin-bottom: 6px;
+}
+.wk-go {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 99px;
+  border: 1.5px solid var(--wh-60);
+  color: var(--white);
+  background: color-mix(in srgb, var(--navy) 40%, transparent);
+}
+.wk-teaser .cd {
+  margin: 0 16px 14px;
+  padding-top: 12px;
+}
+.wk-teaser .cd-label {
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.wk-teaser .cd-cells {
+  gap: 6px;
+}
+.wk-teaser .cd-cell {
+  padding: 6px 0 5px;
+  border-radius: 12px;
+}
+.wk-teaser .cd-cell .disp {
+  font-size: 28px;
+  line-height: 1.05;
+}
+.wk-teaser .cd-cell .u {
+  font-size: 10px;
+}
+.wk-open::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+.wk-open:focus-visible {
+  outline: 2px solid var(--sun);
+  outline-offset: -2px;
+}
+.wk-open-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--ink-60);
+  font-size: 11px;
+  letter-spacing: 0.06em;
 }
 .wk-lap-toggle,
 .wk-live-toggle {

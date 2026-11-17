@@ -9,7 +9,7 @@ import { parseISODate, sortEvents, upcomingEvents, pad, type RaceEvent } from '@
 import { DuoCard } from './duo-card'
 import { NewsTeaser } from './news-teaser'
 import { QuoteCard } from './quote-card'
-import { WeekendCard } from './weekend-view'
+import { WeekendCard, WeekendTeaser } from './weekend-view'
 
 const roundOf = (event: RaceEvent, events: RaceEvent[]) =>
   event.round ?? sortEvents(events).findIndex((e) => e.id === event.id) + 1
@@ -21,7 +21,7 @@ export function HomeScreen({
   onOpenTeam,
   onOpenCar,
   onOpenNews,
-  weekendForceOpen = false,
+  onOpenWeekend,
 }: {
   events: RaceEvent[]
   live: F1LiveState
@@ -29,7 +29,7 @@ export function HomeScreen({
   onOpenTeam?: () => void
   onOpenCar?: () => void
   onOpenNews?: () => void
-  weekendForceOpen?: boolean
+  onOpenWeekend?: () => void
 }) {
   const theme = useTheme()
   const now = useNow(60_000)
@@ -51,12 +51,11 @@ export function HomeScreen({
       </header>
 
       {event ? (
-        <WeekendCard
+        <WeekendTeaser
           event={event}
           round={roundOf(event, events)}
           season={season}
-          compact
-          forceOpen={weekendForceOpen}
+          onOpen={onOpenWeekend}
         />
       ) : (
         <div className="empty">
@@ -80,6 +79,31 @@ export function HomeScreen({
       <NewsTeaser onOpenAll={onOpenNews} />
 
       <QuoteCard />
+    </div>
+  )
+}
+
+export function WeekendScreen({
+  events,
+  onBack,
+}: {
+  events: RaceEvent[]
+  onBack: () => void
+}) {
+  const now = useNow(60_000)
+  const event = upcomingEvents(events, now)[0]
+  if (!event) return null
+  const round = roundOf(event, events)
+  return (
+    <div className="scroll">
+      <div className="topbar">
+        <button type="button" className="back" onClick={onBack}>
+          <ArrowLeft size={18} aria-hidden="true" />
+          Главная
+        </button>
+        <span className="eyebrow">Раунд {pad(round)}</span>
+      </div>
+      <WeekendCard event={event} round={round} season={event.season ?? parseISODate(event.start).getFullYear()} />
     </div>
   )
 }

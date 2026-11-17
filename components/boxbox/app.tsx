@@ -7,7 +7,7 @@ import { useViewportLock } from '@/lib/use-viewport-lock'
 import { CalendarScreen } from './calendar-screen'
 import { CarScreen } from './car-screen'
 import { DriverScreen } from './driver-screen'
-import { EventDetailScreen, HomeScreen } from './home-screen'
+import { EventDetailScreen, HomeScreen, WeekendScreen } from './home-screen'
 import { NewsScreen } from './news-screen'
 import { PaddockScreen } from './paddock-screen'
 import { PickDriverScreen } from './pick-driver-screen'
@@ -26,6 +26,7 @@ export function BoxBoxApp() {
   const [openDriver, setOpenDriver] = useState(false)
   const [openTeam, setOpenTeam] = useState(false)
   const [openCar, setOpenCar] = useState(false)
+  const [openWeekend, setOpenWeekend] = useState(false)
   const [openPickDriver, setOpenPickDriver] = useState(false)
   const [booted, setBooted] = useState(false)
   const [themeSplash, setThemeSplash] = useState(false)
@@ -46,6 +47,7 @@ export function BoxBoxApp() {
       setOpenDriver(false)
       setOpenTeam(false)
       setOpenCar(false)
+      setOpenWeekend(false)
       setOpenPickDriver(false)
       setOpenId(null)
       setTab('home')
@@ -77,6 +79,7 @@ export function BoxBoxApp() {
     setOpenDriver(false)
     setOpenTeam(false)
     setOpenCar(false)
+    setOpenWeekend(false)
   }
   const go = (t: Tab) => {
     setOpenId(null)
@@ -88,6 +91,8 @@ export function BoxBoxApp() {
   let screen: React.ReactNode
   if (openPickDriver && tab === 'paddock') {
     screen = <PickDriverScreen onBack={() => setOpenPickDriver(false)} />
+  } else if (openWeekend && tab === 'home') {
+    screen = <WeekendScreen events={state.events} onBack={() => setOpenWeekend(false)} />
   } else if (openDriver && tab === 'home') {
     screen = <DriverScreen live={live} onBack={() => setOpenDriver(false)} />
   } else if (openTeam && tab === 'home') {
@@ -114,6 +119,10 @@ export function BoxBoxApp() {
           setOpenCar(true)
         }}
         onOpenNews={() => go('news')}
+        onOpenWeekend={() => {
+          closeGarage()
+          setOpenWeekend(true)
+        }}
       />
     )
   } else if (tab === 'news') {
@@ -131,7 +140,7 @@ export function BoxBoxApp() {
   return (
     <div className="bb-app" data-theme={theme.id}>
       <div
-        key={`${tab}-${theme.id}-${openId ?? ''}-${openDriver}-${openTeam}-${openCar}-${openPickDriver}`}
+        key={`${tab}-${theme.id}-${openId ?? ''}-${openDriver}-${openTeam}-${openCar}-${openWeekend}-${openPickDriver}`}
         className="contents"
       >
         {screen}

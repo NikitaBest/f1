@@ -17,7 +17,6 @@ type Step = {
   eyebrow: string
   title: string
   body: string
-  expand?: boolean
   hold: number
   /** 3D-мокап со страницей гонщика */
   phone?: 'driver'
@@ -40,19 +39,11 @@ const STEPS: Step[] = [
     hold: 3000,
   },
   {
-    sel: '.sched',
-    eyebrow: 'Расписание',
-    title: 'Что дальше',
-    body: 'Время и день ближайшей сессии',
-    hold: 2800,
-  },
-  {
-    sel: '.sched',
+    sel: '.wk-open',
     eyebrow: 'Весь уикенд',
-    title: 'Все сессии',
-    body: 'Практики, квалификация и гонка',
-    expand: true,
-    hold: 3400,
+    title: 'Одним тапом',
+    body: 'Расписание, погода, решётка и эфир — на отдельной странице',
+    hold: 3000,
   },
   {
     sel: '.garage-block',
@@ -122,7 +113,6 @@ export function ReelDemo() {
   tipOnRef.current = tipOn
 
   const current = step >= 0 ? STEPS[Math.min(step, STEPS.length - 1)] : null
-  const expand = STEPS.slice(0, Math.max(0, step) + 1).some((s) => s.expand)
   const garageIdx = STEPS.findIndex((s) => s.sel === '.garage-block')
   // Подгружаем страницу гонщика уже на шаге Garage
   const mountPhone = step >= garageIdx && garageIdx >= 0
@@ -245,7 +235,7 @@ export function ReelDemo() {
         el.scrollIntoView({ block: 'start', behavior: 'smooth' })
       }
 
-      await wait(expand ? MOVE_MS + 80 : MOVE_MS, timers)
+      await wait(MOVE_MS, timers)
       if (cancelled) return
 
       el.classList.add('is-reel-hot')
@@ -276,7 +266,7 @@ export function ReelDemo() {
       cancelled = true
       timers.forEach((id) => window.clearTimeout(id))
     }
-  }, [phase, step, current, expand])
+  }, [phase, step, current])
 
   useEffect(() => {
     return () => {
@@ -298,7 +288,6 @@ export function ReelDemo() {
           <HomeScreen
             events={state.events}
             live={live}
-            weekendForceOpen={expand}
             onOpenDriver={() => {}}
             onOpenTeam={() => {}}
             onOpenCar={() => {}}
