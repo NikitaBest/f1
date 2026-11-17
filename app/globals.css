@@ -577,6 +577,42 @@ html[data-theme='verstappen'],
   color: color-mix(in srgb, #fff 75%, transparent);
   margin: 0;
 }
+.hbn.compact {
+  padding: calc(var(--top) + 28px) 16px 22px;
+  min-height: 168px;
+  margin-bottom: 16px;
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 14px), 0 100%);
+}
+.hbn.compact .page-title {
+  font-size: 44px;
+  margin: 4px 0 0;
+}
+.hbn.compact .sub {
+  font-size: 13px;
+  margin-top: 6px;
+}
+
+/* ---------- home head: title + selected driver ---------- */
+.home-head {
+  margin: 0 0 16px;
+}
+.home-head .eyebrow {
+  color: var(--ink-60);
+  display: block;
+}
+.home-head .disp {
+  font-size: 42px;
+  margin: 4px 0 6px;
+  color: var(--navy);
+}
+.home-head p {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--ink-60);
+  max-width: 36ch;
+}
 
 /* ---------- home backdrop: dotted asphalt, chequered corner, kerb ---------- */
 .scroll.home {

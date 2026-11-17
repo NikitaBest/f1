@@ -6,7 +6,6 @@ import { driverDisplayName } from '@/lib/themes'
 import { useNow } from '@/lib/use-now'
 import type { F1LiveState } from '@/lib/use-f1-live'
 import { parseISODate, sortEvents, upcomingEvents, pad, type RaceEvent } from '@/lib/f1'
-import { Ticker, TopBar } from './art'
 import { DuoCard } from './duo-card'
 import { NewsTeaser } from './news-teaser'
 import { QuoteCard } from './quote-card'
@@ -39,8 +38,17 @@ export function HomeScreen({
 
   return (
     <div className="scroll home">
-      <TopBar />
-      <Ticker words={['Box box', theme.teamShort, driverDisplayName(theme), `Сезон ${season}`]} />
+      <header className="home-head" aria-label={driverDisplayName(theme)}>
+        <span className="eyebrow">
+          #{theme.number} · {theme.code} · Сезон {season}
+        </span>
+        <h1 className="disp">Раунд</h1>
+        <p>
+          {driverDisplayName(theme)}
+          <span aria-hidden="true"> · </span>
+          {theme.teamShort}
+        </p>
+      </header>
 
       {event ? (
         <WeekendCard

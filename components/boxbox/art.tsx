@@ -22,15 +22,20 @@ export function Hero({
   eyebrow,
   title,
   sub,
+  compact,
 }: {
   image: string
   pos?: string
   eyebrow: string
   title: string
   sub?: ReactNode
+  compact?: boolean
 }) {
   return (
-    <header className="hbn" style={{ '--bg': `url("${image}")`, '--pos': pos } as CSSProperties}>
+    <header
+      className={`hbn${compact ? ' compact' : ''}`}
+      style={{ '--bg': `url("${image}")`, '--pos': pos } as CSSProperties}
+    >
       <span className="eyebrow">{eyebrow}</span>
       <h1 className="disp page-title">{title}</h1>
       {sub && <p className="sub">{sub}</p>}
