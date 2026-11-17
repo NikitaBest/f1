@@ -1,36 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { openf1CircuitKey, openf1Get } from '@/lib/openf1'
 
-const UPSTREAM = 'https://api.openf1.org/v1'
 const REVALIDATE = 3600
-
-/** circuitId из Jolpica -> circuit_key из OpenF1. Трасс без записи у OpenF1 здесь нет. */
-const OPENF1_CIRCUIT_KEY: Record<string, number> = {
-  albert_park: 10,
-  bahrain: 63,
-  shanghai: 49,
-  catalunya: 15,
-  monaco: 22,
-  villeneuve: 23,
-  red_bull_ring: 19,
-  silverstone: 2,
-  hungaroring: 4,
-  spa: 7,
-  monza: 39,
-  marina_bay: 61,
-  suzuka: 46,
-  americas: 9,
-  rodriguez: 65,
-  interlagos: 14,
-  yas_marina: 70,
-  imola: 6,
-  zandvoort: 55,
-  jeddah: 149,
-  miami: 151,
-  losail: 150,
-  madring: 153,
-  baku: 144,
-  vegas: 152,
-}
 
 type OpenF1Session = { session_key: number; date_end: string; year: number }
 type OpenF1Lap = {
@@ -59,19 +30,6 @@ export type BestLap = {
   s3: number
 }
 
-async function getJson<T>(path: string): Promise<T | null> {
-  try {
-    const res = await fetch(`${UPSTREAM}${path}`, {
-      headers: { Accept: 'application/json' },
-      next: { revalidate: REVALIDATE },
-    })
-    if (!res.ok) return null
-    return (await res.json()) as T
-  } catch {
-    return null
-  }
-}
-
 function pickBest(laps: OpenF1Lap[]) {
   let best: (OpenF1Lap & { lap_duration: number; duration_sector_1: number; duration_sector_2: number; duration_sector_3: number }) | null = null
   for (const lap of laps) {
@@ -84,22 +42,23 @@ function pickBest(laps: OpenF1Lap[]) {
 
 export async function GET(req: NextRequest) {
   const circuit = req.nextUrl.searchParams.get('circuit') ?? ''
-  const key = OPENF1_CIRCUIT_KEY[circuit]
+  const key = openf1CircuitKey(circuit)
   if (!key) return NextResponse.json({ error: 'no data for circuit' }, { status: 404 })
 
-  const sessions = await getJson<OpenF1Session[]>(`/sessions?circuit_key=${key}&session_name=Qualifying`)
+  const sessions = await openf1Get<OpenF1Session[]>(`/sessions?circuit_key=${key}&session_name=Qualifying`, REVALIDATE)
   if (!sessions?.length) return NextResponse.json({ error: 'no sessions' }, { status: 404 })
 
   const now = Date.now()
   const finished = sessions.filter((s) => new Date(s.date_end).getTime() < now).sort((a, b) => b.year - a.year)
 
   for (const session of finished.slice(0, 3)) {
-    const laps = await getJson<OpenF1Lap[]>(`/laps?session_key=${session.session_key}`)
+    const laps = await openf1Get<OpenF1Lap[]>(`/laps?session_key=${session.session_key}`, REVALIDATE)
     const best = laps ? pickBest(laps) : null
     if (!best) continue
 
-    const drivers = await getJson<OpenF1Driver[]>(
+    const drivers = await openf1Get<OpenF1Driver[]>(
       `/drivers?session_key=${session.session_key}&driver_number=${best.driver_number}`,
+      REVALIDATE,
     )
     const driver = drivers?.[0]
     const payload: BestLap = {

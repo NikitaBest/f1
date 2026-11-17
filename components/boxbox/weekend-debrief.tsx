@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { ArrowLeft } from 'lucide-react'
 import { shortName } from '@/lib/f1'
 import { fetchWeekendDebrief, type DebriefDriver, type WeekendDebrief } from '@/lib/jolpica'
+import { DebriefStints } from './debrief-stints'
 import { PilotAvatar } from './pilot-avatar'
 
 function finishOf(d: DebriefDriver) {
@@ -161,6 +162,12 @@ export function WeekendDebriefScreen({
               </li>
             ))}
           </ul>
+
+          <DebriefStints
+            circuitId={data.circuit.circuitId}
+            year={data.season}
+            codes={data.raceDrivers.map((d) => d.code)}
+          />
 
           <div className="sec-title">
             <h2 className="disp">Pit stops</h2>

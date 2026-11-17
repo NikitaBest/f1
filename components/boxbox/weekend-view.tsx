@@ -4,6 +4,12 @@ import { useState, type CSSProperties } from 'react'
 import { ChevronDown, ChevronUp, ImagePlus, X } from 'lucide-react'
 import { useNow } from '@/lib/use-now'
 import { hasCircuit, TrackLap } from './track-lap'
+import { WeekendGrid } from './weekend-grid'
+import { WeekendLive } from './weekend-live'
+import { WeekendRaceFeed } from './weekend-race-feed'
+import { WeekendTeamRadio } from './weekend-team-radio'
+import { WeekendTelemetry } from './weekend-telemetry'
+import { WeekendWeather } from './weekend-weather'
 import { addDays, hhmm, hintFor, mon, pad, parseISODate, shortName, weekday, type RaceEvent } from '@/lib/f1'
 
 const PHOTO_KEY = (id: string) => `boxbox:wk-img:${id}`
@@ -117,6 +123,11 @@ export function WeekendCard({
   const { photo, save, clear } = useWeekendPhoto(event.id)
   const [open, setOpen] = useState(false)
   const [lapOpen, setLapOpen] = useState(false)
+  const [liveOpen, setLiveOpen] = useState(false)
+  const [gridOpen, setGridOpen] = useState(false)
+  const [feedOpen, setFeedOpen] = useState(false)
+  const [radioOpen, setRadioOpen] = useState(false)
+  const [telemOpen, setTelemOpen] = useState(false)
   const nextIdx = event.sessions.findIndex((s) => new Date(s.at).getTime() > now)
   const next = event.sessions[nextIdx]
   const start = parseISODate(event.start)
@@ -178,6 +189,7 @@ export function WeekendCard({
         </div>
         {next ? <Countdown target={new Date(next.at).getTime()} /> : null}
       </div>
+      {circuitId ? <WeekendWeather circuitId={circuitId} /> : null}
       <ul className="sched">
         {showAll
           ? event.sessions.map((s, i) => {
@@ -204,6 +216,64 @@ export function WeekendCard({
           {showAll ? <ChevronUp size={18} aria-hidden="true" /> : <ChevronDown size={18} aria-hidden="true" />}
         </button>
       )}
+      {circuitId ? (
+        <>
+          <button
+            type="button"
+            className="wk-more wk-live-toggle"
+            aria-expanded={gridOpen}
+            onClick={() => setGridOpen((v) => !v)}
+          >
+            <span>{gridOpen ? 'Скрыть решётку' : 'Стартовая решётка'}</span>
+            {gridOpen ? <ChevronUp size={18} aria-hidden="true" /> : <ChevronDown size={18} aria-hidden="true" />}
+          </button>
+          {gridOpen ? <WeekendGrid circuitId={circuitId} /> : null}
+
+          <button
+            type="button"
+            className="wk-more wk-live-toggle"
+            aria-expanded={liveOpen}
+            onClick={() => setLiveOpen((v) => !v)}
+          >
+            <span>{liveOpen ? 'Скрыть эфир' : 'Эфир / результат'}</span>
+            {liveOpen ? <ChevronUp size={18} aria-hidden="true" /> : <ChevronDown size={18} aria-hidden="true" />}
+          </button>
+          {liveOpen ? <WeekendLive circuitId={circuitId} /> : null}
+
+          <button
+            type="button"
+            className="wk-more wk-live-toggle"
+            aria-expanded={feedOpen}
+            onClick={() => setFeedOpen((v) => !v)}
+          >
+            <span>{feedOpen ? 'Скрыть питы' : 'Питы и обгоны'}</span>
+            {feedOpen ? <ChevronUp size={18} aria-hidden="true" /> : <ChevronDown size={18} aria-hidden="true" />}
+          </button>
+          {feedOpen ? <WeekendRaceFeed circuitId={circuitId} /> : null}
+
+          <button
+            type="button"
+            className="wk-more wk-live-toggle"
+            aria-expanded={radioOpen}
+            onClick={() => setRadioOpen((v) => !v)}
+          >
+            <span>{radioOpen ? 'Скрыть радио' : 'Team radio'}</span>
+            {radioOpen ? <ChevronUp size={18} aria-hidden="true" /> : <ChevronDown size={18} aria-hidden="true" />}
+          </button>
+          {radioOpen ? <WeekendTeamRadio circuitId={circuitId} /> : null}
+
+          <button
+            type="button"
+            className="wk-more wk-live-toggle"
+            aria-expanded={telemOpen}
+            onClick={() => setTelemOpen((v) => !v)}
+          >
+            <span>{telemOpen ? 'Скрыть телеметрию' : 'GPS и телеметрия'}</span>
+            {telemOpen ? <ChevronUp size={18} aria-hidden="true" /> : <ChevronDown size={18} aria-hidden="true" />}
+          </button>
+          {telemOpen ? <WeekendTelemetry circuitId={circuitId} /> : null}
+        </>
+      ) : null}
       {canLap && circuitId ? (
         <>
           <button

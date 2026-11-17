@@ -2,8 +2,10 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { RotateCcw } from 'lucide-react'
-import { CIRCUITS } from '@/lib/circuits'
 import type { BestLap } from '@/app/api/best-lap/route'
+import type { CircuitProfile } from '@/app/api/circuit/route'
+import type { LapRecord } from '@/app/api/lap-record/route'
+import { CIRCUITS } from '@/lib/circuits'
 
 const DEMO_SPLITS: [number, number] = [1 / 3, 1 / 3]
 
@@ -11,6 +13,16 @@ const LOOP_MS = 11_000
 const TAIL = 14
 const AVG_KMH = 205
 const PLANE = 'translate(50 36) scale(0.76 0.47) rotate(-16) translate(-50 -50)'
+
+type TurnMark = { n: string; x: number; y: number }
+
+function typeLabel(type?: string) {
+  if (!type) return null
+  if (/street/i.test(type)) return 'Street'
+  if (/road/i.test(type)) return 'Road'
+  if (/permanent/i.test(type)) return 'Permanent'
+  return type
+}
 
 /** Слои машины: смещение по экранной вертикали даёт объём и «подъём» над асфальтом. */
 const CAR_LAYERS = [
@@ -71,10 +83,17 @@ export function TrackLap({ circuitId }: { circuitId: string }) {
   const [reduced, setReduced] = useState(false)
 
   const [best, setBest] = useState<BestLap | null>(null)
+  const [record, setRecord] = useState<LapRecord | null>(null)
+  const [profile, setProfile] = useState<CircuitProfile | null>(null)
+  const [turns, setTurns] = useState<TurnMark[]>([])
 
   useEffect(() => {
     let cancelled = false
     setBest(null)
+    setRecord(null)
+    setProfile(null)
+    setTurns([])
+
     fetch(`/api/best-lap?circuit=${encodeURIComponent(circuitId)}`)
       .then(async (res) => {
         if (!res.ok) throw new Error('no lap data')
@@ -86,10 +105,56 @@ export function TrackLap({ circuitId }: { circuitId: string }) {
       .catch(() => {
         if (!cancelled) setBest(null)
       })
+
+    fetch(`/api/lap-record?circuit=${encodeURIComponent(circuitId)}`)
+      .then(async (res) => {
+        if (!res.ok) throw new Error('no lap record')
+        return res.json() as Promise<LapRecord>
+      })
+      .then((data) => {
+        if (!cancelled) setRecord(data)
+      })
+      .catch(() => {
+        if (!cancelled) setRecord(null)
+      })
+
+    fetch(`/api/circuit?circuit=${encodeURIComponent(circuitId)}`)
+      .then(async (res) => {
+        if (!res.ok) throw new Error('no circuit')
+        return res.json() as Promise<CircuitProfile>
+      })
+      .then((data) => {
+        if (!cancelled) setProfile(data)
+      })
+      .catch(() => {
+        if (!cancelled) setProfile(null)
+      })
+
     return () => {
       cancelled = true
     }
   }, [circuitId])
+
+  useEffect(() => {
+    const track = trackRef.current
+    if (!track || !circuit || !profile?.corners.length) {
+      setTurns([])
+      return
+    }
+    const len = track.getTotalLength()
+    const total = circuit.length || 1
+    setTurns(
+      profile.corners.map((c) => {
+        const p = Math.min(0.995, Math.max(0.002, c.length / total))
+        const pt = track.getPointAtLength(p * len)
+        return {
+          n: c.letter ? `${c.number}${c.letter}` : String(c.number),
+          x: pt.x,
+          y: pt.y,
+        }
+      }),
+    )
+  }, [circuit, profile])
 
   const lapMs = useMemo(() => {
     if (best) return best.lap * 1000
@@ -169,12 +234,28 @@ export function TrackLap({ circuitId }: { circuitId: string }) {
 
   if (!circuit) return null
 
+  const kind = typeLabel(profile?.type)
+  const place = profile ? [profile.location, profile.country].filter(Boolean).join(' · ') : null
+
   return (
     <section className="lap" aria-label={`Схема трассы: ${circuit.name}`}>
       <div className="lap-head">
         <div>
           <span className="eyebrow">{best ? `Круг · квалификация ${best.year}` : 'Круг · 3D демо'}</span>
           <h3 className="disp">{circuit.name}</h3>
+          {place || kind ? (
+            <p className="lap-meta">
+              {kind ? <span>{kind}</span> : null}
+              {kind && place ? <span aria-hidden="true"> · </span> : null}
+              {place ? <span>{place}</span> : null}
+              {profile?.corners.length ? (
+                <>
+                  <span aria-hidden="true"> · </span>
+                  <span>{profile.corners.length} поворотов</span>
+                </>
+              ) : null}
+            </p>
+          ) : null}
         </div>
         <button
           type="button"
@@ -235,6 +316,14 @@ export function TrackLap({ circuitId }: { circuitId: string }) {
             strokeDasharray="0 200"
           />
           <path ref={trackRef} d={circuit.path} fill="none" stroke="none" />
+          {turns.map((t) => (
+            <g key={t.n} className="lap-turn" transform={`translate(${t.x.toFixed(2)} ${t.y.toFixed(2)})`}>
+              <circle r="2.1" />
+              <text y="0.7" textAnchor="middle">
+                {t.n}
+              </text>
+            </g>
+          ))}
         </g>
 
         {CAR_LAYERS.map((layer, i) => (
@@ -251,6 +340,16 @@ export function TrackLap({ circuitId }: { circuitId: string }) {
           </g>
         ))}
       </svg>
+
+      {profile?.corners.length ? (
+        <div className="lap-turns" aria-label="Повороты">
+          {profile.corners.map((c) => (
+            <span key={`${c.number}${c.letter ?? ''}`} className="lap-turn-chip">
+              T{c.letter ? `${c.number}${c.letter}` : c.number}
+            </span>
+          ))}
+        </div>
+      ) : null}
 
       <div
         className="lap-secs"
@@ -270,6 +369,38 @@ export function TrackLap({ circuitId }: { circuitId: string }) {
           <b className="disp num">{clock}</b>
         </div>
       </div>
+
+      {(record || profile?.pitLoss) && (
+        <div className="lap-stats" aria-label="Данные трассы">
+          {record ? (
+            <div className="lap-record">
+              <small>Рекорд гонки</small>
+              <b className="disp num">{record.time}</b>
+              <span>
+                {record.code} · {record.driver} · {record.year}
+                {record.avgSpeed ? ` · ${Number(record.avgSpeed).toFixed(1)} км/ч` : ''}
+              </span>
+            </div>
+          ) : null}
+          {profile?.pitLoss ? (
+            <div className="lap-pitloss" aria-label="Потеря на пит-стопе">
+              <span>
+                <small>Pit</small>
+                <b className="num">{profile.pitLoss.normal}s</b>
+              </span>
+              <span>
+                <small>SC</small>
+                <b className="num">{profile.pitLoss.sc}s</b>
+              </span>
+              <span>
+                <small>VSC</small>
+                <b className="num">{profile.pitLoss.vsc}s</b>
+              </span>
+            </div>
+          ) : null}
+        </div>
+      )}
+
       <p className="lap-foot">
         {best ? (
           <>
