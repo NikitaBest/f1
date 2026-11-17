@@ -6,6 +6,7 @@ import { Activity, ArrowUpRight, LayoutGrid, Mic, Route, Timer, Tv, X } from 'lu
 import { TrackLap } from './track-lap'
 import { WeekendGrid } from './weekend-grid'
 import { WeekendLive } from './weekend-live'
+import { FeedPreview, GridPreview, LapPreview, LivePreview, RadioPreview, TelemPreview } from './weekend-previews'
 import { WeekendRaceFeed } from './weekend-race-feed'
 import { WeekendTeamRadio } from './weekend-team-radio'
 import { WeekendTelemetry } from './weekend-telemetry'
@@ -16,60 +17,67 @@ type FeatureKey = 'live' | 'grid' | 'feed' | 'radio' | 'telem' | 'lap'
 
 type Feature = {
   key: FeatureKey
+  tag: string
   title: string
-  sub: string
   sheetTitle: string
   icon: ComponentType<{ size?: number; 'aria-hidden'?: boolean }>
+  preview: (circuitId: string) => React.ReactNode
   render: (circuitId: string) => React.ReactNode
 }
 
 const FEATURES: Record<FeatureKey, Feature> = {
   live: {
     key: 'live',
+    tag: 'Live timing',
     title: 'Эфир',
-    sub: 'Позиции, интервалы и флаги в реальном времени',
     sheetTitle: 'Эфир и результат',
     icon: Tv,
+    preview: (id) => <LivePreview circuitId={id} />,
     render: (id) => <WeekendLive circuitId={id} />,
   },
   grid: {
     key: 'grid',
+    tag: 'Grid',
     title: 'Решётка',
-    sub: 'Стартовое построение',
     sheetTitle: 'Стартовая решётка',
     icon: LayoutGrid,
+    preview: (id) => <GridPreview circuitId={id} />,
     render: (id) => <WeekendGrid circuitId={id} />,
   },
   feed: {
     key: 'feed',
+    tag: 'Pit wall',
     title: 'Питы',
-    sub: 'Остановки и обгоны',
     sheetTitle: 'Питы и обгоны',
     icon: Timer,
+    preview: (id) => <FeedPreview circuitId={id} />,
     render: (id) => <WeekendRaceFeed circuitId={id} />,
   },
   radio: {
     key: 'radio',
+    tag: 'Team radio',
     title: 'Radio',
-    sub: 'Переговоры гонщиков',
     sheetTitle: 'Team radio',
     icon: Mic,
+    preview: (id) => <RadioPreview circuitId={id} />,
     render: (id) => <WeekendTeamRadio circuitId={id} />,
   },
   telem: {
     key: 'telem',
+    tag: 'GPS',
     title: 'Телеметрия',
-    sub: 'GPS и скорость',
     sheetTitle: 'GPS и телеметрия',
     icon: Activity,
+    preview: (id) => <TelemPreview circuitId={id} />,
     render: (id) => <WeekendTelemetry circuitId={id} />,
   },
   lap: {
     key: 'lap',
+    tag: 'Track lap',
     title: 'Круг трассы',
-    sub: 'Повороты, DRS и сектора на карте',
     sheetTitle: 'Круг трассы',
     icon: Route,
+    preview: (id) => <LapPreview circuitId={id} />,
     render: (id) => <TrackLap circuitId={id} />,
   },
 }
@@ -128,7 +136,7 @@ function Sheet({
     <div className="bb-sheet-root">
       <div className="bb-sheet-backdrop" onClick={onClose} aria-hidden="true" />
       <section
-        className="bb-sheet"
+        className="bb-sheet wp-sheet"
         role="dialog"
         aria-modal="true"
         aria-label={feature.sheetTitle}
@@ -143,7 +151,7 @@ function Sheet({
         >
           <span className="bb-sheet-grab" aria-hidden="true" />
           <div className="bb-sheet-row">
-            <span className="hub-ico" aria-hidden="true">
+            <span className="wp-ico" aria-hidden="true">
               <Icon size={18} aria-hidden />
             </span>
             <div className="bb-sheet-txt">
@@ -169,7 +177,7 @@ function Sheet({
   )
 }
 
-/** Плитки всех возможностей уикенда; содержимое открывается в нижней шторке. */
+/** Плитки возможностей уикенда с живым превью данных; полный контент открывается в шторке. */
 export function WeekendHub({
   circuitId,
   canLap,
@@ -183,7 +191,7 @@ export function WeekendHub({
 }) {
   const [open, setOpen] = useState<FeatureKey | null>(null)
   const [host, setHost] = useState<HTMLElement | null>(null)
-  const anchor = useRef<HTMLDivElement>(null)
+  const anchor = useRef<HTMLElement>(null)
 
   useEffect(() => {
     setHost(anchor.current?.closest<HTMLElement>('.bb-app') ?? null)
@@ -193,12 +201,12 @@ export function WeekendHub({
   const active = open ? FEATURES[open] : null
 
   return (
-    <div className="hub" ref={anchor}>
-      <div className="hub-top">
-        <span className="eyebrow">Возможности уикенда</span>
-        <span className="hub-count num">{tiles.length}</span>
+    <section className="wp-blk wp-hub" ref={anchor} aria-label="Возможности уикенда">
+      <div className="wp-sec">
+        <span className="wp-tag">Модули уикенда</span>
+        <span className="wp-tag dim num">{tiles.length} шт</span>
       </div>
-      <div className="hub-grid">
+      <div className="wp-hub-grid">
         {tiles.map((key) => {
           const f = FEATURES[key]
           const Icon = f.icon
@@ -208,43 +216,34 @@ export function WeekendHub({
             <button
               key={key}
               type="button"
-              className={`hub-tile hub-${key} ${wide ? 'wide' : ''} ${hero ? 'hero' : ''}`}
+              className={`wp-tile wp-tile-${key} ${wide ? 'wide' : ''} ${hero ? 'hero' : ''}`}
               onClick={() => setOpen(key)}
               aria-haspopup="dialog"
             >
-              <span className="hub-tile-top">
-                <span className="hub-ico" aria-hidden="true">
-                  <Icon size={18} aria-hidden />
+              <span className="wp-tile-head">
+                <span className="wp-ico" aria-hidden="true">
+                  <Icon size={16} aria-hidden />
                 </span>
+                <span className="wp-tile-tag">{f.tag}</span>
                 {hero ? (
-                  <span className={`hub-chip ${phase}`}>
+                  <span className={`wp-chip ${phase}`}>
                     {phase === 'live' ? <i aria-hidden="true" /> : null}
                     {PHASE_CHIP[phase]}
                   </span>
                 ) : null}
-              </span>
-              <span className="hub-tile-bot">
-                <span className="hub-txt">
-                  <span className="disp hub-title">{f.title}</span>
-                  <span className="hub-sub">{f.sub}</span>
-                </span>
-                <span className="hub-go" aria-hidden="true">
-                  <ArrowUpRight size={16} />
+                <span className="wp-go" aria-hidden="true">
+                  <ArrowUpRight size={15} />
                 </span>
               </span>
+              <span className="wp-tile-title disp">{f.title}</span>
+              <span className="wp-tile-body">{f.preview(circuitId)}</span>
             </button>
           )
         })}
       </div>
       {active && host ? (
-        <Sheet
-          feature={active}
-          circuitId={circuitId}
-          eyebrow={eyebrow}
-          host={host}
-          onClose={() => setOpen(null)}
-        />
+        <Sheet feature={active} circuitId={circuitId} eyebrow={eyebrow} host={host} onClose={() => setOpen(null)} />
       ) : null}
-    </div>
+    </section>
   )
 }

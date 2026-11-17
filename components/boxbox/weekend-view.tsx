@@ -1,12 +1,16 @@
 'use client'
 
 import { useState, type CSSProperties } from 'react'
-import { ArrowUpRight, ChevronRight, ImagePlus, X } from 'lucide-react'
+import { ArrowUpRight, ChevronRight } from 'lucide-react'
 import { useNow } from '@/lib/use-now'
 import { hasCircuit } from './track-lap'
+import { WeekendCircuit } from './weekend-circuit'
+import { WeekendHero } from './weekend-hero'
 import { WeekendHub, type WeekendPhase } from './weekend-hub'
+import { WeekendSchedule } from './weekend-schedule'
 import { WeekendWeather } from './weekend-weather'
-import { addDays, hhmm, hintFor, mon, pad, parseISODate, shortName, weekday, type RaceEvent } from '@/lib/f1'
+import './weekend-page.css'
+import { addDays, hhmm, mon, pad, parseISODate, shortName, weekday, type RaceEvent } from '@/lib/f1'
 
 const PHOTO_KEY = (id: string) => `boxbox:wk-img:${id}`
 const FALLBACKS = ['/img/night-city.jpg', '/img/sunset-start.jpg', '/img/lights.jpg', '/img/flag.jpg']
@@ -75,30 +79,6 @@ function Countdown({ target }: { target: number }) {
         </div>
       ))}
     </div>
-  )
-}
-
-function SessionRow({
-  session,
-  at,
-  state,
-}: {
-  session: RaceEvent['sessions'][number]
-  at: Date
-  state: '' | 'next' | 'past'
-}) {
-  return (
-    <li className={`ses ${session.key === 'r' ? 'race' : ''} ${state}`}>
-      <div>
-        <div className="t num">{hhmm(at)}</div>
-        <div className="d">{weekday(at)}</div>
-      </div>
-      <div>
-        <div className="n">{session.label}</div>
-        <div className="h">{hintFor(session.key)}</div>
-      </div>
-      <span className="st">{state === 'next' ? 'Далее' : state === 'past' ? 'Прошла' : ''}</span>
-    </li>
   )
 }
 
@@ -179,9 +159,6 @@ export function WeekendCard({
 }) {
   const now = useNow(30_000)
   const { photo, save, clear } = useWeekendPhoto(event.id)
-  const nextIdx = event.sessions.findIndex((s) => new Date(s.at).getTime() > now)
-  const next = event.sessions[nextIdx]
-  const dates = weekendDates(event)
   const title = shortName(event.name)
   const circuitId = event.circuitId
   const canLap = Boolean(circuitId && hasCircuit(circuitId))
@@ -190,64 +167,24 @@ export function WeekendCard({
   const phase: WeekendPhase = now < first ? 'before' : now > last + 2 * 3_600_000 ? 'after' : 'live'
 
   return (
-    <article className="wk" aria-label={`Уикенд: ${event.name}`}>
-      <div className="wk-head" style={{ '--bg': `url("${photo ?? eventImage(event)}")` } as CSSProperties}>
-        <div className="wk-top">
-          <span className="eyebrow" style={{ color: 'var(--sun)' }}>
-            Раунд {pad(round)} · {season}
-          </span>
-          <div className="wk-tools">
-            <label className="wk-up" title="Своё фото уикенда">
-              <ImagePlus size={16} aria-hidden="true" />
-              <span className="sr-only">Загрузить своё фото уикенда</span>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => {
-                  const f = e.target.files?.[0]
-                  if (f) void save(f)
-                  e.target.value = ''
-                }}
-              />
-            </label>
-            {photo && (
-              <button type="button" className="wk-up" onClick={clear} aria-label="Убрать своё фото">
-                <X size={16} aria-hidden="true" />
-              </button>
-            )}
-          </div>
-        </div>
-        <h2 className="wk-name disp" style={{ fontSize: title.length > 10 ? 52 : 64 }}>
-          {title}
-        </h2>
-        <div className="wk-meta">
-          <b>{event.place}</b>
-          <span>{dates}</span>
-        </div>
-      </div>
-      <div className="cd">
-        <div className="cd-label">
-          <span>До старта</span>
-          <b>{next ? next.label : 'Уикенд завершён'}</b>
-        </div>
-        {next ? <Countdown target={new Date(next.at).getTime()} /> : null}
-      </div>
-      {circuitId ? <WeekendWeather circuitId={circuitId} /> : null}
+    <article className="wp" aria-label={`Уикенд: ${event.name}`}>
+      <WeekendHero
+        event={event}
+        round={round}
+        season={season}
+        title={title}
+        dates={weekendDates(event)}
+        image={photo ?? eventImage(event)}
+        custom={Boolean(photo)}
+        onPick={(file) => void save(file)}
+        onClear={clear}
+      />
+      <WeekendSchedule event={event} />
       {circuitId ? (
-        <WeekendHub
-          circuitId={circuitId}
-          canLap={canLap}
-          phase={phase}
-          eyebrow={`Раунд ${pad(round)} · ${title}`}
-        />
+        <WeekendHub circuitId={circuitId} canLap={canLap} phase={phase} eyebrow={`Раунд ${pad(round)} · ${title}`} />
       ) : null}
-      <ul className="sched">
-        {event.sessions.map((s, i) => {
-          const at = new Date(s.at)
-          const state = i === nextIdx ? 'next' : at.getTime() < now ? 'past' : ''
-          return <SessionRow key={s.key} session={s} at={at} state={state} />
-        })}
-      </ul>
+      {circuitId ? <WeekendCircuit circuitId={circuitId} /> : null}
+      {circuitId ? <WeekendWeather circuitId={circuitId} /> : null}
     </article>
   )
 }
