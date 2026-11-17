@@ -854,6 +854,12 @@ html[data-theme='verstappen'],
   text-transform: uppercase;
   cursor: pointer;
 }
+.wk-lap-toggle {
+  background: color-mix(in srgb, var(--navy) 4%, var(--white));
+}
+.wk .lap {
+  margin-top: 12px;
+}
 
 /* ---------- driver detail ---------- */
 .drv-poster {

@@ -116,6 +116,7 @@ export function WeekendCard({
   const now = useNow(30_000)
   const { photo, save, clear } = useWeekendPhoto(event.id)
   const [open, setOpen] = useState(false)
+  const [lapOpen, setLapOpen] = useState(false)
   const nextIdx = event.sessions.findIndex((s) => new Date(s.at).getTime() > now)
   const next = event.sessions[nextIdx]
   const start = parseISODate(event.start)
@@ -128,6 +129,8 @@ export function WeekendCard({
   const focusIdx = nextIdx >= 0 ? nextIdx : Math.max(0, event.sessions.length - 1)
   const hidden = Math.max(0, event.sessions.length - 1)
   const showAll = !compact || open || forceOpen
+  const circuitId = event.circuitId
+  const canLap = Boolean(circuitId && hasCircuit(circuitId))
 
   return (
     <article className={`wk${compact ? ' compact' : ''}`} aria-label={`Ближайший уикенд: ${event.name}`}>
@@ -175,7 +178,6 @@ export function WeekendCard({
         </div>
         {next ? <Countdown target={new Date(next.at).getTime()} /> : null}
       </div>
-      {showAll && hasCircuit(event.circuitId) && event.circuitId ? <TrackLap circuitId={event.circuitId} /> : null}
       <ul className="sched">
         {showAll
           ? event.sessions.map((s, i) => {
@@ -198,10 +200,24 @@ export function WeekendCard({
           aria-expanded={showAll}
           onClick={() => setOpen((v) => !v)}
         >
-          <span>{showAll ? 'Свернуть' : `Весь уикенд · ${event.sessions.length}`}</span>
+          <span>{showAll ? 'Свернуть расписание' : `Расписание · ${event.sessions.length}`}</span>
           {showAll ? <ChevronUp size={18} aria-hidden="true" /> : <ChevronDown size={18} aria-hidden="true" />}
         </button>
       )}
+      {canLap && circuitId ? (
+        <>
+          <button
+            type="button"
+            className="wk-more wk-lap-toggle"
+            aria-expanded={lapOpen}
+            onClick={() => setLapOpen((v) => !v)}
+          >
+            <span>{lapOpen ? 'Скрыть круг' : 'Круг трассы'}</span>
+            {lapOpen ? <ChevronUp size={18} aria-hidden="true" /> : <ChevronDown size={18} aria-hidden="true" />}
+          </button>
+          {lapOpen ? <TrackLap circuitId={circuitId} /> : null}
+        </>
+      ) : null}
     </article>
   )
 }
