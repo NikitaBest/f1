@@ -98,6 +98,21 @@ export function startPoint(path: string) {
   return first ?? { x: 50, y: 50 }
 }
 
+/** Доля круга для пина. MultiViewer `length` часто не в метрах — нормализуем сами. */
+export function cornerProgress(
+  corners: { length: number; progress?: number }[],
+  corner: { length: number; progress?: number },
+  trackMeters: number,
+) {
+  if (typeof corner.progress === 'number' && Number.isFinite(corner.progress) && corner.progress > 0) {
+    return Math.min(0.995, Math.max(0.002, corner.progress))
+  }
+  const maxLen = Math.max(1, ...corners.map((c) => c.length || 0))
+  // Если единицы MV >> длины трассы в метрах — делим на max, иначе на метры
+  const denom = maxLen > trackMeters * 1.35 ? maxLen : Math.max(1, trackMeters)
+  return Math.min(0.995, Math.max(0.002, corner.length / denom))
+}
+
 export function WeekendCircuit({ circuitId }: { circuitId: string }) {
   const shape = CIRCUITS[circuitId]
   const { data: profile } = useWk<CircuitProfile>('circuit', circuitId)
@@ -109,9 +124,9 @@ export function WeekendCircuit({ circuitId }: { circuitId: string }) {
   const track = useMemo(() => (shape ? projectTrack(shape.path) : null), [shape])
 
   const pins = useMemo<Pin[]>(() => {
-    if (!shape || !track || !profile) return []
+    if (!shape || !track || !profile?.corners.length) return []
     return profile.corners.map((c, i) => {
-      const at = Math.min(0.995, Math.max(0.002, c.length / shape.length))
+      const at = cornerProgress(profile.corners, c, shape.length)
       const p = pointAt(track, at)
       return {
         n: String(c.number).padStart(2, '0') + (c.letter ?? ''),

@@ -4,8 +4,10 @@ import { openf1CircuitKey, openf1Get } from '@/lib/openf1'
 export type CircuitCorner = {
   number: number
   letter?: string
-  /** Метры от линии старта (MultiViewer). */
+  /** Сырая дистанция MultiViewer (не метры трассы). */
   length: number
+  /** Доля круга 0…1 от линии старта. */
+  progress: number
 }
 
 export type CircuitProfile = {
@@ -50,6 +52,22 @@ type MvCircuit = {
   corners?: MvCorner[]
   pitLoss?: { normal?: string; sc?: string; vsc?: string }
   year?: number
+  x?: number[]
+  y?: number[]
+}
+
+function mvLapUnits(mv: MvCircuit) {
+  const xs = mv.x
+  const ys = mv.y
+  if (xs?.length && ys?.length && xs.length === ys.length) {
+    let total = 0
+    for (let i = 1; i < xs.length; i++) {
+      total += Math.hypot(xs[i]! - xs[i - 1]!, ys[i]! - ys[i - 1]!)
+    }
+    if (total > 0) return total
+  }
+  const maxCorner = Math.max(0, ...(mv.corners ?? []).map((c) => Number(c.length) || 0))
+  return maxCorner || 1
 }
 
 async function getMv(url: string): Promise<MvCircuit | null> {
@@ -90,14 +108,19 @@ export async function GET(req: NextRequest) {
     }
   }
 
+  const denom = mv ? mvLapUnits(mv) : 1
   const corners: CircuitCorner[] = (mv?.corners ?? [])
     .filter((c) => Number.isFinite(c.number) && Number.isFinite(c.length))
-    .map((c) => ({
-      number: c.number,
-      letter: c.letter || undefined,
-      length: Number(c.length),
-    }))
-    .sort((a, b) => a.length - b.length || a.number - b.number)
+    .map((c) => {
+      const length = Number(c.length)
+      return {
+        number: c.number,
+        letter: c.letter || undefined,
+        length,
+        progress: Math.min(0.999, Math.max(0, length / denom)),
+      }
+    })
+    .sort((a, b) => a.progress - b.progress || a.number - b.number)
 
   const pit = mv?.pitLoss
   const payload: CircuitProfile = {

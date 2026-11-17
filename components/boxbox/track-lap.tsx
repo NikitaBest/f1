@@ -6,6 +6,7 @@ import type { BestLap } from '@/app/api/best-lap/route'
 import type { CircuitProfile } from '@/app/api/circuit/route'
 import type { LapRecord } from '@/app/api/lap-record/route'
 import { CIRCUITS } from '@/lib/circuits'
+import { cornerProgress } from './weekend-circuit'
 
 const DEMO_SPLITS: [number, number] = [1 / 3, 1 / 3]
 
@@ -142,10 +143,9 @@ export function TrackLap({ circuitId }: { circuitId: string }) {
       return
     }
     const len = track.getTotalLength()
-    const total = circuit.length || 1
     setTurns(
       profile.corners.map((c) => {
-        const p = Math.min(0.995, Math.max(0.002, c.length / total))
+        const p = cornerProgress(profile.corners, c, circuit.length || 1)
         const pt = track.getPointAtLength(p * len)
         return {
           n: c.letter ? `${c.number}${c.letter}` : String(c.number),
