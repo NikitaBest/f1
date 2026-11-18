@@ -288,126 +288,215 @@
   background: repeating-conic-gradient(#fff 0 25%, var(--navy) 0 50%) 0 0 / 4px 4px;
 }
 
+.wx-live {
+  position: relative;
+  isolation: isolate;
+}
+.wx-live::before {
+  content: '';
+  position: absolute;
+  inset: -20px -16px auto;
+  height: 380px;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(
+      -62deg,
+      transparent 0 46px,
+      rgba(255, 255, 255, 0.035) 46px 92px
+    );
+  -webkit-mask-image: linear-gradient(180deg, #000, transparent);
+  mask-image: linear-gradient(180deg, #000, transparent);
+}
+
 .wx-podium {
   display: grid;
-  grid-template-columns: 1fr 1.15fr 1fr;
+  grid-template-columns: 1fr 1.12fr 1fr;
   align-items: end;
-  gap: 8px;
+  gap: 6px;
 }
 .wx-pod {
+  --h: 188px;
   position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
+  display: block;
+  height: var(--h);
   overflow: hidden;
-  padding: 14px 6px 12px;
-  border: 1px solid var(--wx-line);
-  border-top: 3px solid var(--tc);
-  border-radius: 16px;
-  background: linear-gradient(180deg, color-mix(in srgb, var(--tc) 22%, transparent), var(--wx-glass) 70%);
-  text-align: center;
+  border-radius: 6px 6px 0 0;
+  background:
+    linear-gradient(165deg, color-mix(in srgb, var(--tc) 100%, #fff 8%), color-mix(in srgb, var(--tc) 55%, #000) 100%);
+  text-align: left;
 }
 .wx-pod.p1 {
-  padding-top: 22px;
-  padding-bottom: 16px;
-  border-color: color-mix(in srgb, var(--tc) 60%, var(--wx-line));
-}
-.wx-pod.p1 .wx-av.av {
-  width: 64px;
-  height: 64px;
+  --h: 232px;
 }
 .wx-pod-no {
   position: absolute;
-  top: -6px;
+  z-index: 2;
+  top: 2px;
   left: 6px;
   font-family: var(--display);
-  font-size: 64px;
+  font-size: 84px;
   line-height: 1;
-  color: transparent;
-  -webkit-text-stroke: 1.5px rgba(255, 255, 255, 0.28);
+  color: #fff;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.18);
+  pointer-events: none;
 }
 .wx-pod.p1 .wx-pod-no {
-  -webkit-text-stroke-color: var(--wx-neon);
-  font-size: 76px;
+  font-size: 104px;
 }
-.wx-pod-code {
-  margin-top: 6px;
-  font-family: var(--display);
-  font-size: 24px;
-  line-height: 1;
+.wx-pod .av.wx-pod-ph {
+  position: absolute;
+  inset: 0 0 38px;
+  width: auto;
+  height: auto;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
 }
-.wx-pod-team {
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: 9px !important;
+.wx-pod .av.wx-pod-ph img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 12%;
 }
 .wx-pod-gap {
-  margin-top: 4px;
-  padding: 3px 8px;
-  border-radius: 99px;
-  background: rgba(0, 0, 0, 0.4);
-  font-size: 11px;
-  font-weight: 700;
+  position: absolute;
+  z-index: 3;
+  right: 0;
+  bottom: 38px;
+  padding: 5px 9px 4px;
+  background: rgba(0, 0, 0, 0.62);
+  font-family: var(--display);
+  font-size: 14px;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  color: #fff;
+}
+.wx-pod-plate {
+  position: absolute;
+  z-index: 3;
+  inset: auto 0 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 38px;
+  padding: 0 10px;
+  background: color-mix(in srgb, var(--tc) 72%, #000);
+  border-top: 2px solid rgba(255, 255, 255, 0.55);
+}
+.wx-pod-logo {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  flex: none;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35));
+}
+.wx-pod-code {
+  font-family: var(--display);
+  font-size: 22px;
+  line-height: 1;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: #fff;
 }
 .wx-pod.fav {
-  box-shadow: 0 0 0 1.5px var(--wx-neon);
+  box-shadow: 0 0 0 2px var(--wx-neon);
 }
 
 .wx-board {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 2px;
+  margin-top: -6px;
 }
 .wx-board li {
   display: grid;
-  grid-template-columns: 30px 4px 36px minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 10px;
-  padding: 7px 12px 7px 8px;
-  border-radius: 12px;
-  background: var(--wx-glass);
+  grid-template-columns: 34px minmax(0, 1.25fr) minmax(0, 1fr) auto;
+  align-items: stretch;
+  min-height: 44px;
+  background: rgba(255, 255, 255, 0.05);
+}
+.wx-board li:nth-child(even) {
+  background: rgba(255, 255, 255, 0.025);
 }
 .wx-board li.fav {
-  background: color-mix(in srgb, var(--wx-neon) 12%, transparent);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--wx-neon) 55%, transparent);
+  background: color-mix(in srgb, var(--wx-neon) 14%, transparent);
+  box-shadow: inset 0 0 0 1.5px var(--wx-neon);
 }
 .wx-board-pos {
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--red);
   font-family: var(--display);
-  font-size: 22px;
+  font-size: 18px;
   line-height: 1;
-}
-.wx-board-bar {
-  align-self: stretch;
-  border-radius: 99px;
-  background: var(--tc);
+  color: #fff;
 }
 .wx-board-who {
   display: flex;
   flex-direction: column;
+  justify-content: center;
   gap: 2px;
   min-width: 0;
+  padding: 0 8px 0 10px;
+  border-left: 3px solid var(--tc);
+  margin-left: 6px;
 }
 .wx-board-who b {
-  font-size: 14px;
-  letter-spacing: 0.04em;
-}
-.wx-board-who small {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 9px;
-}
-.wx-board-gap {
-  font-size: 12px;
+  font-family: var(--display);
+  font-size: 15px;
   font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: #fff;
+}
+.wx-board-who small {
+  font-size: 9px;
+  letter-spacing: 0.14em;
   color: var(--wx-dim);
 }
+.wx-board-team {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+}
+.wx-board-team img {
+  width: 24px;
+  height: 24px;
+  padding: 3px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.92);
+  object-fit: contain;
+  flex: none;
+}
+.wx-board-team small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--display);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.78);
+}
+.wx-board-gap {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 58px;
+  padding: 0 10px;
+  font-family: var(--display);
+  font-size: 13px;
+  letter-spacing: 0.03em;
+  color: var(--wx-neon);
+}
 .wx-board-gap.out {
-  color: #ff3b30;
+  color: #ff5a4f;
 }
 
 .wx-timeline {

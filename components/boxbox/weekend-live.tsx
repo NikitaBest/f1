@@ -1,6 +1,7 @@
 'use client'
 
 import type { LiveBoard, LiveStanding } from '@/app/api/live/route'
+import { teamLogoUrl } from '@/lib/teams'
 import { useTheme } from '@/lib/store'
 import { PilotAvatar } from './pilot-avatar'
 import { useWk } from './weekend-data'
@@ -38,10 +39,14 @@ function Podium({ rows, favCode }: { rows: LiveStanding[]; favCode?: string }) {
           <span className="wx-pod-no" aria-hidden="true">
             {r.position}
           </span>
-          <PilotAvatar code={r.code} className="wx-av" />
-          <b className="wx-pod-code">{r.code}</b>
-          <small className="wx-pod-team">{r.team || r.name}</small>
+          <PilotAvatar code={r.code} className="wx-pod-ph" />
           <span className="wx-pod-gap num">{r.status ? r.status.toUpperCase() : r.gap}</span>
+          <span className="wx-pod-plate">
+            {teamLogoUrl(r.team) ? (
+              <img src={teamLogoUrl(r.team)} alt="" className="wx-pod-logo" />
+            ) : null}
+            <b className="wx-pod-code">{r.code}</b>
+          </span>
         </li>
       ))}
     </ol>
@@ -84,11 +89,13 @@ export function WeekendLive({ circuitId }: { circuitId: string }) {
             style={cssVars({ '--tc': r.color, '--i': i })}
           >
             <span className="wx-board-pos num">{r.position}</span>
-            <i className="wx-board-bar" aria-hidden="true" />
-            <PilotAvatar code={r.code} className="wx-av sm" />
             <span className="wx-board-who">
-              <b>{r.code}</b>
-              <small>{r.team || r.name}</small>
+              <b>{r.name || r.code}</b>
+              <small>{r.code}</small>
+            </span>
+            <span className="wx-board-team">
+              {teamLogoUrl(r.team) ? <img src={teamLogoUrl(r.team)} alt="" /> : null}
+              <small>{r.team}</small>
             </span>
             <span className={`wx-board-gap num${r.status ? ' out' : ''}`}>
               {r.status ? r.status.toUpperCase() : r.gap}
