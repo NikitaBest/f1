@@ -13,7 +13,9 @@ export function useWk<T>(path: string, circuitId?: string, refreshMs?: number) {
   const key = circuitId ? `/api/${path}?circuit=${encodeURIComponent(circuitId)}` : null
   return useSWR<T>(key, fetcher, {
     revalidateOnFocus: false,
-    shouldRetryOnError: false,
+    shouldRetryOnError: true,
+    errorRetryCount: 3,
+    errorRetryInterval: 1200,
     dedupingInterval: 60_000,
     refreshInterval: refreshMs,
   })

@@ -36,15 +36,28 @@ export function openf1CircuitKey(circuitId?: string | null) {
   return OPENF1_CIRCUIT_KEY[circuitId]
 }
 
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+/** Fetch OpenF1 with short retries on 429 / 5xx (weekend hub fires many calls at once). */
 export async function openf1Get<T>(path: string, revalidate = 3600): Promise<T | null> {
-  try {
-    const res = await fetch(`${OPENF1_UPSTREAM}${path}`, {
-      headers: { Accept: 'application/json' },
-      next: { revalidate },
-    })
-    if (!res.ok) return null
-    return (await res.json()) as T
-  } catch {
-    return null
+  const url = `${OPENF1_UPSTREAM}${path}`
+  for (let attempt = 0; attempt < 4; attempt++) {
+    try {
+      const res = await fetch(url, {
+        headers: { Accept: 'application/json' },
+        ...(revalidate <= 0 ? { cache: 'no-store' as const } : { next: { revalidate } }),
+      })
+      if (res.status === 429 || res.status >= 500) {
+        await sleep(250 * (attempt + 1) + Math.random() * 250)
+        continue
+      }
+      if (!res.ok) return null
+      return (await res.json()) as T
+    } catch {
+      await sleep(200 * (attempt + 1))
+    }
   }
+  return null
 }
